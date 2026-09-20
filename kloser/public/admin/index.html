@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Klosers — Panel de ofertas</title>
+<style>
+  :root{ --green:#0B3D2E; --gold:#AD7F12; --bg:#FAF7EF; --card:#FBF8F0; --border:rgba(180,136,31,0.35); }
+  *{box-sizing:border-box;}
+  body{font-family:ui-sans-serif,system-ui,sans-serif;background:var(--bg);color:#132A20;margin:0;padding:24px;}
+  .wrap{max-width:640px;margin:0 auto;}
+  h1{color:var(--green);font-size:1.5rem;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:20px;}
+  textarea,input,select{width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:#fff;font-size:0.95rem;margin-top:6px;}
+  textarea{min-height:140px;}
+  label{font-size:0.85rem;font-weight:600;display:block;margin-top:14px;}
+  button{background:var(--gold);color:var(--green);font-weight:700;border:none;border-radius:999px;padding:12px 22px;cursor:pointer;margin-top:16px;}
+  button:disabled{opacity:0.5;cursor:not-allowed;}
+  button.secondary{background:transparent;border:1px solid var(--green);color:var(--green);}
+  .msg{margin-top:14px;font-size:0.9rem;}
+  .msg.ok{color:var(--green);}
+  .msg.error{color:#A5432F;}
+  #gate{max-width:340px;margin:100px auto;}
+  .row{display:flex;gap:10px;}
+  .row > div{flex:1;}
+  .tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
+  .tab-btn{background:transparent;border:1px solid var(--border);color:var(--green);border-radius:999px;padding:8px 16px;font-size:0.85rem;margin-top:0;font-weight:600;}
+  .tab-btn.active{background:var(--green);color:#fff;border-color:var(--green);}
+  table{width:100%;border-collapse:collapse;font-size:0.85rem;background:#fff;border-radius:10px;overflow:hidden;}
+  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--border);}
+  th{background:var(--card);font-weight:700;}
+  .badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:0.75rem;font-weight:700;}
+  .badge.si{background:#0B3D2E;color:#F0D48A;}
+  .badge.no{background:#eee;color:#666;}
+  .badge.activa{background:#0B3D2E;color:#F0D48A;}
+  .badge.pausada{background:#AD7F12;color:#fff;}
+  .badge.cerrada{background:#A5432F;color:#fff;}
+  .badge.revision{background:#888;color:#fff;}
+  .action-btn{padding:5px 10px;font-size:0.75rem;margin:2px 3px 2px 0;border-radius:6px;font-weight:600;}
+  .action-btn.danger{background:#A5432F;color:#fff;}
+  .action-btn.ghost{background:transparent;border:1px solid var(--border);color:var(--green);}
+  .action-btn.star{background:#F0D48A;color:#0B3D2E;}
+  .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px;}
+  .controls select{margin-top:0;width:auto;}
+</style>
+</head>
+<body>
+
+<div id="gate" class="card">
+  <h1>Klosers admin</h1>
+  <label>Contraseña</label>
+  <input type="password" id="pw-input">
+  <button onclick="entrar()">Entrar</button>
+  <p class="msg error" id="gate-error"></p>
+</div>
+
+<div id="panel" class="wrap" style="display:none;max-width:1100px;">
+  <div class="tabs">
+    <button class="tab-btn active" id="tab-btn-ofertas" onclick="cambiarTab('ofertas')">Añadir oferta</button>
+    <button class="tab-btn" id="tab-btn-gestionar" onclick="cambiarTab('gestionar')">Gestionar ofertas</button>
+    <button class="tab-btn" id="tab-btn-registros" onclick="cambiarTab('registros')">Registros y postulaciones</button>
+  </div>
+
+  <div id="tab-ofertas">
+  <h1>Añadir oferta</h1>
+
+  <div class="card">
+    <label>1. Pega aquí el texto de la oferta (LinkedIn, Indeed, Closer Skool, WhatsApp...)</label>
+    <textarea id="texto-bruto" placeholder="Pega el post completo tal cual..."></textarea>
+    <button onclick="extraer()" id="btn-extraer">Extraer con IA</button>
+    <p class="msg" id="extraer-msg"></p>
+  </div>
+
+  <div class="card" id="form-card" style="display:none;">
+    <label>Título</label>
+    <input id="f-titulo">
+
+    <label>Empresa</label>
+    <input id="f-empresa" placeholder="Nombre de la empresa">
+
+    <label>Fuente</label>
+    <select id="f-fuente">
+      <option>LinkedIn (manual)</option>
+      <option>Indeed (manual)</option>
+      <option>Closer Skool (manual)</option>
+      <option>WhatsApp (manual)</option>
+      <option>Otro (manual)</option>
+    </select>
+
+    <div class="row">
+      <div>
+        <label>Modalidad</label>
+        <select id="f-modalidad"><option>Remoto</option><option>Híbrido</option><option>Presencial</option></select>
+      </div>
+      <div>
+        <label>Target</label>
+        <select id="f-target"><option>B2B</option><option>B2C</option><option>Ambos</option></select>
+      </div>
+    </div>
+
+    <label>Ciudad / Provincia</label>
+    <input id="f-ciudad">
+
+    <label>Rango de ticket</label>
+    <select id="f-ticket">
+      <option value="<500€">&lt;500€</option>
+      <option>500€-3.000€</option>
+      <option>High Ticket >3.000€</option>
+      <option>Gestión de cartera +100k€</option>
+    </select>
+
+    <label>Tipo de remuneración</label>
+    <select id="f-remuneracion"><option>Fijo+Variable</option><option>Solo comisión</option><option>Gastos pagados</option></select>
+
+    <label>Rol (uno por línea)</label>
+    <textarea id="f-rol" style="min-height:60px;"></textarea>
+
+    <label>Sector (uno por línea)</label>
+    <textarea id="f-sector" style="min-height:60px;"></textarea>
+
+    <label>URL de origen (opcional)</label>
+    <input id="f-url">
+
+    <button onclick="guardar()" id="btn-guardar">Guardar oferta</button>
+    <button class="secondary" onclick="document.getElementById('form-card').style.display='none'">Cancelar</button>
+    <p class="msg" id="guardar-msg"></p>
+  </div>
+  </div>
+
+  <div id="tab-gestionar" style="display:none;">
+    <h1>Gestionar ofertas</h1>
+
+    <div class="controls">
+      <select id="filtro-estado" onchange="renderTablaOfertas()">
+        <option value="Todas">Todas</option>
+        <option value="Activa">Activas</option>
+        <option value="Pausada">Pausadas</option>
+        <option value="Cerrada">Cerradas</option>
+        <option value="Revisión Manual">Revisión manual</option>
+      </select>
+      <select id="orden-ofertas" onchange="renderTablaOfertas()">
+        <option value="fecha_desc">Más recientes primero</option>
+        <option value="fecha_asc">Más antiguas primero</option>
+        <option value="ticket_desc">Ticket: mayor a menor</option>
+        <option value="ticket_asc">Ticket: menor a mayor</option>
+        <option value="destacado">Destacadas primero</option>
+      </select>
+      <button onclick="cargarOfertasAdmin()" id="btn-refrescar-ofertas">Actualizar</button>
+    </div>
+    <p class="msg" id="ofertas-admin-msg"></p>
+
+    <div style="overflow-x:auto;">
+      <table id="tabla-gestion-ofertas"><thead><tr>
+        <th>Título</th><th>Empresa</th><th>Fuente</th><th>Modalidad</th><th>Ticket</th><th>Estado</th><th>Publicada</th><th>Acciones</th>
+      </tr></thead><tbody></tbody></table>
+    </div>
+  </div>
+
+  <div id="tab-registros" style="display:none;">
+    <h1>Registros y postulaciones</h1>
+    <button onclick="cargarRegistros()" id="btn-refrescar">Actualizar</button>
+    <p class="msg" id="registros-msg"></p>
+
+    <div class="card">
+      <h2 style="margin-top:0;font-size:1.1rem;color:var(--green);">Usuarios registrados</h2>
+      <div style="overflow-x:auto;">
+        <table id="tabla-usuarios"><thead><tr>
+          <th>Nombre</th><th>Email</th><th>Plan</th><th>Verificado</th><th>Postulaciones restantes</th><th>Alta</th>
+        </tr></thead><tbody></tbody></table>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2 style="margin-top:0;font-size:1.1rem;color:var(--green);">Postulaciones</h2>
+      <div style="overflow-x:auto;">
+        <table id="tabla-postulaciones"><thead><tr>
+          <th>Usuario</th><th>Email</th><th>Oferta</th><th>% Compatibilidad</th><th>Fecha</th>
+        </tr></thead><tbody></tbody></table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let ADMIN_PW = sessionStorage.getItem('klosers_admin_pw') || '';
+let ultimoTextoOriginal = '';
+
+if (ADMIN_PW) mostrarPanel();
+
+function entrar(){
+  ADMIN_PW = document.getElementById('pw-input').value;
+  sessionStorage.setItem('klosers_admin_pw', ADMIN_PW);
+  mostrarPanel();
+}
+
+function mostrarPanel(){
+  document.getElementById('gate').style.display = 'none';
+  document.getElementById('panel').style.display = 'block';
+}
+
+function cambiarTab(tab){
+  document.getElementById('tab-ofertas').style.display = tab === 'ofertas' ? 'block' : 'none';
+  document.getElementById('tab-gestionar').style.display = tab === 'gestionar' ? 'block' : 'none';
+  document.getElementById('tab-registros').style.display = tab === 'registros' ? 'block' : 'none';
+  document.getElementById('tab-btn-ofertas').classList.toggle('active', tab === 'ofertas');
+  document.getElementById('tab-btn-gestionar').classList.toggle('active', tab === 'gestionar');
+  document.getElementById('tab-btn-registros').classList.toggle('active', tab === 'registros');
+  if (tab === 'registros') cargarRegistros();
+  if (tab === 'gestionar') cargarOfertasAdmin();
+}
+
+async function cargarRegistros(){
+  const msg = document.getElementById('registros-msg');
+  const btn = document.getElementById('btn-refrescar');
+  btn.disabled = true; msg.textContent = 'Cargando...'; msg.className = 'msg';
+
+  try {
+    const r = await fetch('/api/admin-datos', { headers: { 'x-admin-password': ADMIN_PW } });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || 'Error al cargar');
+
+    const tbodyUsuarios = document.querySelector('#tabla-usuarios tbody');
+    tbodyUsuarios.innerHTML = data.usuarios.map(u => `
+      <tr>
+        <td>${u.nombre_completo}</td>
+        <td>${u.email}</td>
+        <td>${u.plan_stripe}</td>
+        <td><span class="badge ${u.insignia_verificado ? 'si' : 'no'}">${u.insignia_verificado ? 'Sí' : 'No'}</span></td>
+        <td>${u.postulaciones_restantes}</td>
+        <td>${new Date(u.created_at).toLocaleDateString('es-ES')}</td>
+      </tr>`).join('') || '<tr><td colspan="6">Sin registros todavía.</td></tr>';
+
+    const tbodyPost = document.querySelector('#tabla-postulaciones tbody');
+    tbodyPost.innerHTML = data.postulaciones.map(m => `
+      <tr>
+        <td>${m.usuarios?.nombre_completo || '—'}</td>
+        <td>${m.usuarios?.email || '—'}</td>
+        <td>${m.ofertas?.titulo_oferta || '—'}</td>
+        <td>${m.porcentaje_compatibilidad ?? '—'}%</td>
+        <td>${new Date(m.created_at).toLocaleDateString('es-ES')}</td>
+      </tr>`).join('') || '<tr><td colspan="5">Sin postulaciones todavía.</td></tr>';
+
+    msg.textContent = '';
+  } catch (err) {
+    msg.textContent = err.message; msg.className = 'msg error';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+/* ===================== GESTIONAR OFERTAS ===================== */
+let ofertasCache = [];
+
+async function cargarOfertasAdmin(){
+  const msg = document.getElementById('ofertas-admin-msg');
+  const btn = document.getElementById('btn-refrescar-ofertas');
+  btn.disabled = true; msg.textContent = 'Cargando...'; msg.className = 'msg';
+
+  try {
+    const r = await fetch('/api/admin-datos', { headers: { 'x-admin-password': ADMIN_PW } });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || 'Error al cargar');
+
+    ofertasCache = data.ofertas || [];
+    renderTablaOfertas();
+    msg.textContent = '';
+  } catch (err) {
+    msg.textContent = err.message; msg.className = 'msg error';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+const ORDEN_TICKET = ['<500€', '500€-3.000€', 'High Ticket >3.000€', 'Gestión de cartera +100k€'];
+
+function renderTablaOfertas(){
+  const filtro = document.getElementById('filtro-estado').value;
+  const orden = document.getElementById('orden-ofertas').value;
+
+  let lista = ofertasCache.filter(o => filtro === 'Todas' || o.estado_oferta === filtro);
+
+  lista.sort((a, b) => {
+    if (orden === 'fecha_desc') return new Date(b.fecha_publicacion) - new Date(a.fecha_publicacion);
+    if (orden === 'fecha_asc') return new Date(a.fecha_publicacion) - new Date(b.fecha_publicacion);
+    if (orden === 'ticket_desc') return ORDEN_TICKET.indexOf(b.rango_ticket_oferta) - ORDEN_TICKET.indexOf(a.rango_ticket_oferta);
+    if (orden === 'ticket_asc') return ORDEN_TICKET.indexOf(a.rango_ticket_oferta) - ORDEN_TICKET.indexOf(b.rango_ticket_oferta);
+    if (orden === 'destacado') return (b.destacado - a.destacado) || (b.orden_destacado - a.orden_destacado);
+    return 0;
+  });
+
+  const badgeClass = { Activa: 'activa', Pausada: 'pausada', Cerrada: 'cerrada', 'Revisión Manual': 'revision' };
+
+  document.querySelector('#tabla-gestion-ofertas tbody').innerHTML = lista.map(o => `
+    <tr>
+      <td>${o.destacado ? '⭐ ' : ''}${o.titulo_oferta || '—'}</td>
+      <td>${o.empresa_nombre || '—'}</td>
+      <td>${o.fuente || '—'}</td>
+      <td>${o.modalidad_oferta || '—'}</td>
+      <td>${o.rango_ticket_oferta || '—'}</td>
+      <td><span class="badge ${badgeClass[o.estado_oferta] || 'no'}">${o.estado_oferta}</span></td>
+      <td>${o.fecha_publicacion ? new Date(o.fecha_publicacion).toLocaleDateString('es-ES') : '—'}</td>
+      <td style="white-space:nowrap;">
+        ${o.estado_oferta === 'Activa'
+          ? `<button class="action-btn ghost" onclick="accionOferta('${o.id}','pausar')">Pausar</button>`
+          : `<button class="action-btn ghost" onclick="accionOferta('${o.id}','activar')">Activar</button>`}
+        <button class="action-btn ghost" onclick="accionOferta('${o.id}','cerrar')">Completar</button>
+        ${o.destacado
+          ? `<button class="action-btn star" onclick="accionOferta('${o.id}','quitar_destacado')">Quitar destacado</button>`
+          : `<button class="action-btn star" onclick="accionOferta('${o.id}','destacar')">⭐ Subir al top</button>`}
+        <button class="action-btn danger" onclick="eliminarOferta('${o.id}')">Eliminar</button>
+      </td>
+    </tr>`).join('') || '<tr><td colspan="8">No hay ofertas con este filtro.</td></tr>';
+}
+
+async function accionOferta(id, accion){
+  try {
+    const r = await fetch('/api/admin-actualizar-oferta', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-password': ADMIN_PW },
+      body: JSON.stringify({ id, accion }),
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || 'Error al actualizar');
+    await cargarOfertasAdmin();
+  } catch (err) {
+    document.getElementById('ofertas-admin-msg').textContent = err.message;
+    document.getElementById('ofertas-admin-msg').className = 'msg error';
+  }
+}
+
+function eliminarOferta(id){
+  if (!confirm('¿Seguro que quieres eliminar esta oferta? No se puede deshacer.')) return;
+  accionOferta(id, 'eliminar');
+}
+
+async function extraer(){
+  const texto = document.getElementById('texto-bruto').value.trim();
+  const msg = document.getElementById('extraer-msg');
+  const btn = document.getElementById('btn-extraer');
+  if (texto.length < 20) { msg.textContent = 'Pega el texto completo de la oferta primero.'; msg.className = 'msg error'; return; }
+
+  ultimoTextoOriginal = texto;
+  btn.disabled = true; msg.textContent = 'Extrayendo...'; msg.className = 'msg';
+
+  try {
+    const r = await fetch('/api/clasificar-oferta', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-password': ADMIN_PW },
+      body: JSON.stringify({ texto }),
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || 'Error al extraer');
+
+    document.getElementById('f-titulo').value = data.titulo === 'No especificado' ? '' : data.titulo;
+    document.getElementById('f-empresa').value = data.empresa === 'No especificado' ? '' : (data.empresa || '');
+    document.getElementById('f-modalidad').value = data.modalidad === 'No especificado' ? 'Remoto' : data.modalidad;
+    document.getElementById('f-target').value = data.target === 'No especificado' ? 'B2B' : data.target;
+    document.getElementById('f-ciudad').value = data.ciudad_provincia === 'No especificado' ? '' : data.ciudad_provincia;
+    document.getElementById('f-ticket').value = data.rango_ticket === 'No especificado' ? '<500€' : data.rango_ticket;
+    document.getElementById('f-remuneracion').value = data.tipo_remuneracion === 'No especificado' ? 'Fijo+Variable' : data.tipo_remuneracion;
+    document.getElementById('f-rol').value = (data.rol || []).join('\n');
+    document.getElementById('f-sector').value = (data.sector || []).join('\n');
+
+    document.getElementById('form-card').style.display = 'block';
+    msg.textContent = 'Revisa los campos antes de guardar.'; msg.className = 'msg ok';
+  } catch (err) {
+    msg.textContent = err.message; msg.className = 'msg error';
+  } finally {
+    btn.disabled = false;
+  }
+}
+
+async function guardar(){
+  const btn = document.getElementById('btn-guardar');
+  const msg = document.getElementById('guardar-msg');
+  btn.disabled = true; msg.textContent = 'Guardando...'; msg.className = 'msg';
+
+  const payload = {
+    titulo: document.getElementById('f-titulo').value,
+    empresa: document.getElementById('f-empresa').value,
+    fuente: document.getElementById('f-fuente').value,
+    modalidad: document.getElementById('f-modalidad').value,
+    target: document.getElementById('f-target').value,
+    ciudad_provincia: document.getElementById('f-ciudad').value,
+    rango_ticket: document.getElementById('f-ticket').value,
+    tipo_remuneracion: document.getElementById('f-remuneracion').value,
+    rol: document.getElementById('f-rol').value.split('\n').map(s=>s.trim()).filter(Boolean),
+    sector: document.getElementById('f-sector').value.split('\n').map(s=>s.trim()).filter(Boolean),
+    url_origen: document.getElementById('f-url').value,
+    texto_original: ultimoTextoOriginal,
+  };
+
+  try {
+    const r = await fetch('/api/add-oferta', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-password': ADMIN_PW },
+      body: JSON.stringify(payload),
+    });
+    const data = await r.json();
+    if (!r.ok) throw new Error(data.error || 'Error al guardar');
+
+    msg.textContent = '¡Guardada! Ya está visible en Klosers.'; msg.className = 'msg ok';
+    document.getElementById('texto-bruto').value = '';
+    setTimeout(() => { document.getElementById('form-card').style.display = 'none'; msg.textContent=''; }, 2500);
+  } catch (err) {
+    msg.textContent = err.message; msg.className = 'msg error';
+  } finally {
+    btn.disabled = false;
+  }
+}
+</script>
+</body>
+</html>

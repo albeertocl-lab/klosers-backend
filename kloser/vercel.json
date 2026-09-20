@@ -1,0 +1,7 @@
+{
+  "crons": [
+    { "path": "/api/ingest-todas", "schedule": "0 6 * * *" },
+    { "path": "/api/reset-postulaciones-semanal", "schedule": "0 0 * * 1" },
+    { "path": "/api/alerta-semanal-manual", "schedule": "0 9 * * 1" }
+  ]
+}
