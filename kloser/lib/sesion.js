@@ -53,6 +53,25 @@ async function sbUpdate(tabla, filtro, cambios) {
   return r.json();
 }
 
+async function sbInsert(tabla, fila) {
+  const r = await fetch(`${base()}/rest/v1/${tabla}`, {
+    method: 'POST',
+    headers: cabeceras({ Prefer: 'return=representation' }),
+    body: JSON.stringify(fila),
+  });
+  if (!r.ok) throw new Error(`Supabase insert ${tabla} (${r.status}): ${await r.text()}`);
+  return r.json();
+}
+
+async function sbDelete(tabla, filtro) {
+  const r = await fetch(`${base()}/rest/v1/${tabla}?${filtro}`, {
+    method: 'DELETE',
+    headers: cabeceras({ Prefer: 'return=representation' }),
+  });
+  if (!r.ok) throw new Error(`Supabase delete ${tabla} (${r.status}): ${await r.text()}`);
+  return r.json();
+}
+
 async function sbRpc(funcion, args) {
   const r = await fetch(`${base()}/rest/v1/rpc/${funcion}`, {
     method: 'POST',
@@ -77,4 +96,4 @@ function leerJson(req) {
   return b;
 }
 
-module.exports = { usuarioDesdeToken, sbSelect, sbUpdate, sbRpc, leerJson };
+module.exports = { usuarioDesdeToken, sbSelect, sbUpdate, sbInsert, sbDelete, sbRpc, leerJson };

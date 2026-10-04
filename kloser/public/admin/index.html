@@ -3,416 +3,1024 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Klosers — Panel de ofertas</title>
+<meta name="robots" content="noindex,nofollow">
+<title>Klosers — Panel de administración</title>
 <style>
-  :root{ --green:#0B3D2E; --gold:#AD7F12; --bg:#FAF7EF; --card:#FBF8F0; --border:rgba(180,136,31,0.35); }
+  :root{ --green:#0B3D2E; --gold:#AD7F12; --gold-light:#F0D48A; --bg:#FAF7EF; --card:#FBF8F0; --border:rgba(180,136,31,0.35); --danger:#A5432F; --ink:#132A20; --soft:#5b6b62; }
   *{box-sizing:border-box;}
-  body{font-family:ui-sans-serif,system-ui,sans-serif;background:var(--bg);color:#132A20;margin:0;padding:24px;}
-  .wrap{max-width:640px;margin:0 auto;}
-  h1{color:var(--green);font-size:1.5rem;}
-  .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:24px;margin-bottom:20px;}
-  textarea,input,select{width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:#fff;font-size:0.95rem;margin-top:6px;}
-  textarea{min-height:140px;}
+  body{font-family:ui-sans-serif,system-ui,sans-serif;background:var(--bg);color:var(--ink);margin:0;padding:24px;}
+  .wrap{max-width:1180px;margin:0 auto;}
+  h1{color:var(--green);font-size:1.5rem;margin:0 0 14px;}
+  h2{color:var(--green);font-size:1.05rem;margin:0 0 12px;}
+  .card{background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:20px;}
+  textarea,input,select{width:100%;padding:10px;border-radius:8px;border:1px solid var(--border);background:#fff;font-size:0.95rem;margin-top:6px;font-family:inherit;color:var(--ink);}
+  textarea{min-height:120px;}
+  input[type=checkbox]{width:auto;margin:0;}
   label{font-size:0.85rem;font-weight:600;display:block;margin-top:14px;}
-  button{background:var(--gold);color:var(--green);font-weight:700;border:none;border-radius:999px;padding:12px 22px;cursor:pointer;margin-top:16px;}
+  button{background:var(--gold);color:var(--green);font-weight:700;border:none;border-radius:999px;padding:11px 20px;cursor:pointer;margin-top:14px;font-family:inherit;font-size:0.9rem;}
   button:disabled{opacity:0.5;cursor:not-allowed;}
   button.secondary{background:transparent;border:1px solid var(--green);color:var(--green);}
-  .msg{margin-top:14px;font-size:0.9rem;}
-  .msg.ok{color:var(--green);}
-  .msg.error{color:#A5432F;}
+  button.danger{background:var(--danger);color:#fff;}
+  .msg{margin-top:12px;font-size:0.9rem;}
+  .msg.ok{color:var(--green);} .msg.error{color:var(--danger);}
   #gate{max-width:340px;margin:100px auto;}
-  .row{display:flex;gap:10px;}
-  .row > div{flex:1;}
+  .row{display:flex;gap:10px;} .row>div{flex:1;}
+  .topbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:16px;}
+  .topbar .brand{font-weight:800;color:var(--green);font-size:1.1rem;}
+  .topbar button{margin-top:0;padding:7px 14px;font-size:0.8rem;}
   .tabs{display:flex;gap:8px;margin-bottom:20px;flex-wrap:wrap;}
-  .tab-btn{background:transparent;border:1px solid var(--border);color:var(--green);border-radius:999px;padding:8px 16px;font-size:0.85rem;margin-top:0;font-weight:600;}
+  .tab-btn{background:transparent;border:1px solid var(--border);color:var(--green);border-radius:999px;padding:8px 16px;font-size:0.85rem;margin-top:0;font-weight:600;position:relative;}
   .tab-btn.active{background:var(--green);color:#fff;border-color:var(--green);}
-  table{width:100%;border-collapse:collapse;font-size:0.85rem;background:#fff;border-radius:10px;overflow:hidden;}
-  th,td{text-align:left;padding:10px 12px;border-bottom:1px solid var(--border);}
-  th{background:var(--card);font-weight:700;}
-  .badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:0.75rem;font-weight:700;}
-  .badge.si{background:#0B3D2E;color:#F0D48A;}
-  .badge.no{background:#eee;color:#666;}
-  .badge.activa{background:#0B3D2E;color:#F0D48A;}
-  .badge.pausada{background:#AD7F12;color:#fff;}
-  .badge.cerrada{background:#A5432F;color:#fff;}
-  .badge.revision{background:#888;color:#fff;}
-  .action-btn{padding:5px 10px;font-size:0.75rem;margin:2px 3px 2px 0;border-radius:6px;font-weight:600;}
-  .action-btn.danger{background:#A5432F;color:#fff;}
+  .tab-btn .dot{position:absolute;top:-6px;right:-4px;background:var(--danger);color:#fff;border-radius:999px;font-size:0.65rem;padding:1px 6px;font-weight:800;}
+  table{width:100%;border-collapse:collapse;font-size:0.84rem;background:#fff;border-radius:10px;overflow:hidden;}
+  th,td{text-align:left;padding:9px 11px;border-bottom:1px solid var(--border);vertical-align:top;}
+  th{background:var(--card);font-weight:700;white-space:nowrap;}
+  td .sub{color:var(--soft);font-size:0.76rem;margin-top:2px;}
+  .scroll{overflow-x:auto;}
+  .badge{display:inline-block;padding:2px 8px;border-radius:999px;font-size:0.73rem;font-weight:700;white-space:nowrap;}
+  .badge.si,.badge.activa,.badge.ok,.badge.elite,.badge.aprobado{background:var(--green);color:var(--gold-light);}
+  .badge.no,.badge.rookie{background:#eee;color:#666;}
+  .badge.pausada,.badge.pro,.badge.parcial{background:var(--gold);color:#fff;}
+  .badge.cerrada,.badge.error{background:var(--danger);color:#fff;}
+  .badge.revision,.badge.curso{background:#888;color:#fff;}
+  .badge.manual{background:var(--gold-light);color:var(--green);}
+  .action-btn{padding:5px 10px;font-size:0.74rem;margin:2px 3px 2px 0;border-radius:6px;font-weight:600;}
+  .action-btn.danger{background:var(--danger);color:#fff;}
   .action-btn.ghost{background:transparent;border:1px solid var(--border);color:var(--green);}
-  .action-btn.star{background:#F0D48A;color:#0B3D2E;}
-  .controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px;}
-  .controls select{margin-top:0;width:auto;}
+  .action-btn.star{background:var(--gold-light);color:var(--green);}
+  .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:12px;}
+  .toolbar input,.toolbar select{margin-top:0;width:auto;min-width:130px;}
+  .toolbar input[type=search]{min-width:220px;flex:1;}
+  .toolbar button{margin-top:0;padding:9px 16px;}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin-bottom:20px;}
+  .kpi{background:#fff;border:1px solid var(--border);border-radius:14px;padding:16px;}
+  .kpi .n{font-size:1.7rem;font-weight:800;color:var(--green);line-height:1.1;}
+  .kpi .l{font-size:0.78rem;color:var(--soft);margin-top:4px;}
+  .kpi .s{font-size:0.78rem;margin-top:6px;color:var(--ink);}
+  .alerta{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 14px;border-radius:10px;margin-bottom:8px;font-size:0.88rem;background:#fff;border:1px solid var(--border);}
+  .alerta.aviso{border-left:4px solid var(--gold);} .alerta.malo{border-left:4px solid var(--danger);} .alerta.bien{border-left:4px solid var(--green);}
+  .alerta button{margin-top:0;padding:5px 12px;font-size:0.76rem;}
+  .bulkbar{display:none;align-items:center;gap:8px;flex-wrap:wrap;background:var(--green);color:#fff;padding:10px 14px;border-radius:10px;margin-bottom:12px;font-size:0.86rem;}
+  .bulkbar.on{display:flex;}
+  .bulkbar button{margin-top:0;padding:6px 14px;font-size:0.78rem;}
+  .pager{display:flex;align-items:center;justify-content:flex-end;gap:10px;margin-top:12px;font-size:0.84rem;}
+  .pager button{margin-top:0;padding:6px 14px;font-size:0.8rem;}
+  .modal-bg{position:fixed;inset:0;background:rgba(10,30,22,.55);display:none;align-items:flex-start;justify-content:center;padding:30px 16px;overflow-y:auto;z-index:50;}
+  .modal-bg.on{display:flex;}
+  .modal{background:var(--bg);border:1px solid var(--border);border-radius:18px;max-width:760px;width:100%;padding:24px;}
+  .modal h2{font-size:1.2rem;}
+  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:0 14px;}
+  @media(max-width:640px){.grid2{grid-template-columns:1fr;} body{padding:12px;}}
+  .chips{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:8px;}
+  .chk{display:flex;align-items:center;gap:6px;font-weight:500;margin:0;font-size:0.84rem;}
+  .ficha{display:grid;grid-template-columns:150px 1fr;gap:6px 12px;font-size:0.86rem;margin:10px 0;}
+  .ficha dt{color:var(--soft);} .ficha dd{margin:0;word-break:break-word;}
+  .actions-row{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:12px;}
+  .actions-row button,.actions-row select{margin-top:0;width:auto;}
+  .small{font-size:0.8rem;color:var(--soft);}
+  .toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:var(--green);color:#fff;padding:11px 20px;border-radius:12px;font-size:0.88rem;z-index:100;max-width:90vw;}
+  .toast.error{background:var(--danger);}
+  .vacio{padding:26px;text-align:center;color:var(--soft);}
 </style>
 </head>
 <body>
 
 <div id="gate" class="card">
   <h1>Klosers admin</h1>
-  <label>Contraseña</label>
-  <input type="password" id="pw-input">
-  <button onclick="entrar()">Entrar</button>
-  <p class="msg error" id="gate-error"></p>
+  <label for="pw-input">Contraseña</label>
+  <input type="password" id="pw-input" autocomplete="current-password">
+  <button id="btn-entrar">Entrar</button>
+  <p class="msg error" id="gate-error" role="alert"></p>
 </div>
 
-<div id="panel" class="wrap" style="display:none;max-width:1100px;">
-  <div class="tabs">
-    <button class="tab-btn active" id="tab-btn-ofertas" onclick="cambiarTab('ofertas')">Añadir oferta</button>
-    <button class="tab-btn" id="tab-btn-gestionar" onclick="cambiarTab('gestionar')">Gestionar ofertas</button>
-    <button class="tab-btn" id="tab-btn-registros" onclick="cambiarTab('registros')">Registros y postulaciones</button>
+<div id="panel" class="wrap" style="display:none;">
+  <div class="topbar">
+    <span class="brand">Klosers · Administración</span>
+    <button class="secondary" id="btn-salir">Cerrar sesión</button>
   </div>
 
-  <div id="tab-ofertas">
-  <h1>Añadir oferta</h1>
-
-  <div class="card">
-    <label>1. Pega aquí el texto de la oferta (LinkedIn, Indeed, Closer Skool, WhatsApp...)</label>
-    <textarea id="texto-bruto" placeholder="Pega el post completo tal cual..."></textarea>
-    <button onclick="extraer()" id="btn-extraer">Extraer con IA</button>
-    <p class="msg" id="extraer-msg"></p>
+  <div class="tabs" id="tabs">
+    <button class="tab-btn active" data-tab="resumen">Resumen</button>
+    <button class="tab-btn" data-tab="anadir">Añadir oferta</button>
+    <button class="tab-btn" data-tab="ofertas">Gestionar ofertas</button>
+    <button class="tab-btn" data-tab="usuarios">Usuarios <span class="dot" id="dot-usuarios" style="display:none;"></span></button>
+    <button class="tab-btn" data-tab="postulaciones">Postulaciones</button>
+    <button class="tab-btn" data-tab="ingesta">Ingesta</button>
+    <button class="tab-btn" data-tab="espera">Lista de espera</button>
+    <button class="tab-btn" data-tab="actividad">Actividad</button>
   </div>
 
-  <div class="card" id="form-card" style="display:none;">
-    <label>Título</label>
-    <input id="f-titulo">
+  <!-- RESUMEN -->
+  <section id="vista-resumen">
+    <h1>Resumen</h1>
+    <div id="resumen-alertas"></div>
+    <div class="kpis" id="resumen-kpis"></div>
+    <div class="card">
+      <h2>Ofertas por fuente</h2>
+      <div class="scroll"><table><thead><tr><th>Fuente</th><th>Activas</th><th>Total</th></tr></thead><tbody id="resumen-fuentes"></tbody></table></div>
+    </div>
+    <p class="msg" id="resumen-msg"></p>
+  </section>
 
-    <label>Empresa</label>
-    <input id="f-empresa" placeholder="Nombre de la empresa">
-
-    <label>Fuente</label>
-    <select id="f-fuente">
-      <option>LinkedIn (manual)</option>
-      <option>Indeed (manual)</option>
-      <option>Closer Skool (manual)</option>
-      <option>WhatsApp (manual)</option>
-      <option>Otro (manual)</option>
-    </select>
-
-    <div class="row">
-      <div>
-        <label>Modalidad</label>
-        <select id="f-modalidad"><option>Remoto</option><option>Híbrido</option><option>Presencial</option></select>
-      </div>
-      <div>
-        <label>Target</label>
-        <select id="f-target"><option>B2B</option><option>B2C</option><option>Ambos</option></select>
-      </div>
+  <!-- AÑADIR OFERTA -->
+  <section id="vista-anadir" style="display:none;max-width:680px;">
+    <h1>Añadir oferta</h1>
+    <div class="card">
+      <label for="texto-bruto">1. Pega aquí el texto de la oferta (LinkedIn, Indeed, Closer Skool, WhatsApp...)</label>
+      <textarea id="texto-bruto" placeholder="Pega el post completo tal cual..." style="min-height:140px;"></textarea>
+      <button id="btn-extraer">Extraer con IA</button>
+      <p class="msg" id="extraer-msg"></p>
     </div>
 
-    <label>Ciudad / Provincia</label>
-    <input id="f-ciudad">
+    <div class="card" id="form-card" style="display:none;">
+      <label>Título</label><input id="f-titulo">
+      <label>Empresa</label><input id="f-empresa" placeholder="Nombre de la empresa">
+      <label>Fuente</label>
+      <select id="f-fuente">
+        <option>LinkedIn (manual)</option><option>Indeed (manual)</option><option>Closer Skool (manual)</option>
+        <option>WhatsApp (manual)</option><option>Otro (manual)</option>
+      </select>
+      <div class="row">
+        <div><label>Modalidad</label><select id="f-modalidad"><option>Remoto</option><option>Híbrido</option><option>Presencial</option></select></div>
+        <div><label>Target</label><select id="f-target"><option>B2B</option><option>B2C</option><option>Ambos</option></select></div>
+      </div>
+      <label>Ciudad / Provincia</label><input id="f-ciudad">
+      <label>Rango de ticket</label>
+      <select id="f-ticket">
+        <option value="<500€">&lt;500€</option><option>500€-3.000€</option><option>High Ticket >3.000€</option><option>Gestión de cartera +100k€</option>
+      </select>
+      <label>Tipo de remuneración</label>
+      <select id="f-remuneracion"><option>Fijo+Variable</option><option>Solo comisión</option><option>Gastos pagados</option></select>
+      <label>Rol (uno por línea)</label><textarea id="f-rol" style="min-height:60px;"></textarea>
+      <label>Sector (uno por línea)</label><textarea id="f-sector" style="min-height:60px;"></textarea>
+      <label>URL de origen (opcional)</label><input id="f-url">
+      <p class="small">Si después falta algún dato (país, descripción…), complétalo en «Gestionar ofertas» → Editar.</p>
+      <button id="btn-guardar">Guardar oferta</button>
+      <button class="secondary" id="btn-cancelar-form">Cancelar</button>
+      <p class="msg" id="guardar-msg"></p>
+    </div>
+  </section>
 
-    <label>Rango de ticket</label>
-    <select id="f-ticket">
-      <option value="<500€">&lt;500€</option>
-      <option>500€-3.000€</option>
-      <option>High Ticket >3.000€</option>
-      <option>Gestión de cartera +100k€</option>
-    </select>
-
-    <label>Tipo de remuneración</label>
-    <select id="f-remuneracion"><option>Fijo+Variable</option><option>Solo comisión</option><option>Gastos pagados</option></select>
-
-    <label>Rol (uno por línea)</label>
-    <textarea id="f-rol" style="min-height:60px;"></textarea>
-
-    <label>Sector (uno por línea)</label>
-    <textarea id="f-sector" style="min-height:60px;"></textarea>
-
-    <label>URL de origen (opcional)</label>
-    <input id="f-url">
-
-    <button onclick="guardar()" id="btn-guardar">Guardar oferta</button>
-    <button class="secondary" onclick="document.getElementById('form-card').style.display='none'">Cancelar</button>
-    <p class="msg" id="guardar-msg"></p>
-  </div>
-  </div>
-
-  <div id="tab-gestionar" style="display:none;">
+  <!-- OFERTAS -->
+  <section id="vista-ofertas" style="display:none;">
     <h1>Gestionar ofertas</h1>
-
-    <div class="controls">
-      <select id="filtro-estado" onchange="renderTablaOfertas()">
-        <option value="Todas">Todas</option>
-        <option value="Activa">Activas</option>
-        <option value="Pausada">Pausadas</option>
-        <option value="Cerrada">Cerradas</option>
-        <option value="Revisión Manual">Revisión manual</option>
+    <div class="toolbar">
+      <input type="search" id="of-q" data-filtro="ofertas.q" placeholder="Buscar por título o empresa…" aria-label="Buscar ofertas">
+      <select data-filtro="ofertas.estado" aria-label="Estado">
+        <option value="Todas">Todos los estados</option><option value="Activa">Activas</option><option value="Pausada">Pausadas</option>
+        <option value="Cerrada">Cerradas</option><option value="Revisión Manual">Revisión manual</option>
       </select>
-      <select id="orden-ofertas" onchange="renderTablaOfertas()">
-        <option value="fecha_desc">Más recientes primero</option>
-        <option value="fecha_asc">Más antiguas primero</option>
-        <option value="ticket_desc">Ticket: mayor a menor</option>
-        <option value="ticket_asc">Ticket: menor a mayor</option>
-        <option value="destacado">Destacadas primero</option>
+      <select data-filtro="ofertas.fuente" id="of-fuente" aria-label="Fuente"><option value="Todas">Todas las fuentes</option></select>
+      <select data-filtro="ofertas.modalidad" aria-label="Modalidad">
+        <option value="Todas">Toda modalidad</option><option>Remoto</option><option>Híbrido</option><option>Presencial</option>
       </select>
-      <button onclick="cargarOfertasAdmin()" id="btn-refrescar-ofertas">Actualizar</button>
+      <select data-filtro="ofertas.extra" aria-label="Revisión">
+        <option value="">Sin filtro extra</option><option value="sin_pais">Sin país (afecta al matching)</option>
+        <option value="sin_url">Sin enlace de origen</option><option value="editadas">Editadas a mano</option><option value="destacadas">Destacadas</option>
+      </select>
+      <select data-filtro="ofertas.orden" aria-label="Orden">
+        <option value="fecha_desc">Más recientes primero</option><option value="fecha_asc">Más antiguas primero</option>
+        <option value="ticket_desc">Ticket: mayor a menor</option><option value="ticket_asc">Ticket: menor a mayor</option>
+        <option value="post_desc">Más postulaciones</option><option value="destacado">Destacadas primero</option>
+      </select>
+      <button data-accion="refrescar" data-seccion="ofertas">Actualizar</button>
+      <button class="secondary" data-accion="csv" data-seccion="ofertas">Exportar CSV</button>
     </div>
-    <p class="msg" id="ofertas-admin-msg"></p>
-
-    <div style="overflow-x:auto;">
-      <table id="tabla-gestion-ofertas"><thead><tr>
-        <th>Título</th><th>Empresa</th><th>Fuente</th><th>Modalidad</th><th>Ticket</th><th>Estado</th><th>Publicada</th><th>Acciones</th>
+    <div class="bulkbar" id="of-bulk">
+      <strong id="of-bulk-n">0</strong> seleccionadas
+      <button class="action-btn ghost" style="background:#fff;" data-accion="lote" data-op="pausar">Pausar</button>
+      <button class="action-btn ghost" style="background:#fff;" data-accion="lote" data-op="activar">Activar</button>
+      <button class="action-btn ghost" style="background:#fff;" data-accion="lote" data-op="cerrar">Completar</button>
+      <button class="action-btn danger" data-accion="lote" data-op="eliminar">Eliminar</button>
+      <button class="action-btn ghost" style="background:transparent;color:#fff;border-color:#fff;" data-accion="lote-limpiar">Quitar selección</button>
+    </div>
+    <p class="msg" id="of-msg"></p>
+    <div class="scroll">
+      <table id="tabla-ofertas"><thead><tr>
+        <th><input type="checkbox" id="of-sel-todas" aria-label="Seleccionar la página"></th>
+        <th>Oferta</th><th>Fuente</th><th>Modalidad / lugar</th><th>Ticket</th><th>Estado</th><th>Postul.</th><th>Publicada</th><th>Acciones</th>
       </tr></thead><tbody></tbody></table>
     </div>
-  </div>
+    <div class="pager" id="of-pager"></div>
+  </section>
 
-  <div id="tab-registros" style="display:none;">
-    <h1>Registros y postulaciones</h1>
-    <button onclick="cargarRegistros()" id="btn-refrescar">Actualizar</button>
-    <p class="msg" id="registros-msg"></p>
-
-    <div class="card">
-      <h2 style="margin-top:0;font-size:1.1rem;color:var(--green);">Usuarios registrados</h2>
-      <div style="overflow-x:auto;">
-        <table id="tabla-usuarios"><thead><tr>
-          <th>Nombre</th><th>Email</th><th>Plan</th><th>Verificado</th><th>Postulaciones restantes</th><th>Alta</th>
-        </tr></thead><tbody></tbody></table>
-      </div>
+  <!-- USUARIOS -->
+  <section id="vista-usuarios" style="display:none;">
+    <h1>Usuarios</h1>
+    <div class="toolbar">
+      <input type="search" data-filtro="usuarios.q" placeholder="Buscar por nombre o email…" aria-label="Buscar usuarios">
+      <select data-filtro="usuarios.plan" aria-label="Plan">
+        <option value="Todos">Todos los planes</option><option>Rookie</option><option>Pro</option><option>Elite</option>
+      </select>
+      <select data-filtro="usuarios.extra" id="us-extra" aria-label="Filtro">
+        <option value="">Sin filtro extra</option><option value="pitch">Pitch pendiente de revisar</option>
+        <option value="verificados">Verificados</option><option value="no_verificados">Sin verificar</option>
+        <option value="incompletos">Perfil sin completar</option><option value="fundadores">Elite sin Stripe (fundadores)</option>
+      </select>
+      <button data-accion="refrescar" data-seccion="usuarios">Actualizar</button>
+      <button class="secondary" data-accion="csv" data-seccion="usuarios">Exportar CSV</button>
     </div>
-
-    <div class="card">
-      <h2 style="margin-top:0;font-size:1.1rem;color:var(--green);">Postulaciones</h2>
-      <div style="overflow-x:auto;">
-        <table id="tabla-postulaciones"><thead><tr>
-          <th>Usuario</th><th>Email</th><th>Oferta</th><th>% Compatibilidad</th><th>Fecha</th>
-        </tr></thead><tbody></tbody></table>
-      </div>
+    <p class="msg" id="us-msg"></p>
+    <div class="scroll">
+      <table id="tabla-usuarios"><thead><tr>
+        <th>Nombre</th><th>Plan</th><th>Verificado</th><th>Postul.</th><th>Perfil</th><th>Alta</th><th>Acciones</th>
+      </tr></thead><tbody></tbody></table>
     </div>
-  </div>
+    <div class="pager" id="us-pager"></div>
+  </section>
+
+  <!-- POSTULACIONES -->
+  <section id="vista-postulaciones" style="display:none;">
+    <h1>Postulaciones</h1>
+    <div class="toolbar">
+      <input type="search" data-filtro="postulaciones.q" placeholder="Buscar por usuario, email u oferta…" aria-label="Buscar postulaciones">
+      <button data-accion="refrescar" data-seccion="postulaciones">Actualizar</button>
+      <button class="secondary" data-accion="csv" data-seccion="postulaciones">Exportar CSV</button>
+    </div>
+    <p class="msg" id="po-msg"></p>
+    <div class="scroll">
+      <table id="tabla-postulaciones"><thead><tr>
+        <th>Fecha</th><th>Usuario</th><th>Oferta</th><th>% Compat.</th>
+      </tr></thead><tbody></tbody></table>
+    </div>
+    <div class="pager" id="po-pager"></div>
+  </section>
+
+  <!-- INGESTA -->
+  <section id="vista-ingesta" style="display:none;">
+    <h1>Ingesta automática</h1>
+    <p class="small">El cron diario trae ofertas de las 7 fuentes. Una ejecución «sin terminar» significa que la función se cortó antes de acabar (límite de tiempo).</p>
+    <div class="toolbar"><button data-accion="refrescar" data-seccion="ingesta">Actualizar</button></div>
+    <p class="msg" id="in-msg"></p>
+    <div class="card"><h2>Últimas ejecuciones</h2>
+      <div class="scroll"><table><thead><tr><th>Inicio</th><th>Duración</th><th>Estado</th><th>Detalle por fuente</th></tr></thead><tbody id="in-logs"></tbody></table></div>
+    </div>
+  </section>
+
+  <!-- LISTA DE ESPERA -->
+  <section id="vista-espera" style="display:none;">
+    <h1>Lista de espera de empresas</h1>
+    <div class="toolbar">
+      <button data-accion="refrescar" data-seccion="espera">Actualizar</button>
+      <button class="secondary" data-accion="csv" data-seccion="espera">Exportar CSV</button>
+      <button class="secondary" data-accion="copiar-emails">Copiar emails</button>
+    </div>
+    <p class="msg" id="es-msg"></p>
+    <div class="scroll"><table><thead><tr><th>Email</th><th>Fecha</th></tr></thead><tbody id="es-filas"></tbody></table></div>
+  </section>
+
+  <!-- ACTIVIDAD -->
+  <section id="vista-actividad" style="display:none;">
+    <h1>Actividad del panel</h1>
+    <p class="small">Todo lo que se hace desde aquí queda anotado: quién cambió qué y cuándo.</p>
+    <div class="toolbar"><button data-accion="refrescar" data-seccion="actividad">Actualizar</button></div>
+    <p class="msg" id="ac-msg"></p>
+    <div class="scroll"><table><thead><tr><th>Fecha</th><th>Acción</th><th>Sobre</th><th>Detalle</th></tr></thead><tbody id="ac-filas"></tbody></table></div>
+  </section>
+</div>
+
+<!-- MODAL -->
+<div class="modal-bg" id="modal-bg" role="dialog" aria-modal="true" aria-labelledby="modal-titulo">
+  <div class="modal"><div id="modal-body"></div></div>
 </div>
 
 <script>
-let ADMIN_PW = sessionStorage.getItem('klosers_admin_pw') || '';
-let ultimoTextoOriginal = '';
-
-// Todo dato que viene de la base de datos se escapa antes de pintarlo: nombres, emails y títulos
-// los escriben terceros (registros públicos y portales externos) y no deben poder ejecutar código aquí.
+/* ===================== BASE ===================== */
+const $ = (id) => document.getElementById(id);
 function esc(v){
   return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
+const esUrl = (u) => /^https?:\/\/\S+$/i.test(String(u || ''));
+const fmtFecha = (d) => d ? new Date(d).toLocaleDateString('es-ES') : '—';
+const fmtFechaHora = (d) => d ? new Date(d).toLocaleString('es-ES', { dateStyle:'short', timeStyle:'short' }) : '—';
 
-if (ADMIN_PW) mostrarPanel();
+const ROLES = ['Setter','Cold Caller','SDR','BDR','Closer High Ticket','Account Executive (AE)','Account Manager (AM)','Key Account Manager (KAM)','Customer Success Manager (CSM)','Ingeniero de Ventas','Comercial de Campo / Delegado','Jefe de Ventas','Director Comercial','Otro'];
+const SECTORES = ['Infoproductos','SaaS/Tecnología','Industrial/Maquinaria','Seguros/Finanzas','Salud/Farma','Marketing/Agencias','Retail/Horeca','Educación','Logística','Otro'];
+const ORDEN_TICKET = ['<500€','500€-3.000€','High Ticket >3.000€','Gestión de cartera +100k€'];
+const POR_PAGINA = 25;
 
-function entrar(){
-  ADMIN_PW = document.getElementById('pw-input').value;
-  sessionStorage.setItem('klosers_admin_pw', ADMIN_PW);
-  mostrarPanel();
+let PW = sessionStorage.getItem('klosers_admin_pw') || '';
+let ultimoTextoOriginal = '';
+let tabActual = 'resumen';
+const cache = {};
+const S = {
+  ofertas:{ q:'', estado:'Todas', fuente:'Todas', modalidad:'Todas', extra:'', orden:'fecha_desc', pagina:1, sel:new Set() },
+  usuarios:{ q:'', plan:'Todos', extra:'', pagina:1 },
+  postulaciones:{ q:'', pagina:1 },
+};
+
+function toast(texto, error){
+  const t = document.createElement('div');
+  t.className = 'toast' + (error ? ' error' : '');
+  t.textContent = texto;
+  t.setAttribute('role', 'status');
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 4200);
 }
 
-function mostrarPanel(){
-  document.getElementById('gate').style.display = 'none';
-  document.getElementById('panel').style.display = 'block';
+function salir(mensaje){
+  PW = '';
+  sessionStorage.removeItem('klosers_admin_pw');
+  Object.keys(cache).forEach(k => delete cache[k]);
+  cerrarModal();
+  $('panel').style.display = 'none';
+  $('gate').style.display = 'block';
+  $('pw-input').value = '';
+  $('gate-error').textContent = mensaje || '';
 }
 
-function cambiarTab(tab){
-  document.getElementById('tab-ofertas').style.display = tab === 'ofertas' ? 'block' : 'none';
-  document.getElementById('tab-gestionar').style.display = tab === 'gestionar' ? 'block' : 'none';
-  document.getElementById('tab-registros').style.display = tab === 'registros' ? 'block' : 'none';
-  document.getElementById('tab-btn-ofertas').classList.toggle('active', tab === 'ofertas');
-  document.getElementById('tab-btn-gestionar').classList.toggle('active', tab === 'gestionar');
-  document.getElementById('tab-btn-registros').classList.toggle('active', tab === 'registros');
-  if (tab === 'registros') cargarRegistros();
-  if (tab === 'gestionar') cargarOfertasAdmin();
+async function api(url, opciones){
+  const r = await fetch(url, Object.assign({}, opciones, {
+    headers: Object.assign({ 'x-admin-password': PW }, opciones && opciones.headers),
+  }));
+  let data = {};
+  try { data = await r.json(); } catch (_) {}
+  if (r.status === 401) { salir('La contraseña no es correcta o ha caducado la sesión.'); throw new Error('No autorizado'); }
+  if (!r.ok) throw new Error(data.error || 'Error inesperado');
+  return data;
 }
 
-async function cargarRegistros(){
-  const msg = document.getElementById('registros-msg');
-  const btn = document.getElementById('btn-refrescar');
-  btn.disabled = true; msg.textContent = 'Cargando...'; msg.className = 'msg';
-
-  try {
-    const r = await fetch('/api/admin-datos', { headers: { 'x-admin-password': ADMIN_PW } });
-    const data = await r.json();
-    if (!r.ok) throw new Error(data.error || 'Error al cargar');
-
-    const tbodyUsuarios = document.querySelector('#tabla-usuarios tbody');
-    tbodyUsuarios.innerHTML = data.usuarios.map(u => `
-      <tr>
-        <td>${esc(u.nombre_completo)}</td>
-        <td>${esc(u.email)}</td>
-        <td>${esc(u.plan_stripe)}</td>
-        <td><span class="badge ${u.insignia_verificado ? 'si' : 'no'}">${u.insignia_verificado ? 'Sí' : 'No'}</span></td>
-        <td>${esc(u.postulaciones_restantes)}</td>
-        <td>${new Date(u.created_at).toLocaleDateString('es-ES')}</td>
-      </tr>`).join('') || '<tr><td colspan="6">Sin registros todavía.</td></tr>';
-
-    const tbodyPost = document.querySelector('#tabla-postulaciones tbody');
-    tbodyPost.innerHTML = data.postulaciones.map(m => `
-      <tr>
-        <td>${esc(m.usuarios?.nombre_completo || '—')}</td>
-        <td>${esc(m.usuarios?.email || '—')}</td>
-        <td>${esc(m.ofertas?.titulo_oferta || '—')}</td>
-        <td>${esc(m.porcentaje_compatibilidad ?? '—')}%</td>
-        <td>${new Date(m.created_at).toLocaleDateString('es-ES')}</td>
-      </tr>`).join('') || '<tr><td colspan="5">Sin postulaciones todavía.</td></tr>';
-
-    msg.textContent = '';
-  } catch (err) {
-    msg.textContent = err.message; msg.className = 'msg error';
-  } finally {
-    btn.disabled = false;
-  }
+async function cargar(seccion, forzar){
+  if (!forzar && cache[seccion]) return cache[seccion];
+  cache[seccion] = await api('/api/admin-datos?seccion=' + encodeURIComponent(seccion));
+  return cache[seccion];
 }
 
-/* ===================== GESTIONAR OFERTAS ===================== */
-let ofertasCache = [];
+function invalidar(...secciones){ secciones.forEach(s => delete cache[s]); }
 
-async function cargarOfertasAdmin(){
-  const msg = document.getElementById('ofertas-admin-msg');
-  const btn = document.getElementById('btn-refrescar-ofertas');
-  btn.disabled = true; msg.textContent = 'Cargando...'; msg.className = 'msg';
-
-  try {
-    const r = await fetch('/api/admin-datos', { headers: { 'x-admin-password': ADMIN_PW } });
-    const data = await r.json();
-    if (!r.ok) throw new Error(data.error || 'Error al cargar');
-
-    ofertasCache = data.ofertas || [];
-    renderTablaOfertas();
-    msg.textContent = '';
-  } catch (err) {
-    msg.textContent = err.message; msg.className = 'msg error';
-  } finally {
-    btn.disabled = false;
-  }
-}
-
-const ORDEN_TICKET = ['<500€', '500€-3.000€', 'High Ticket >3.000€', 'Gestión de cartera +100k€'];
-
-function renderTablaOfertas(){
-  const filtro = document.getElementById('filtro-estado').value;
-  const orden = document.getElementById('orden-ofertas').value;
-
-  let lista = ofertasCache.filter(o => filtro === 'Todas' || o.estado_oferta === filtro);
-
-  lista.sort((a, b) => {
-    if (orden === 'fecha_desc') return new Date(b.fecha_publicacion) - new Date(a.fecha_publicacion);
-    if (orden === 'fecha_asc') return new Date(a.fecha_publicacion) - new Date(b.fecha_publicacion);
-    if (orden === 'ticket_desc') return ORDEN_TICKET.indexOf(b.rango_ticket_oferta) - ORDEN_TICKET.indexOf(a.rango_ticket_oferta);
-    if (orden === 'ticket_asc') return ORDEN_TICKET.indexOf(a.rango_ticket_oferta) - ORDEN_TICKET.indexOf(b.rango_ticket_oferta);
-    if (orden === 'destacado') return (b.destacado - a.destacado) || (b.orden_destacado - a.orden_destacado);
-    return 0;
+async function accion(cuerpo){
+  return api('/api/admin-actualizar-oferta', {
+    method:'POST',
+    headers:{ 'Content-Type':'application/json' },
+    body: JSON.stringify(cuerpo),
   });
-
-  const badgeClass = { Activa: 'activa', Pausada: 'pausada', Cerrada: 'cerrada', 'Revisión Manual': 'revision' };
-
-  document.querySelector('#tabla-gestion-ofertas tbody').innerHTML = lista.map(o => `
-    <tr>
-      <td>${o.destacado ? '⭐ ' : ''}${esc(o.titulo_oferta || '—')}</td>
-      <td>${esc(o.empresa_nombre || '—')}</td>
-      <td>${esc(o.fuente || '—')}</td>
-      <td>${esc(o.modalidad_oferta || '—')}</td>
-      <td>${esc(o.rango_ticket_oferta || '—')}</td>
-      <td><span class="badge ${badgeClass[o.estado_oferta] || 'no'}">${esc(o.estado_oferta)}</span></td>
-      <td>${o.fecha_publicacion ? new Date(o.fecha_publicacion).toLocaleDateString('es-ES') : '—'}</td>
-      <td style="white-space:nowrap;">
-        ${o.estado_oferta === 'Activa'
-          ? `<button class="action-btn ghost" onclick="accionOferta('${esc(o.id)}','pausar')">Pausar</button>`
-          : `<button class="action-btn ghost" onclick="accionOferta('${esc(o.id)}','activar')">Activar</button>`}
-        <button class="action-btn ghost" onclick="accionOferta('${esc(o.id)}','cerrar')">Completar</button>
-        ${o.destacado
-          ? `<button class="action-btn star" onclick="accionOferta('${esc(o.id)}','quitar_destacado')">Quitar destacado</button>`
-          : `<button class="action-btn star" onclick="accionOferta('${esc(o.id)}','destacar')">⭐ Subir al top</button>`}
-        <button class="action-btn danger" onclick="eliminarOferta('${esc(o.id)}')">Eliminar</button>
-      </td>
-    </tr>`).join('') || '<tr><td colspan="8">No hay ofertas con este filtro.</td></tr>';
 }
 
-async function accionOferta(id, accion){
+/* ===================== ACCESO ===================== */
+async function entrar(){
+  PW = $('pw-input').value;
+  $('gate-error').textContent = '';
+  if (!PW) return;
+  $('btn-entrar').disabled = true;
   try {
-    const r = await fetch('/api/admin-actualizar-oferta', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-admin-password': ADMIN_PW },
-      body: JSON.stringify({ id, accion }),
-    });
-    const data = await r.json();
-    if (!r.ok) throw new Error(data.error || 'Error al actualizar');
-    await cargarOfertasAdmin();
+    await cargar('resumen', true);
+    sessionStorage.setItem('klosers_admin_pw', PW);
+    $('gate').style.display = 'none';
+    $('panel').style.display = 'block';
+    cambiarTab('resumen');
   } catch (err) {
-    document.getElementById('ofertas-admin-msg').textContent = err.message;
-    document.getElementById('ofertas-admin-msg').className = 'msg error';
+    if (err.message !== 'No autorizado') $('gate-error').textContent = err.message;
+  } finally {
+    $('btn-entrar').disabled = false;
   }
 }
 
-function eliminarOferta(id){
-  if (!confirm('¿Seguro que quieres eliminar esta oferta? No se puede deshacer.')) return;
-  accionOferta(id, 'eliminar');
+/* ===================== PESTAÑAS ===================== */
+const VISTAS = ['resumen','anadir','ofertas','usuarios','postulaciones','ingesta','espera','actividad'];
+
+async function cambiarTab(tab){
+  tabActual = tab;
+  VISTAS.forEach(v => { $('vista-' + v).style.display = v === tab ? 'block' : 'none'; });
+  document.querySelectorAll('#tabs .tab-btn').forEach(b => b.classList.toggle('active', b.dataset.tab === tab));
+  await pintar(tab);
 }
 
-async function extraer(){
-  const texto = document.getElementById('texto-bruto').value.trim();
-  const msg = document.getElementById('extraer-msg');
-  const btn = document.getElementById('btn-extraer');
-  if (texto.length < 20) { msg.textContent = 'Pega el texto completo de la oferta primero.'; msg.className = 'msg error'; return; }
+async function pintar(tab){
+  const mensajes = { resumen:'resumen-msg', ofertas:'of-msg', usuarios:'us-msg', postulaciones:'po-msg', ingesta:'in-msg', espera:'es-msg', actividad:'ac-msg' };
+  const msg = mensajes[tab] && $(mensajes[tab]);
+  try {
+    if (msg) { msg.textContent = 'Cargando…'; msg.className = 'msg'; }
+    if (tab === 'resumen') renderResumen(await cargar('resumen'));
+    if (tab === 'ofertas') { await cargar('ofertas'); renderOfertas(); }
+    if (tab === 'usuarios') { await cargar('usuarios'); renderUsuarios(); }
+    if (tab === 'postulaciones') { await cargar('postulaciones'); renderPostulaciones(); }
+    if (tab === 'ingesta') renderIngesta(await cargar('ingesta'));
+    if (tab === 'espera') renderEspera(await cargar('espera'));
+    if (tab === 'actividad') renderActividad(await cargar('actividad'));
+    if (msg) msg.textContent = '';
+  } catch (err) {
+    if (msg && err.message !== 'No autorizado') { msg.textContent = err.message; msg.className = 'msg error'; }
+  }
+}
 
+/* ===================== RESUMEN ===================== */
+function estadoIngesta(log){
+  if (!log) return { cls:'no', texto:'Sin ejecuciones' };
+  if (!log.fin) {
+    const minutos = (Date.now() - new Date(log.inicio).getTime()) / 60000;
+    return minutos > 20 ? { cls:'error', texto:'Sin terminar' } : { cls:'curso', texto:'En curso' };
+  }
+  const estados = Object.values(log.resultados || {}).map(f => f.estado);
+  if (estados.includes('error')) return { cls:'error', texto:'Con errores' };
+  if (estados.includes('parcial')) return { cls:'parcial', texto:'Parcial' };
+  return { cls:'ok', texto:'Completada' };
+}
+
+function renderResumen(d){
+  const r = d.resumen;
+  const plan = r.por_plan || {};
+  const estado = r.ofertas_por_estado || {};
+  const kpi = (n, l, s) => `<div class="kpi"><div class="n">${esc(n)}</div><div class="l">${esc(l)}</div>${s ? `<div class="s">${esc(s)}</div>` : ''}</div>`;
+
+  $('resumen-kpis').innerHTML = [
+    kpi(r.usuarios_total, 'Comerciales registrados', `+${r.usuarios_7d} esta semana · +${r.usuarios_30d} este mes`),
+    kpi(`${plan.Rookie || 0} · ${plan.Pro || 0} · ${plan.Elite || 0}`, 'Rookie · Pro · Elite', `${r.perfiles_incompletos} sin completar el perfil`),
+    kpi(`${r.mrr_estimado} €`, 'Ingresos mensuales estimados', `${r.pagando} pagando · ${r.fundadores_elite} Elite de fundador`),
+    kpi(r.verificados, 'Kloser Verificados', `${r.pitches_pendientes} pitches por revisar`),
+    kpi(estado.Activa || 0, 'Ofertas activas', `+${r.ofertas_nuevas_7d} nuevas esta semana · ${estado.Pausada || 0} pausadas`),
+    kpi(r.postulaciones_7d, 'Postulaciones (7 días)', `${r.postulaciones_30d} en 30 días · ${r.postulaciones_total} en total`),
+    kpi(r.lista_espera, 'Empresas en lista de espera'),
+  ].join('');
+
+  const alertas = [];
+  if (r.pitches_pendientes > 0) alertas.push({ t:'aviso', texto:`${r.pitches_pendientes} pitch(es) esperando tu revisión.`, ir:'usuarios', filtro:['usuarios','extra','pitch'], boton:'Revisar' });
+  if (r.ofertas_sin_pais > 0) alertas.push({ t:'aviso', texto:`${r.ofertas_sin_pais} oferta(s) activa(s) sin país: afecta al cálculo de compatibilidad.`, ir:'ofertas', filtro:['ofertas','extra','sin_pais'], boton:'Completar' });
+  if (r.ofertas_sin_url > 0) alertas.push({ t:'aviso', texto:`${r.ofertas_sin_url} oferta(s) activa(s) sin enlace de origen: el comercial no podrá abrirlas al postular.`, ir:'ofertas', filtro:['ofertas','extra','sin_url'], boton:'Completar' });
+
+  const log = d.ingesta_ultima;
+  if (!log) {
+    alertas.push({ t:'aviso', texto:'Todavía no hay ninguna ejecución de la ingesta automática registrada.', ir:'ingesta', boton:'Ver ingesta' });
+  } else {
+    const e = estadoIngesta(log);
+    const horas = (Date.now() - new Date(log.inicio).getTime()) / 3600000;
+    if (e.texto === 'Sin terminar') alertas.push({ t:'malo', texto:'La última ingesta no llegó a terminar (posible límite de tiempo de la función).', ir:'ingesta', boton:'Ver' });
+    else if (horas > 36) alertas.push({ t:'malo', texto:`La última ingesta fue hace ${Math.round(horas)} horas. Debería ejecutarse cada día.`, ir:'ingesta', boton:'Ver' });
+    const fallan = Object.entries(log.resultados || {}).filter(([, f]) => f.estado === 'error').map(([n]) => n);
+    if (fallan.length) alertas.push({ t:'malo', texto:`Fuentes con error en la última ingesta: ${fallan.join(', ')}.`, ir:'ingesta', boton:'Ver detalle' });
+  }
+  if (!alertas.length) alertas.push({ t:'bien', texto:'Todo en orden: sin pendientes ni errores.' });
+
+  $('resumen-alertas').innerHTML = alertas.map((a, i) => `
+    <div class="alerta ${esc(a.t)}"><span>${esc(a.texto)}</span>
+    ${a.ir ? `<button class="secondary" data-accion="ir" data-tab="${esc(a.ir)}" data-i="${i}">${esc(a.boton)}</button>` : ''}</div>`).join('');
+  $('resumen-alertas')._alertas = alertas;
+
+  $('resumen-fuentes').innerHTML = (r.ofertas_por_fuente || []).map(f =>
+    `<tr><td>${esc(f.fuente)}</td><td>${esc(f.activas)}</td><td>${esc(f.total)}</td></tr>`).join('') ||
+    '<tr><td colspan="3" class="vacio">Todavía no hay ofertas.</td></tr>';
+
+  const pend = r.pitches_pendientes;
+  const dot = $('dot-usuarios');
+  dot.style.display = pend > 0 ? 'inline' : 'none';
+  dot.textContent = pend;
+}
+
+/* ===================== OFERTAS ===================== */
+const claseEstado = { 'Activa':'activa', 'Pausada':'pausada', 'Cerrada':'cerrada', 'Revisión Manual':'revision' };
+
+function ofertasFiltradas(){
+  const f = S.ofertas;
+  const q = f.q.trim().toLowerCase();
+  let lista = (cache.ofertas ? cache.ofertas.ofertas : []).filter(o => {
+    if (f.estado !== 'Todas' && o.estado_oferta !== f.estado) return false;
+    if (f.fuente !== 'Todas' && o.fuente !== f.fuente) return false;
+    if (f.modalidad !== 'Todas' && o.modalidad_oferta !== f.modalidad) return false;
+    if (f.extra === 'sin_pais' && o.pais_oferta) return false;
+    if (f.extra === 'sin_url' && o.url_origen) return false;
+    if (f.extra === 'editadas' && !o.editada_manualmente) return false;
+    if (f.extra === 'destacadas' && !o.destacado) return false;
+    if (q && !`${o.titulo_oferta} ${o.empresa_nombre || ''}`.toLowerCase().includes(q)) return false;
+    return true;
+  });
+  const t = (o) => ORDEN_TICKET.indexOf(o.rango_ticket_oferta);
+  const fecha = (o) => new Date(o.created_at || o.fecha_publicacion).getTime();
+  lista.sort((a, b) => {
+    if (f.orden === 'fecha_asc') return fecha(a) - fecha(b);
+    if (f.orden === 'ticket_desc') return t(b) - t(a);
+    if (f.orden === 'ticket_asc') return t(a) - t(b);
+    if (f.orden === 'post_desc') return b.postulaciones - a.postulaciones;
+    if (f.orden === 'destacado') return (Number(b.destacado) - Number(a.destacado)) || (b.orden_destacado - a.orden_destacado);
+    return fecha(b) - fecha(a);
+  });
+  return lista;
+}
+
+function paginar(lista, pagina){
+  const paginas = Math.max(1, Math.ceil(lista.length / POR_PAGINA));
+  const p = Math.min(Math.max(1, pagina), paginas);
+  return { items: lista.slice((p - 1) * POR_PAGINA, p * POR_PAGINA), pagina: p, paginas, total: lista.length };
+}
+
+function pintarPager(id, tabla, pg){
+  $(id).innerHTML = `<span>${pg.total} resultado(s)</span>
+    <button class="secondary" data-accion="pag" data-tabla="${tabla}" data-dir="-1" ${pg.pagina <= 1 ? 'disabled' : ''}>‹ Anterior</button>
+    <span>Página ${pg.pagina} de ${pg.paginas}</span>
+    <button class="secondary" data-accion="pag" data-tabla="${tabla}" data-dir="1" ${pg.pagina >= pg.paginas ? 'disabled' : ''}>Siguiente ›</button>`;
+}
+
+function renderOfertas(){
+  const datos = cache.ofertas ? cache.ofertas.ofertas : [];
+  // El desplegable de fuentes se rellena con las que existen de verdad
+  const selFuente = $('of-fuente');
+  const fuentes = [...new Set(datos.map(o => o.fuente).filter(Boolean))].sort();
+  selFuente.innerHTML = '<option value="Todas">Todas las fuentes</option>' + fuentes.map(f => `<option>${esc(f)}</option>`).join('');
+  selFuente.value = fuentes.includes(S.ofertas.fuente) ? S.ofertas.fuente : 'Todas';
+
+  // La selección descarta ofertas que ya no existen (borradas desde otro sitio o por otro lote)
+  const existentes = new Set(datos.map(o => o.id));
+  S.ofertas.sel.forEach(id => { if (!existentes.has(id)) S.ofertas.sel.delete(id); });
+
+  const lista = ofertasFiltradas();
+  const pg = paginar(lista, S.ofertas.pagina);
+  S.ofertas.pagina = pg.pagina;
+
+  $('tabla-ofertas').querySelector('tbody').innerHTML = pg.items.map(o => `
+    <tr>
+      <td><input type="checkbox" data-sel="${esc(o.id)}" ${S.ofertas.sel.has(o.id) ? 'checked' : ''} aria-label="Seleccionar"></td>
+      <td>${o.destacado ? '⭐ ' : ''}<strong>${esc(o.titulo_oferta || '—')}</strong>
+        ${o.editada_manualmente ? ' <span class="badge manual" title="Editada a mano: protegida de la ingesta">✎ editada</span>' : ''}
+        <div class="sub">${esc(o.empresa_nombre || '—')}</div></td>
+      <td>${esc(o.fuente || '—')}</td>
+      <td>${esc(o.modalidad_oferta || '—')}<div class="sub">${esc([o.pais_oferta, o.ciudad_provincia_oferta].filter(Boolean).join(' · ') || 'sin lugar')}</div></td>
+      <td>${esc(o.rango_ticket_oferta || '—')}</td>
+      <td><span class="badge ${claseEstado[o.estado_oferta] || 'no'}">${esc(o.estado_oferta)}</span></td>
+      <td>${esc(o.postulaciones)}</td>
+      <td>${fmtFecha(o.fecha_publicacion)}</td>
+      <td style="white-space:nowrap;">
+        <button class="action-btn star" data-accion="oferta" data-op="editar" data-id="${esc(o.id)}">✎ Editar</button>
+        ${o.estado_oferta === 'Activa'
+          ? `<button class="action-btn ghost" data-accion="oferta" data-op="pausar" data-id="${esc(o.id)}">Pausar</button>`
+          : `<button class="action-btn ghost" data-accion="oferta" data-op="activar" data-id="${esc(o.id)}">Activar</button>`}
+        <button class="action-btn ghost" data-accion="oferta" data-op="cerrar" data-id="${esc(o.id)}">Completar</button>
+        <button class="action-btn ghost" data-accion="oferta" data-op="${o.destacado ? 'quitar_destacado' : 'destacar'}" data-id="${esc(o.id)}">${o.destacado ? 'Quitar ⭐' : '⭐ Top'}</button>
+        <button class="action-btn danger" data-accion="oferta" data-op="eliminar" data-id="${esc(o.id)}">Eliminar</button>
+      </td>
+    </tr>`).join('') || '<tr><td colspan="9" class="vacio">No hay ofertas con estos filtros.</td></tr>';
+
+  pintarPager('of-pager', 'ofertas', pg);
+  pintarBulk();
+  $('of-sel-todas').checked = pg.items.length > 0 && pg.items.every(o => S.ofertas.sel.has(o.id));
+}
+
+function pintarBulk(){
+  const n = S.ofertas.sel.size;
+  $('of-bulk').classList.toggle('on', n > 0);
+  $('of-bulk-n').textContent = n;
+}
+
+async function ejecutarOferta(op, id){
+  const o = (cache.ofertas.ofertas || []).find(x => x.id === id);
+  if (op === 'editar') return abrirEdicionOferta(id);
+  if (op === 'eliminar' && !confirm(`¿Eliminar «${o ? o.titulo_oferta : 'esta oferta'}»? Se borrarán también sus postulaciones. No se puede deshacer.`)) return;
+  try {
+    await accion({ accion: op, id });
+    S.ofertas.sel.delete(id);
+    invalidar('ofertas', 'resumen', 'actividad', 'postulaciones');
+    await pintar('ofertas');
+    toast('Hecho.');
+  } catch (err) { if (err.message !== 'No autorizado') toast(err.message, true); }
+}
+
+async function ejecutarLote(op){
+  const ids = [...S.ofertas.sel];
+  if (!ids.length) return;
+  const textos = { pausar:'pausar', activar:'activar', cerrar:'marcar como completadas', eliminar:'ELIMINAR (con sus postulaciones, sin vuelta atrás)' };
+  if (!confirm(`¿Seguro que quieres ${textos[op]} ${ids.length} oferta(s)?`)) return;
+  try {
+    const r = await accion({ accion: op, ids });
+    S.ofertas.sel.clear();
+    invalidar('ofertas', 'resumen', 'actividad', 'postulaciones');
+    await pintar('ofertas');
+    toast(`${r.afectadas} oferta(s) actualizadas.`);
+  } catch (err) { if (err.message !== 'No autorizado') toast(err.message, true); }
+}
+
+/* ---- Edición de una oferta ---- */
+const opcionesSel = (lista, valor, vacio) =>
+  (vacio ? `<option value="">${esc(vacio)}</option>` : '') + lista.map(v => `<option ${v === valor ? 'selected' : ''}>${esc(v)}</option>`).join('');
+
+async function abrirEdicionOferta(id){
+  abrirModal('<p class="small">Cargando la oferta…</p>');
+  try {
+    const d = await api('/api/admin-datos?oferta=' + encodeURIComponent(id));
+    const o = d.oferta;
+    const checks = (lista, marcadas, name) => `<div class="chips">${lista.map(v =>
+      `<label class="chk"><input type="checkbox" name="${name}" value="${esc(v)}" ${(marcadas || []).includes(v) ? 'checked' : ''}> ${esc(v)}</label>`).join('')}</div>`;
+
+    $('modal-body').innerHTML = `
+      <h2 id="modal-titulo">Editar oferta</h2>
+      <p class="small">${esc(o.fuente || '—')} · publicada el ${fmtFecha(o.fecha_publicacion)} · ${d.postulantes.length} postulación(es)
+        ${esUrl(o.url_origen) ? ` · <a href="${esc(o.url_origen)}" target="_blank" rel="noopener noreferrer">abrir oferta original ↗</a>` : ''}</p>
+      <div class="grid2">
+        <div style="grid-column:1/-1;"><label for="e-titulo">Título</label><input id="e-titulo" maxlength="200" value="${esc(o.titulo_oferta)}"></div>
+        <div><label for="e-empresa">Empresa</label><input id="e-empresa" maxlength="150" value="${esc(o.empresa_nombre || '')}"></div>
+        <div><label for="e-estado">Estado</label><select id="e-estado">${opcionesSel(['Activa','Pausada','Cerrada','Revisión Manual'], o.estado_oferta)}</select></div>
+        <div><label for="e-modalidad">Modalidad</label><select id="e-modalidad">${opcionesSel(['Remoto','Híbrido','Presencial'], o.modalidad_oferta, o.modalidad_oferta ? null : '— elegir —')}</select></div>
+        <div><label for="e-pais">País</label><select id="e-pais">${opcionesSel(['España','Latinoamérica','Resto del mundo'], o.pais_oferta, '— sin país —')}</select></div>
+        <div><label for="e-ciudad">Ciudad / provincia</label><input id="e-ciudad" maxlength="120" value="${esc(o.ciudad_provincia_oferta || '')}"></div>
+        <div><label for="e-target">Cliente (target)</label><select id="e-target">${opcionesSel(['B2B','B2C','Ambos'], o.target_oferta, '— sin definir —')}</select></div>
+        <div><label for="e-ticket">Rango de ticket</label><select id="e-ticket">${opcionesSel(ORDEN_TICKET, o.rango_ticket_oferta, '— sin definir —')}</select></div>
+        <div><label for="e-remu">Remuneración</label><select id="e-remu">${opcionesSel(['Fijo+Variable','Solo comisión','Gastos pagados'], o.tipo_remuneracion, '— sin definir —')}</select></div>
+        <div style="grid-column:1/-1;"><label>Roles</label>${checks(ROLES, o.rol_requerido, 'e-rol')}</div>
+        <div style="grid-column:1/-1;"><label>Sectores</label>${checks(SECTORES, o.sector_oferta, 'e-sector')}</div>
+        <div style="grid-column:1/-1;"><label for="e-url">Enlace de origen (el comercial lo abre al postular)</label><input id="e-url" maxlength="1000" placeholder="https://…" value="${esc(o.url_origen || '')}"></div>
+        <div style="grid-column:1/-1;"><label for="e-desc">Descripción completa</label><textarea id="e-desc" style="min-height:150px;">${esc(o.descripcion_completa || '')}</textarea></div>
+      </div>
+      <label class="chk" style="margin-top:14px;"><input type="checkbox" id="e-proteger" ${o.editada_manualmente || o.fuente_tipo !== 'automatica' ? 'checked' : ''}>
+        Proteger de la ingesta automática (que no vuelva a pisar estos cambios)</label>
+      ${d.postulantes.length ? `<p class="small" style="margin-top:12px;"><strong>Postulados:</strong> ${d.postulantes.slice(0, 8).map(p => esc((p.usuarios && p.usuarios.nombre_completo) || '—')).join(', ')}${d.postulantes.length > 8 ? '…' : ''}</p>` : ''}
+      <div class="actions-row">
+        <button id="e-guardar" data-id="${esc(o.id)}">Guardar cambios</button>
+        <button class="secondary" data-accion="cerrar-modal">Cancelar</button>
+      </div>
+      <p class="msg" id="e-msg" role="alert"></p>`;
+  } catch (err) {
+    cerrarModal();
+    if (err.message !== 'No autorizado') toast(err.message, true);
+  }
+}
+
+async function guardarEdicionOferta(id){
+  const marcados = (name) => [...document.querySelectorAll(`input[name="${name}"]:checked`)].map(i => i.value);
+  const datos = {
+    titulo_oferta: $('e-titulo').value,
+    empresa_nombre: $('e-empresa').value,
+    estado_oferta: $('e-estado').value,
+    modalidad_oferta: $('e-modalidad').value,
+    pais_oferta: $('e-pais').value || null,
+    ciudad_provincia_oferta: $('e-ciudad').value,
+    target_oferta: $('e-target').value || null,
+    rango_ticket_oferta: $('e-ticket').value || null,
+    tipo_remuneracion: $('e-remu').value || null,
+    rol_requerido: marcados('e-rol'),
+    sector_oferta: marcados('e-sector'),
+    url_origen: $('e-url').value,
+    descripcion_completa: $('e-desc').value,
+    editada_manualmente: $('e-proteger').checked,
+  };
+  const btn = $('e-guardar'); const msg = $('e-msg');
+  btn.disabled = true; msg.textContent = 'Guardando…'; msg.className = 'msg';
+  try {
+    await accion({ accion:'editar', id, datos });
+    invalidar('ofertas', 'resumen', 'actividad');
+    cerrarModal();
+    await pintar('ofertas');
+    toast('Oferta actualizada.');
+  } catch (err) {
+    if (err.message !== 'No autorizado') { msg.textContent = err.message; msg.className = 'msg error'; }
+    btn.disabled = false;
+  }
+}
+
+/* ===================== USUARIOS ===================== */
+function usuariosFiltrados(){
+  const f = S.usuarios;
+  const q = f.q.trim().toLowerCase();
+  return (cache.usuarios ? cache.usuarios.usuarios : []).filter(u => {
+    if (f.plan !== 'Todos' && u.plan_stripe !== f.plan) return false;
+    if (f.extra === 'pitch' && !(u.url_pitch_loom && !u.insignia_verificado)) return false;
+    if (f.extra === 'verificados' && !u.insignia_verificado) return false;
+    if (f.extra === 'no_verificados' && u.insignia_verificado) return false;
+    if (f.extra === 'incompletos' && u.modalidad) return false;
+    if (f.extra === 'fundadores' && !(u.plan_stripe === 'Elite' && !u.tiene_stripe)) return false;
+    if (q && !`${u.nombre_completo} ${u.email}`.toLowerCase().includes(q)) return false;
+    return true;
+  });
+}
+
+function renderUsuarios(){
+  const pg = paginar(usuariosFiltrados(), S.usuarios.pagina);
+  S.usuarios.pagina = pg.pagina;
+  $('tabla-usuarios').querySelector('tbody').innerHTML = pg.items.map(u => `
+    <tr>
+      <td><strong>${esc(u.nombre_completo)}</strong><div class="sub">${esc(u.email)}</div></td>
+      <td><span class="badge ${esc((u.plan_stripe || 'Rookie').toLowerCase())}">${esc(u.plan_stripe)}</span>
+        <div class="sub">${u.plan_stripe === 'Rookie' ? '' : (u.tiene_stripe ? 'pagando (Stripe)' : 'manual / fundador')}</div></td>
+      <td><span class="badge ${u.insignia_verificado ? 'si' : 'no'}">${u.insignia_verificado ? 'Sí' : 'No'}</span>
+        ${u.url_pitch_loom && !u.insignia_verificado ? '<div class="sub" style="color:#AD7F12;font-weight:700;">pitch por revisar</div>' : ''}</td>
+      <td>${u.plan_stripe === 'Elite' ? '∞' : esc(u.postulaciones_restantes)}</td>
+      <td>${u.modalidad ? esc(u.modalidad) : '<span class="small">sin completar</span>'}<div class="sub">${esc([(u.rol_comercial || [])[0], u.ciudad_provincia].filter(Boolean).join(' · '))}</div></td>
+      <td>${fmtFecha(u.created_at)}</td>
+      <td style="white-space:nowrap;">
+        <button class="action-btn star" data-accion="usuario-ver" data-id="${esc(u.id)}">Ver ficha</button>
+        ${u.insignia_verificado
+          ? `<button class="action-btn ghost" data-accion="usuario" data-op="quitar_verificacion" data-id="${esc(u.id)}">Quitar insignia</button>`
+          : `<button class="action-btn ghost" data-accion="usuario" data-op="verificar" data-id="${esc(u.id)}">Verificar</button>`}
+      </td>
+    </tr>`).join('') || '<tr><td colspan="7" class="vacio">No hay usuarios con estos filtros.</td></tr>';
+  pintarPager('us-pager', 'usuarios', pg);
+}
+
+async function ejecutarUsuario(op, id, extra){
+  const u = (cache.usuarios && cache.usuarios.usuarios || []).find(x => x.id === id);
+  const nombre = u ? u.email : 'este usuario';
+  if (op === 'eliminar' && !confirm(`¿Eliminar a ${nombre}? Se cancelará su suscripción y se borrarán su perfil y postulaciones. No se puede deshacer.`)) return false;
+  if (op === 'quitar_verificacion' && !confirm(`¿Quitar la insignia Kloser Verificado a ${nombre}?`)) return false;
+  try {
+    await accion(Object.assign({ entidad:'usuario', accion: op, id }, extra));
+    invalidar('usuarios', 'resumen', 'actividad', 'postulaciones');
+    await pintar('usuarios');
+    toast('Hecho.');
+    return true;
+  } catch (err) {
+    if (err.message !== 'No autorizado') toast(err.message, true);
+    return false;
+  }
+}
+
+async function abrirFichaUsuario(id){
+  abrirModal('<p class="small">Cargando la ficha…</p>');
+  try {
+    const d = await api('/api/admin-datos?usuario=' + encodeURIComponent(id));
+    const u = d.usuario;
+    const fila = (k, v) => `<dt>${esc(k)}</dt><dd>${v}</dd>`;
+    $('modal-body').innerHTML = `
+      <h2 id="modal-titulo">${esc(u.nombre_completo)}</h2>
+      <p class="small">${esc(u.email)} · alta el ${fmtFecha(u.created_at)}</p>
+      <dl class="ficha">
+        ${fila('Plan', `${esc(u.plan_stripe)} ${u.plan_stripe === 'Rookie' ? '' : (u.tiene_stripe ? '(pagando con Stripe)' : '(manual / fundador)')}`)}
+        ${fila('Postulaciones', u.plan_stripe === 'Elite' ? 'ilimitadas' : `${esc(u.postulaciones_restantes)} restantes`)}
+        ${fila('Roles', esc((u.rol_comercial || []).join(', ') || '—'))}
+        ${fila('Modalidad', esc(u.modalidad || '—'))}
+        ${fila('Lugar', esc([u.pais, u.ciudad_provincia].filter(Boolean).join(' · ') || '—') + (u.movilidad ? ` (movilidad: ${esc(u.movilidad)})` : ''))}
+        ${fila('Vende a', esc(u.target || '—'))}
+        ${fila('Ticket / sectores', esc([u.track_record_ticket, (u.sectores_experiencia || []).join(', ')].filter(Boolean).join(' · ') || '—'))}
+        ${fila('Métricas', `ticket medio ${u.ticket_medio_exacto ?? '—'} € · cierre ${u.tasa_cierre_exacta ?? '—'} %`)}
+        ${fila('Verificación', `${u.insignia_verificado ? '<span class="badge si">Verificado</span>' : '<span class="badge no">No verificado</span>'} · estado: ${esc(u.estado_verificacion)}${u.puntuacion_ia != null ? ` · nota IA: ${esc(u.puntuacion_ia)}/10` : ''}`)}
+        ${fila('Pitch en vídeo', esUrl(u.url_pitch_loom) ? `<a href="${esc(u.url_pitch_loom)}" target="_blank" rel="noopener noreferrer">${esc(u.url_pitch_loom)}</a>` : '—')}
+      </dl>
+      <div class="actions-row">
+        ${u.insignia_verificado
+          ? `<button class="secondary" data-accion="usuario" data-op="quitar_verificacion" data-id="${esc(u.id)}" data-cerrar="1">Quitar insignia</button>`
+          : `<button data-accion="usuario" data-op="verificar" data-id="${esc(u.id)}" data-cerrar="1">Aprobar verificación</button>`}
+        ${u.url_pitch_loom ? `<button class="secondary" data-accion="usuario" data-op="rechazar_pitch" data-id="${esc(u.id)}" data-cerrar="1">Rechazar pitch</button>` : ''}
+        <button class="secondary" data-accion="usuario" data-op="reset_postulaciones" data-id="${esc(u.id)}" data-cerrar="1">Reiniciar postulaciones</button>
+      </div>
+      <div class="actions-row">
+        <select id="u-plan" aria-label="Plan">${opcionesSel(['Rookie','Pro','Elite'], u.plan_stripe)}</select>
+        <button class="secondary" data-accion="usuario-plan" data-id="${esc(u.id)}">Cambiar plan</button>
+        <span class="small">«Elite» sin Stripe = socio fundador. Con suscripción activa en Stripe el plan solo se cambia desde Stripe.</span>
+      </div>
+      <h2 style="margin-top:18px;">Postulaciones (${d.postulaciones.length})</h2>
+      ${d.postulaciones.length ? `<div class="scroll"><table><thead><tr><th>Fecha</th><th>Oferta</th><th>% Compat.</th></tr></thead><tbody>${d.postulaciones.map(p =>
+        `<tr><td>${fmtFecha(p.created_at)}</td><td>${esc((p.ofertas && p.ofertas.titulo_oferta) || '—')}<div class="sub">${esc((p.ofertas && p.ofertas.empresa_nombre) || '')}</div></td><td>${esc(p.porcentaje_compatibilidad ?? '—')}%</td></tr>`).join('')}</tbody></table></div>` : '<p class="small">Aún no se ha postulado a ninguna oferta.</p>'}
+      <div class="actions-row" style="margin-top:20px;justify-content:space-between;">
+        <button class="danger" data-accion="usuario" data-op="eliminar" data-id="${esc(u.id)}" data-cerrar="1">Eliminar usuario (RGPD)</button>
+        <button class="secondary" data-accion="cerrar-modal">Cerrar</button>
+      </div>`;
+  } catch (err) {
+    cerrarModal();
+    if (err.message !== 'No autorizado') toast(err.message, true);
+  }
+}
+
+/* ===================== POSTULACIONES ===================== */
+function postulacionesFiltradas(){
+  const q = S.postulaciones.q.trim().toLowerCase();
+  return (cache.postulaciones ? cache.postulaciones.postulaciones : []).filter(p => {
+    if (!q) return true;
+    const texto = `${p.usuarios && p.usuarios.nombre_completo} ${p.usuarios && p.usuarios.email} ${p.ofertas && p.ofertas.titulo_oferta} ${p.ofertas && p.ofertas.empresa_nombre}`.toLowerCase();
+    return texto.includes(q);
+  });
+}
+
+function renderPostulaciones(){
+  const pg = paginar(postulacionesFiltradas(), S.postulaciones.pagina);
+  S.postulaciones.pagina = pg.pagina;
+  $('tabla-postulaciones').querySelector('tbody').innerHTML = pg.items.map(p => `
+    <tr>
+      <td>${fmtFechaHora(p.created_at)}</td>
+      <td><strong>${esc((p.usuarios && p.usuarios.nombre_completo) || '—')}</strong><div class="sub">${esc((p.usuarios && p.usuarios.email) || '')}</div></td>
+      <td>${esc((p.ofertas && p.ofertas.titulo_oferta) || '—')}<div class="sub">${esc((p.ofertas && p.ofertas.empresa_nombre) || '')}</div></td>
+      <td>${esc(p.porcentaje_compatibilidad ?? '—')}%</td>
+    </tr>`).join('') || '<tr><td colspan="4" class="vacio">Sin postulaciones todavía.</td></tr>';
+  pintarPager('po-pager', 'postulaciones', pg);
+}
+
+/* ===================== INGESTA ===================== */
+function renderIngesta(d){
+  $('in-logs').innerHTML = d.logs.map(l => {
+    const e = estadoIngesta(l);
+    const dur = l.fin ? `${Math.max(1, Math.round((new Date(l.fin) - new Date(l.inicio)) / 1000))} s` : '—';
+    const fuentes = Object.entries(l.resultados || {}).map(([n, f]) => `
+      <div style="margin-bottom:4px;"><span class="badge ${esc(f.estado)}">${esc(n)}</span>
+      ${esc(f.procesadas)} procesadas · ${esc(f.errores)} errores · ${esc(f.cerradas)} cerradas
+      ${(f.muestra_errores || []).map(m => `<div class="sub">${esc(m)}</div>`).join('')}</div>`).join('');
+    return `<tr><td>${fmtFechaHora(l.inicio)}</td><td>${dur}</td><td><span class="badge ${e.cls}">${esc(e.texto)}</span></td>
+      <td>${fuentes || '<span class="small">Sin datos (la ejecución no llegó a terminar)</span>'}</td></tr>`;
+  }).join('') || '<tr><td colspan="4" class="vacio">Todavía no hay ejecuciones registradas. La primera será la del próximo cron.</td></tr>';
+}
+
+/* ===================== LISTA DE ESPERA / ACTIVIDAD ===================== */
+function renderEspera(d){
+  $('es-filas').innerHTML = d.espera.map(e => `<tr><td>${esc(e.email)}</td><td>${fmtFechaHora(e.created_at)}</td></tr>`).join('') ||
+    '<tr><td colspan="2" class="vacio">Todavía no se ha apuntado ninguna empresa.</td></tr>';
+}
+
+function resumenDetalle(d){
+  if (!d) return '';
+  return Object.entries(d).map(([k, v]) => `${k}: ${Array.isArray(v) ? v.join(', ') : v}`).join(' · ');
+}
+
+function renderActividad(d){
+  $('ac-filas').innerHTML = d.actividad.map(a => `
+    <tr><td>${fmtFechaHora(a.created_at)}</td><td><strong>${esc(a.accion)}</strong></td><td>${esc(a.entidad)}</td>
+    <td class="small">${esc(resumenDetalle(a.detalle))}</td></tr>`).join('') ||
+    '<tr><td colspan="4" class="vacio">Sin actividad registrada todavía.</td></tr>';
+}
+
+/* ===================== CSV ===================== */
+function csvCelda(v){
+  let s = v == null ? '' : String(v);
+  if (/^[=+\-@\t\r]/.test(s)) s = "'" + s;   // evita que Excel interprete el texto como fórmula
+  return '"' + s.replace(/"/g, '""') + '"';
+}
+
+function descargarCsv(nombre, columnas, filas){
+  const cab = columnas.map(c => csvCelda(c[0])).join(';');
+  const cuerpo = filas.map(f => columnas.map(c => csvCelda(c[1](f))).join(';')).join('\n');
+  const blob = new Blob(['\ufeff' + cab + '\n' + cuerpo], { type:'text/csv;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `${nombre}-${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+}
+
+function exportar(seccion){
+  if (seccion === 'ofertas') {
+    descargarCsv('ofertas', [
+      ['Título', o => o.titulo_oferta], ['Empresa', o => o.empresa_nombre], ['Fuente', o => o.fuente], ['Estado', o => o.estado_oferta],
+      ['Modalidad', o => o.modalidad_oferta], ['País', o => o.pais_oferta], ['Ciudad', o => o.ciudad_provincia_oferta],
+      ['Target', o => o.target_oferta], ['Ticket', o => o.rango_ticket_oferta], ['Postulaciones', o => o.postulaciones],
+      ['Publicada', o => o.fecha_publicacion], ['Enlace', o => o.url_origen],
+    ], ofertasFiltradas());
+  }
+  if (seccion === 'usuarios') {
+    descargarCsv('usuarios', [
+      ['Nombre', u => u.nombre_completo], ['Email', u => u.email], ['Plan', u => u.plan_stripe], ['Verificado', u => u.insignia_verificado ? 'Sí' : 'No'],
+      ['Modalidad', u => u.modalidad], ['País', u => u.pais], ['Ciudad', u => u.ciudad_provincia], ['Alta', u => fmtFecha(u.created_at)],
+    ], usuariosFiltrados());
+  }
+  if (seccion === 'postulaciones') {
+    descargarCsv('postulaciones', [
+      ['Fecha', p => fmtFechaHora(p.created_at)], ['Usuario', p => p.usuarios && p.usuarios.nombre_completo], ['Email', p => p.usuarios && p.usuarios.email],
+      ['Oferta', p => p.ofertas && p.ofertas.titulo_oferta], ['Empresa', p => p.ofertas && p.ofertas.empresa_nombre], ['% compatibilidad', p => p.porcentaje_compatibilidad],
+    ], postulacionesFiltradas());
+  }
+  if (seccion === 'espera') {
+    descargarCsv('lista-espera-empresas', [['Email', e => e.email], ['Fecha', e => fmtFechaHora(e.created_at)]], cache.espera ? cache.espera.espera : []);
+  }
+}
+
+/* ===================== MODAL ===================== */
+function abrirModal(html){
+  $('modal-body').innerHTML = html;
+  $('modal-bg').classList.add('on');
+}
+function cerrarModal(){
+  $('modal-bg').classList.remove('on');
+  $('modal-body').innerHTML = '';
+}
+
+/* ===================== AÑADIR OFERTA ===================== */
+async function extraer(){
+  const texto = $('texto-bruto').value.trim();
+  const msg = $('extraer-msg'); const btn = $('btn-extraer');
+  if (texto.length < 20) { msg.textContent = 'Pega el texto completo de la oferta primero.'; msg.className = 'msg error'; return; }
   ultimoTextoOriginal = texto;
   btn.disabled = true; msg.textContent = 'Extrayendo...'; msg.className = 'msg';
-
   try {
     const r = await fetch('/api/clasificar-oferta', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-admin-password': ADMIN_PW },
-      body: JSON.stringify({ texto }),
+      method:'POST', headers:{ 'Content-Type':'application/json', 'x-admin-password': PW }, body: JSON.stringify({ texto }),
     });
     const data = await r.json();
     if (!r.ok) throw new Error(data.error || 'Error al extraer');
-
-    document.getElementById('f-titulo').value = data.titulo === 'No especificado' ? '' : data.titulo;
-    document.getElementById('f-empresa').value = data.empresa === 'No especificado' ? '' : (data.empresa || '');
-    document.getElementById('f-modalidad').value = data.modalidad === 'No especificado' ? 'Remoto' : data.modalidad;
-    document.getElementById('f-target').value = data.target === 'No especificado' ? 'B2B' : data.target;
-    document.getElementById('f-ciudad').value = data.ciudad_provincia === 'No especificado' ? '' : data.ciudad_provincia;
-    document.getElementById('f-ticket').value = data.rango_ticket === 'No especificado' ? '<500€' : data.rango_ticket;
-    document.getElementById('f-remuneracion').value = data.tipo_remuneracion === 'No especificado' ? 'Fijo+Variable' : data.tipo_remuneracion;
-    document.getElementById('f-rol').value = (data.rol || []).join('\n');
-    document.getElementById('f-sector').value = (data.sector || []).join('\n');
-
-    document.getElementById('form-card').style.display = 'block';
+    const sinDato = (v) => v === 'No especificado' ? '' : (v || '');
+    $('f-titulo').value = sinDato(data.titulo);
+    $('f-empresa').value = sinDato(data.empresa);
+    $('f-modalidad').value = data.modalidad === 'No especificado' ? 'Remoto' : data.modalidad;
+    $('f-target').value = data.target === 'No especificado' ? 'B2B' : data.target;
+    $('f-ciudad').value = sinDato(data.ciudad_provincia);
+    $('f-ticket').value = data.rango_ticket === 'No especificado' ? '<500€' : data.rango_ticket;
+    $('f-remuneracion').value = data.tipo_remuneracion === 'No especificado' ? 'Fijo+Variable' : data.tipo_remuneracion;
+    $('f-rol').value = (data.rol || []).join('\n');
+    $('f-sector').value = (data.sector || []).join('\n');
+    $('form-card').style.display = 'block';
     msg.textContent = 'Revisa los campos antes de guardar.'; msg.className = 'msg ok';
   } catch (err) {
     msg.textContent = err.message; msg.className = 'msg error';
-  } finally {
-    btn.disabled = false;
-  }
+  } finally { btn.disabled = false; }
 }
 
 async function guardar(){
-  const btn = document.getElementById('btn-guardar');
-  const msg = document.getElementById('guardar-msg');
+  const btn = $('btn-guardar'); const msg = $('guardar-msg');
   btn.disabled = true; msg.textContent = 'Guardando...'; msg.className = 'msg';
-
+  const lineas = (id) => $(id).value.split('\n').map(s => s.trim()).filter(Boolean);
   const payload = {
-    titulo: document.getElementById('f-titulo').value,
-    empresa: document.getElementById('f-empresa').value,
-    fuente: document.getElementById('f-fuente').value,
-    modalidad: document.getElementById('f-modalidad').value,
-    target: document.getElementById('f-target').value,
-    ciudad_provincia: document.getElementById('f-ciudad').value,
-    rango_ticket: document.getElementById('f-ticket').value,
-    tipo_remuneracion: document.getElementById('f-remuneracion').value,
-    rol: document.getElementById('f-rol').value.split('\n').map(s=>s.trim()).filter(Boolean),
-    sector: document.getElementById('f-sector').value.split('\n').map(s=>s.trim()).filter(Boolean),
-    url_origen: document.getElementById('f-url').value,
-    texto_original: ultimoTextoOriginal,
+    titulo: $('f-titulo').value, empresa: $('f-empresa').value, fuente: $('f-fuente').value, modalidad: $('f-modalidad').value,
+    target: $('f-target').value, ciudad_provincia: $('f-ciudad').value, rango_ticket: $('f-ticket').value,
+    tipo_remuneracion: $('f-remuneracion').value, rol: lineas('f-rol'), sector: lineas('f-sector'),
+    url_origen: $('f-url').value, texto_original: ultimoTextoOriginal,
   };
-
   try {
     const r = await fetch('/api/add-oferta', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-admin-password': ADMIN_PW },
-      body: JSON.stringify(payload),
+      method:'POST', headers:{ 'Content-Type':'application/json', 'x-admin-password': PW }, body: JSON.stringify(payload),
     });
     const data = await r.json();
     if (!r.ok) throw new Error(data.error || 'Error al guardar');
-
-    msg.textContent = '¡Guardada! Ya está visible en Klosers.'; msg.className = 'msg ok';
-    document.getElementById('texto-bruto').value = '';
-    setTimeout(() => { document.getElementById('form-card').style.display = 'none'; msg.textContent=''; }, 2500);
+    msg.textContent = '¡Guardada! Ya está visible en Klosers. Si falta algún dato, complétalo en «Gestionar ofertas» → Editar.';
+    msg.className = 'msg ok';
+    $('texto-bruto').value = '';
+    invalidar('ofertas', 'resumen');
+    setTimeout(() => { $('form-card').style.display = 'none'; msg.textContent = ''; }, 3500);
   } catch (err) {
     msg.textContent = err.message; msg.className = 'msg error';
-  } finally {
-    btn.disabled = false;
+  } finally { btn.disabled = false; }
+}
+
+/* ===================== EVENTOS ===================== */
+$('btn-entrar').addEventListener('click', entrar);
+$('pw-input').addEventListener('keydown', e => { if (e.key === 'Enter') entrar(); });
+$('btn-salir').addEventListener('click', () => salir(''));
+$('btn-extraer').addEventListener('click', extraer);
+$('btn-guardar').addEventListener('click', guardar);
+$('btn-cancelar-form').addEventListener('click', () => { $('form-card').style.display = 'none'; });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') cerrarModal(); });
+$('modal-bg').addEventListener('click', e => { if (e.target === $('modal-bg')) cerrarModal(); });
+
+// Filtros: input/select con data-filtro="tabla.campo"
+document.addEventListener('input', e => {
+  const t = e.target;
+  if (t.dataset && t.dataset.filtro) {
+    const [tabla, campo] = t.dataset.filtro.split('.');
+    S[tabla][campo] = t.value;
+    S[tabla].pagina = 1;
+    ({ ofertas: renderOfertas, usuarios: renderUsuarios, postulaciones: renderPostulaciones })[tabla]();
   }
+});
+
+document.addEventListener('change', e => {
+  const t = e.target;
+  if (t.dataset && t.dataset.sel) {
+    t.checked ? S.ofertas.sel.add(t.dataset.sel) : S.ofertas.sel.delete(t.dataset.sel);
+    pintarBulk();
+  }
+  if (t.id === 'of-sel-todas') {
+    const pg = paginar(ofertasFiltradas(), S.ofertas.pagina);
+    pg.items.forEach(o => t.checked ? S.ofertas.sel.add(o.id) : S.ofertas.sel.delete(o.id));
+    renderOfertas();
+  }
+});
+
+document.addEventListener('click', async e => {
+  const tab = e.target.closest('[data-tab]');
+  if (tab && tab.closest('#tabs')) return cambiarTab(tab.dataset.tab);
+
+  if (e.target.id === 'e-guardar') return guardarEdicionOferta(e.target.dataset.id);
+
+  const b = e.target.closest('[data-accion]');
+  if (!b) return;
+  const { accion: a, op, id, seccion } = b.dataset;
+
+  if (a === 'cerrar-modal') return cerrarModal();
+  if (a === 'refrescar') { invalidar(seccion); return pintar(seccion); }
+  if (a === 'csv') return exportar(seccion);
+  if (a === 'oferta') return ejecutarOferta(op, id);
+  if (a === 'lote') return ejecutarLote(op);
+  if (a === 'lote-limpiar') { S.ofertas.sel.clear(); return renderOfertas(); }
+  if (a === 'usuario-ver') return abrirFichaUsuario(id);
+  if (a === 'usuario') {
+    const hecho = await ejecutarUsuario(op, id);
+    if (hecho && b.dataset.cerrar) cerrarModal();
+    return;
+  }
+  if (a === 'usuario-plan') {
+    const plan = $('u-plan').value;
+    const hecho = await ejecutarUsuario('set_plan', id, { plan });
+    if (hecho) cerrarModal();
+    return;
+  }
+  if (a === 'pag') {
+    const t = b.dataset.tabla;
+    S[t].pagina += Number(b.dataset.dir);
+    return ({ ofertas: renderOfertas, usuarios: renderUsuarios, postulaciones: renderPostulaciones })[t]();
+  }
+  if (a === 'ir') {
+    const al = $('resumen-alertas')._alertas[Number(b.dataset.i)];
+    if (al && al.filtro) {
+      const [tabla, campo, valor] = al.filtro;
+      S[tabla][campo] = valor; S[tabla].pagina = 1;
+      await cambiarTab(al.ir);
+      const sel = document.querySelector(`[data-filtro="${tabla}.${campo}"]`);
+      if (sel) sel.value = valor;
+      return;
+    }
+    return cambiarTab(b.dataset.tab);
+  }
+  if (a === 'copiar-emails') {
+    const emails = (cache.espera ? cache.espera.espera : []).map(x => x.email).join('\n');
+    try { await navigator.clipboard.writeText(emails); toast('Emails copiados.'); }
+    catch (_) { toast('No se ha podido copiar; usa Exportar CSV.', true); }
+  }
+});
+
+// Si había sesión guardada, se comprueba que la contraseña sigue valiendo
+if (PW) {
+  cargar('resumen', true)
+    .then(() => { $('gate').style.display = 'none'; $('panel').style.display = 'block'; cambiarTab('resumen'); })
+    .catch(() => {});
 }
 </script>
 </body>
