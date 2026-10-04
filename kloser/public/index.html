@@ -1,0 +1,1536 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Klosers — El club privado de talento comercial</title>
+<meta name="description" content="Klosers conecta a Setters, Closers, SDRs, KAMs y comerciales de campo con las ofertas de venta que no llegan a los portales de empleo genéricos.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%85%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --bg:#FAF7EF; --bg-card:#FBF8F0; --ink:#132A20; --ink-soft:#4C5E54;
+    --green:#0B3D2E; --green-deep:#082A20; --gold:#B4881F; --gold-strong:#AD7F12;
+    --gold-light:#F0D48A; --cream-text:#EDE7D3; --border-gold:rgba(180,136,31,0.35);
+    --shadow:0 24px 60px -24px rgba(11,61,46,0.28); --danger:#A5432F;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#081712; --bg-card:#0E2A20; --ink:#EDE7D3; --ink-soft:#B9C4BC;
+      --green:#0B3D2E; --green-deep:#04100B; --gold:#E3C267; --gold-strong:#E3C267;
+      --gold-light:#F3DFA0; --cream-text:#EDE7D3; --border-gold:rgba(227,194,103,0.32);
+      --shadow:0 24px 60px -24px rgba(0,0,0,0.65);
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#081712; --bg-card:#0E2A20; --ink:#EDE7D3; --ink-soft:#B9C4BC;
+    --green:#0B3D2E; --green-deep:#04100B; --gold:#E3C267; --gold-strong:#E3C267;
+    --gold-light:#F3DFA0; --cream-text:#EDE7D3; --border-gold:rgba(227,194,103,0.32);
+    --shadow:0 24px 60px -24px rgba(0,0,0,0.65);
+  }
+  html{scroll-behavior:smooth;}
+  body{background:var(--bg); color:var(--ink); font-family:'Inter',ui-sans-serif,system-ui,sans-serif;}
+  .serif{font-family:'Fraunces',Georgia,'Times New Roman',serif;}
+  .surface{background:var(--bg-card); border:1px solid var(--border-gold); box-shadow:var(--shadow);}
+  .gold-text{color:var(--gold-strong);}
+  .ink-soft{color:var(--ink-soft);}
+  .divider-gold{border-color:var(--border-gold);}
+  a, button{-webkit-tap-highlight-color:transparent;}
+  a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible{
+    outline:2px solid var(--gold-strong); outline-offset:3px; border-radius:4px;
+  }
+  .view{display:none;}
+  .view.active{display:block;}
+  .marquee-mask{-webkit-mask-image:linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask-image:linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);}
+  .marquee-track{display:flex; width:max-content; animation:marquee 34s linear infinite;}
+  @keyframes marquee{from{transform:translateX(0);} to{transform:translateX(-50%);}}
+  @media (prefers-reduced-motion: reduce){ .marquee-track{animation:none;} .fade-in{opacity:1 !important; transform:none !important;} }
+  .fade-in{opacity:0; transform:translateY(14px); transition:opacity .6s ease, transform .6s ease;}
+  .fade-in.is-visible{opacity:1; transform:translateY(0);}
+  .card-tilt{transform:rotate(2deg);}
+  @media (max-width:1024px){ .card-tilt{transform:rotate(0);} }
+  .blur-line{filter:blur(3.5px); user-select:none;}
+  #mobile-menu{transition:max-height .25s ease;}
+  ::selection{background:var(--gold-light); color:var(--green-deep);}
+
+  .chip{border:1px solid var(--border-gold); background:var(--bg-card); color:var(--ink); border-radius:999px; padding:.6rem 1.1rem; font-size:.875rem; font-weight:500; cursor:pointer; transition:all .15s ease; text-align:left;}
+  .chip:hover{border-color:var(--gold-strong);}
+  .chip.selected{background:var(--green); color:var(--cream-text); border-color:var(--green);}
+  .progress-track{height:4px; background:var(--border-gold); border-radius:99px; overflow:hidden;}
+  .progress-fill{height:100%; background:var(--gold-strong); transition:width .3s ease;}
+  .field-input{width:100%; padding:.85rem 1rem; border-radius:.75rem; border:1px solid var(--border-gold); background:var(--bg); color:var(--ink); font-size:.95rem;}
+  .btn-gold{background:var(--gold-strong); color:var(--green-deep); font-weight:600; border-radius:999px; padding:.85rem 1.75rem; transition:transform .15s ease; display:inline-block;}
+  .btn-gold:hover{transform:translateY(-1px);}
+  .btn-gold:disabled{opacity:.45; cursor:not-allowed; transform:none;}
+  .btn-outline{border:1px solid var(--green); color:var(--green); font-weight:600; border-radius:999px; padding:.85rem 1.75rem; display:inline-block;}
+  :root[data-theme="dark"] .btn-outline{border-color:var(--gold-strong); color:var(--gold-strong);}
+  @media (prefers-color-scheme:dark){ :root:not([data-theme="light"]) .btn-outline{border-color:var(--gold-strong); color:var(--gold-strong);} }
+  .tab{padding:.55rem 1.1rem; border-radius:999px; font-size:.85rem; font-weight:600; border:1px solid var(--border-gold); color:var(--ink-soft); cursor:pointer; background:transparent;}
+  .tab.active{background:var(--green); color:var(--cream-text); border-color:var(--green);}
+  .match-pill{font-size:.75rem; font-weight:700; padding:.3rem .7rem; border-radius:999px;}
+  .lock-overlay{position:absolute; inset:0; background:rgba(8,23,18,0.72); backdrop-filter:blur(2px); display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; border-radius:1rem; color:#fff; gap:.5rem; padding:1.5rem;}
+</style>
+</head>
+<body class="antialiased">
+
+<!-- ============ PUBLIC HEADER (landing / auth) ============ -->
+<header id="public-header" class="sticky top-0 z-40" style="background:var(--bg); border-bottom:1px solid var(--border-gold);">
+  <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+    <button onclick="showView('landing')" class="flex flex-col leading-none text-left">
+      <span class="serif text-2xl tracking-wide font-semibold" style="color:var(--gold-strong);">KLOSERS</span>
+      <span class="serif italic text-[11px] tracking-[0.15em] ink-soft mt-0.5">Club de Talento Comercial</span>
+    </button>
+
+    <nav class="hidden md:flex items-center gap-8 text-sm font-medium">
+      <a href="#como-funciona" onclick="showView('landing')" class="hover:opacity-70 transition-opacity" style="color:var(--ink);">Cómo funciona</a>
+      <a href="#planes" onclick="showView('landing')" class="hover:opacity-70 transition-opacity" style="color:var(--ink);">Planes</a>
+      <a href="#empresas" onclick="showView('landing')" class="hover:opacity-70 transition-opacity" style="color:var(--ink);">Empresas</a>
+    </nav>
+
+    <div class="hidden md:flex items-center gap-4">
+      <button onclick="openAuth('login')" class="text-sm font-medium hover:opacity-70 transition-opacity" style="color:var(--ink);">Iniciar sesión</button>
+      <button onclick="openAuth('signup')" class="btn-gold text-sm !py-2.5 !px-5">Crear mi perfil</button>
+    </div>
+
+    <button id="menu-btn" aria-label="Abrir menú" aria-expanded="false" class="md:hidden p-2">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+  </div>
+  <div id="mobile-menu" class="md:hidden overflow-hidden max-h-0">
+    <div class="px-6 pb-5 flex flex-col gap-4 text-sm font-medium" style="border-top:1px solid var(--border-gold);">
+      <a href="#como-funciona" onclick="showView('landing')" class="pt-4">Cómo funciona</a>
+      <a href="#planes" onclick="showView('landing')">Planes</a>
+      <a href="#empresas" onclick="showView('landing')">Empresas</a>
+      <button onclick="openAuth('login')" class="text-left">Iniciar sesión</button>
+      <button onclick="openAuth('signup')" class="btn-gold text-center">Crear mi perfil</button>
+    </div>
+  </div>
+</header>
+
+<!-- ============ PRIVATE HEADER (dashboard / ofertas) ============ -->
+<header id="private-header" class="sticky top-0 z-40 hidden" style="background:var(--bg); border-bottom:1px solid var(--border-gold);">
+  <div class="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+    <button onclick="showView('dashboard')" class="flex flex-col leading-none text-left">
+      <span class="serif text-2xl tracking-wide font-semibold" style="color:var(--gold-strong);">KLOSERS</span>
+    </button>
+    <nav class="flex items-center gap-5 md:gap-7 text-sm font-semibold overflow-x-auto whitespace-nowrap">
+      <button onclick="showView('dashboard')" style="color:var(--ink);">Dashboard</button>
+      <button onclick="showView('ofertas')" style="color:var(--ink);">Ofertas</button>
+      <button onclick="showView('perfil')" style="color:var(--ink);">Mi perfil</button>
+      <button onclick="abrirComunidad()" style="color:var(--ink);">Comunidad</button>
+    </nav>
+    <div class="flex items-center gap-3 shrink-0">
+      <div id="nav-avatar" onclick="showView('perfil')" class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold cursor-pointer" style="background:var(--green); color:var(--gold-light);">--</div>
+      <button onclick="logout()" class="hidden sm:inline text-sm font-medium hover:opacity-70" style="color:var(--ink-soft);">Cerrar sesión</button>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<!-- ================= VIEW: LANDING ================= -->
+<section id="view-landing" class="view active">
+
+  <div class="text-center text-sm py-2.5 px-4" style="background:var(--green-deep); color:var(--cream-text);">
+    Fase de fundadores abierta — los primeros 50 socios reciben el plan Elite gratis de por vida.
+  </div>
+
+  <section class="max-w-6xl mx-auto px-6 pt-16 pb-20 md:pt-24 md:pb-28 grid lg:grid-cols-[1.1fr_0.9fr] gap-16 items-center">
+    <div class="fade-in">
+      <h1 class="serif text-[2.6rem] leading-[1.08] sm:text-5xl md:text-6xl font-semibold" style="color:var(--gold-strong);">
+        El club privado donde los mejores comerciales encuentran las ofertas que no llegan a InfoJobs.
+      </h1>
+      <p class="mt-6 text-lg leading-relaxed max-w-xl ink-soft">
+        Nada de currículums genéricos. Tu ticket medio, tu tasa de cierre y tu cartera hablan por ti — y las empresas que buscan comerciales de verdad ya están mirando.
+      </p>
+      <div class="mt-9 flex flex-wrap gap-4">
+        <button onclick="openAuth('signup')" class="btn-gold">Crear mi perfil gratis</button>
+        <a href="#ofertas-preview" class="btn-outline">Ver ofertas disponibles</a>
+      </div>
+      <p class="mt-6 text-sm ink-soft">Sin tarjeta. El plan Rookie es gratis para siempre.</p>
+    </div>
+
+    <div class="fade-in flex justify-center lg:justify-end">
+      <div class="card-tilt w-full max-w-sm rounded-2xl p-7" style="background:linear-gradient(155deg, var(--green) 0%, var(--green-deep) 100%); box-shadow:var(--shadow);">
+        <div class="flex items-center justify-between">
+          <span class="serif text-lg font-semibold" style="color:var(--gold-light);">KLOSERS</span>
+          <span class="text-[10px] tracking-[0.18em] font-medium" style="color:var(--cream-text); opacity:0.7;">SOCIO Nº 0142</span>
+        </div>
+        <div class="mt-8 flex items-center gap-4">
+          <div class="w-14 h-14 rounded-full flex items-center justify-center serif text-lg font-semibold" style="background:var(--gold-light); color:var(--green-deep);">MR</div>
+          <div>
+            <p class="font-semibold" style="color:var(--cream-text);">Marta R.</p>
+            <p class="text-sm" style="color:var(--gold-light);">Closer High Ticket · B2C</p>
+          </div>
+        </div>
+        <div class="mt-7 grid grid-cols-2 gap-4 pt-6" style="border-top:1px solid rgba(240,212,138,0.2);">
+          <div>
+            <p class="text-[11px] tracking-wide" style="color:var(--cream-text); opacity:0.65;">TICKET MEDIO</p>
+            <p class="serif text-xl font-semibold" style="color:var(--cream-text);">2.400 €</p>
+          </div>
+          <div>
+            <p class="text-[11px] tracking-wide" style="color:var(--cream-text); opacity:0.65;">TASA DE CIERRE</p>
+            <p class="serif text-xl font-semibold" style="color:var(--cream-text);">34%</p>
+          </div>
+        </div>
+        <div class="mt-6 flex items-center gap-2 pt-5" style="border-top:1px solid rgba(240,212,138,0.2);">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold-light)" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>
+          <span class="text-[13px] font-medium" style="color:var(--gold-light);">Kloser Verificado</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="py-6 marquee-mask overflow-hidden" style="background:var(--green); border-top:1px solid var(--border-gold); border-bottom:1px solid var(--border-gold);">
+    <div class="marquee-track text-sm tracking-[0.14em] font-medium" style="color:var(--gold-light);">
+      <span class="flex items-center gap-10 pr-10">
+        <span>SETTER</span><span>·</span><span>CLOSER HIGH TICKET</span><span>·</span><span>SDR</span><span>·</span>
+        <span>ACCOUNT EXECUTIVE</span><span>·</span><span>KEY ACCOUNT MANAGER</span><span>·</span>
+        <span>COMERCIAL DE CAMPO</span><span>·</span><span>BDR</span><span>·</span><span>CUSTOMER SUCCESS MANAGER</span><span>·</span>
+        <span>JEFE DE VENTAS</span><span>·</span><span>DIRECTOR COMERCIAL</span><span>·</span>
+      </span>
+      <span class="flex items-center gap-10 pr-10" aria-hidden="true">
+        <span>SETTER</span><span>·</span><span>CLOSER HIGH TICKET</span><span>·</span><span>SDR</span><span>·</span>
+        <span>ACCOUNT EXECUTIVE</span><span>·</span><span>KEY ACCOUNT MANAGER</span><span>·</span>
+        <span>COMERCIAL DE CAMPO</span><span>·</span><span>BDR</span><span>·</span><span>CUSTOMER SUCCESS MANAGER</span><span>·</span>
+        <span>JEFE DE VENTAS</span><span>·</span><span>DIRECTOR COMERCIAL</span><span>·</span>
+      </span>
+    </div>
+  </div>
+
+  <section id="ofertas-preview" class="max-w-6xl mx-auto px-6 py-24 grid lg:grid-cols-2 gap-14 items-start">
+    <div class="fade-in">
+      <h2 class="serif text-3xl md:text-4xl font-semibold" style="color:var(--gold-strong);">No eres un currículum más.</h2>
+      <p class="mt-5 leading-relaxed ink-soft">
+        En InfoJobs eres un PDF entre miles. En LinkedIn, ruido. Aquí, cada perfil tiene un escaparate de rendimiento: cuánto has facturado, qué tamaño de cartera manejas, tu tasa de retención. Eso es lo que de verdad quiere ver quien contrata.
+      </p>
+      <p class="mt-4 leading-relaxed ink-soft">
+        Da igual si cierras tratos por videollamada o tomando un café con el cliente — hay sitio para los dos mundos, y el algoritmo solo te enseña lo que encaja con tu terreno de juego.
+      </p>
+    </div>
+    <div class="relative fade-in">
+      <div class="space-y-4">
+        <div class="surface rounded-xl p-5"><p class="font-semibold blur-line">Closer High Ticket — Infoproductos</p><p class="text-sm ink-soft mt-1 blur-line">Remoto · B2C · 2.000€–4.000€ ticket</p></div>
+        <div class="surface rounded-xl p-5"><p class="font-semibold blur-line">Key Account Manager — Industrial</p><p class="text-sm ink-soft mt-1 blur-line">Madrid · Híbrido · B2B</p></div>
+        <div class="surface rounded-xl p-5"><p class="font-semibold blur-line">SDR — SaaS</p><p class="text-sm ink-soft mt-1 blur-line">Remoto · B2B · Fijo + variable</p></div>
+      </div>
+      <div class="absolute inset-0 flex items-center justify-center">
+        <button onclick="openAuth('signup')" class="surface rounded-full px-6 py-3 font-semibold text-sm flex items-center gap-2" style="color:var(--gold-strong);">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--gold-strong)" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg>
+          Desbloquea con tu perfil gratuito
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Calculadora de comisiones (lead magnet) -->
+  <section id="calculadora" class="max-w-4xl mx-auto px-6 py-24">
+    <div class="surface rounded-2xl p-8 md:p-12 text-center">
+      <h2 class="serif text-3xl md:text-4xl font-semibold" style="color:var(--gold-strong);">¿Cuánto podrías ganar?</h2>
+      <p class="mt-3 ink-soft max-w-lg mx-auto">Mueve los números y calcula tu comisión mensual estimada. Esto es lo que hay en juego cada vez que Klosers te enseña la oferta correcta.</p>
+
+      <div class="mt-10 grid sm:grid-cols-3 gap-6 text-left">
+        <div>
+          <label class="text-sm font-medium">Ventas al mes</label>
+          <input id="calc-ventas" type="number" value="8" min="0" class="field-input mt-1.5" oninput="calcularComisiones()">
+        </div>
+        <div>
+          <label class="text-sm font-medium">Ticket medio (€)</label>
+          <input id="calc-ticket" type="number" value="1500" min="0" class="field-input mt-1.5" oninput="calcularComisiones()">
+        </div>
+        <div>
+          <label class="text-sm font-medium">% de comisión</label>
+          <input id="calc-comision" type="number" value="15" min="0" max="100" class="field-input mt-1.5" oninput="calcularComisiones()">
+        </div>
+      </div>
+
+      <div class="mt-10 pt-8" style="border-top:1px solid var(--border-gold);">
+        <p class="text-sm ink-soft">Ganarías al mes</p>
+        <p id="calc-resultado" class="serif text-5xl font-semibold mt-2" style="color:var(--gold-strong);">1.800 €</p>
+        <button onclick="openAuth('signup')" class="btn-gold mt-6">Quiero ofertas a esta altura</button>
+      </div>
+    </div>
+  </section>
+
+  <section id="como-funciona" class="py-24" style="background:var(--bg-card); border-top:1px solid var(--border-gold); border-bottom:1px solid var(--border-gold);">
+    <div class="max-w-6xl mx-auto px-6">
+      <h2 class="serif text-3xl md:text-4xl font-semibold fade-in" style="color:var(--gold-strong);">Cómo funciona</h2>
+      <div class="mt-14 grid md:grid-cols-3 gap-10 md:gap-6">
+        <div class="fade-in md:pr-6 md:border-r divider-gold">
+          <span class="serif text-4xl gold-text">1</span>
+          <h3 class="mt-3 font-semibold text-lg">Cuéntanos tu terreno de juego</h3>
+          <p class="mt-2 text-sm leading-relaxed ink-soft">Rol, modalidad, sector y tus números reales. Nada de plantillas de currículum.</p>
+        </div>
+        <div class="fade-in md:px-6 md:border-r divider-gold">
+          <span class="serif text-4xl gold-text">2</span>
+          <h3 class="mt-3 font-semibold text-lg">El algoritmo cruza tu perfil</h3>
+          <p class="mt-2 text-sm leading-relaxed ink-soft">Cada oferta que nos llega se compara con tu ubicación, modalidad, sector y ticket — sin ruido de por medio.</p>
+        </div>
+        <div class="fade-in md:pl-6">
+          <span class="serif text-4xl gold-text">3</span>
+          <h3 class="mt-3 font-semibold text-lg">Postula donde encajas de verdad</h3>
+          <p class="mt-2 text-sm leading-relaxed ink-soft">Y sube de nivel con la insignia Kloser Verificado para entrar el primero en cada candidatura.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="empresas" class="max-w-6xl mx-auto px-6 py-24 grid lg:grid-cols-2 gap-8">
+    <div class="fade-in rounded-2xl p-9" style="background:var(--green); color:var(--cream-text);">
+      <h3 class="serif text-2xl font-semibold" style="color:var(--gold-light);">Para comerciales</h3>
+      <p class="mt-4 leading-relaxed opacity-90">Crea tu perfil, activa el algoritmo de matching y accede a la Academia: recursos de venta, plantillas de cold email y un simulador de roleplay para entrenar tu pitch antes de la llamada real.</p>
+      <button onclick="openAuth('signup')" class="btn-gold inline-block mt-6 text-sm">Crear mi perfil</button>
+    </div>
+    <div class="fade-in rounded-2xl p-9 surface" style="border-style:dashed;">
+      <span class="text-xs font-semibold tracking-wide px-3 py-1 rounded-full inline-block" style="background:var(--bg); color:var(--ink-soft); border:1px solid var(--border-gold);">Próximamente</span>
+      <h3 class="serif text-2xl font-semibold mt-4" style="color:var(--gold-strong);">Para empresas</h3>
+      <p class="mt-4 leading-relaxed ink-soft">Accede a una base de comerciales ya evaluados, con métricas reales y perfiles verificados por un experto en RRHH. Deja tu email y te avisamos en cuanto abramos esta fase.</p>
+      <form id="waitlist-form" class="mt-6 flex flex-col sm:flex-row gap-3">
+        <input type="email" required placeholder="tu@empresa.com" id="waitlist-email" class="field-input flex-1">
+        <button type="submit" class="px-6 py-3 rounded-full font-semibold text-sm whitespace-nowrap" style="background:var(--green); color:var(--cream-text);">Avisadme</button>
+      </form>
+      <p id="waitlist-msg" class="mt-3 text-sm hidden gold-text"></p>
+    </div>
+  </section>
+
+  <section class="py-24" style="background:var(--bg-card); border-top:1px solid var(--border-gold); border-bottom:1px solid var(--border-gold);">
+    <div class="max-w-6xl mx-auto px-6 grid lg:grid-cols-[1fr_0.8fr] gap-14 items-center">
+      <div class="fade-in">
+        <h2 class="serif text-3xl md:text-4xl font-semibold" style="color:var(--gold-strong);">La insignia que filtra el ruido.</h2>
+        <p class="mt-5 leading-relaxed ink-soft max-w-lg">Cualquiera puede escribir "cerré 200k el año pasado" en un perfil. Para conseguir la insignia Kloser Verificado hay que demostrarlo: un pitch de un minuto o una simulación de venta en vivo, evaluados frente a tres criterios.</p>
+        <div class="mt-6 flex flex-wrap gap-3">
+          <span class="text-sm font-medium px-4 py-2 rounded-full surface">Claridad del discurso</span>
+          <span class="text-sm font-medium px-4 py-2 rounded-full surface">Métricas reales aportadas</span>
+          <span class="text-sm font-medium px-4 py-2 rounded-full surface">Capacidad de persuasión</span>
+        </div>
+      </div>
+      <div class="fade-in rounded-2xl p-8 text-center" style="background:linear-gradient(155deg, var(--green) 0%, var(--green-deep) 100%); box-shadow:var(--shadow);">
+        <div class="mx-auto w-16 h-16 rounded-full flex items-center justify-center" style="background:var(--gold-light);">
+          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="var(--green-deep)" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>
+        </div>
+        <p class="serif text-xl font-semibold mt-5" style="color:var(--gold-light);">Kloser Verificado</p>
+        <p class="text-sm mt-2 opacity-80" style="color:var(--cream-text);">Prioridad absoluta en cada candidatura que envíes.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="planes" class="max-w-6xl mx-auto px-6 py-24">
+    <h2 class="serif text-3xl md:text-4xl font-semibold text-center fade-in" style="color:var(--gold-strong);">Planes</h2>
+    <p class="text-center mt-3 ink-soft fade-in">Empieza gratis. Sube de nivel cuando lo necesites.</p>
+    <div class="mt-14 grid md:grid-cols-3 gap-6">
+      <div class="fade-in surface rounded-2xl p-8">
+        <h3 class="serif text-xl font-semibold" style="color:var(--gold-strong);">Rookie</h3>
+        <p class="mt-2 text-sm ink-soft">Para empezar a moverte</p>
+        <p class="serif text-4xl font-semibold mt-6" style="color:var(--gold-strong);">Gratis</p>
+        <ul class="mt-6 space-y-3 text-sm ink-soft"><li>Perfil completo con métricas</li><li>1 postulación semanal</li><li>Acceso al Job Board</li></ul>
+        <button onclick="openAuth('signup')" class="btn-outline block text-center mt-8 w-full text-sm !py-3">Empezar gratis</button>
+      </div>
+      <div class="fade-in surface rounded-2xl p-8">
+        <h3 class="serif text-xl font-semibold" style="color:var(--gold-strong);">Pro</h3>
+        <p class="mt-2 text-sm ink-soft">Para buscar activamente</p>
+        <p class="serif text-4xl font-semibold mt-6" style="color:var(--gold-strong);">12€<span class="text-base font-normal ink-soft">/mes</span></p>
+        <ul class="mt-6 space-y-3 text-sm ink-soft"><li>3–5 postulaciones semanales</li><li>Recursos de formación</li><li>Todo lo de Rookie</li></ul>
+        <button onclick="elegirPlan('Pro')" class="btn-outline block text-center mt-8 w-full text-sm !py-3">Elegir Pro</button>
+      </div>
+      <div class="fade-in rounded-2xl p-8" style="background:linear-gradient(155deg, var(--green) 0%, var(--green-deep) 100%); box-shadow:var(--shadow);">
+        <h3 class="serif text-xl font-semibold" style="color:var(--gold-light);">Elite</h3>
+        <p class="mt-2 text-sm opacity-80" style="color:var(--cream-text);">Para quien vive de cerrar</p>
+        <p class="serif text-4xl font-semibold mt-6" style="color:var(--cream-text);">39€<span class="text-base font-normal opacity-70">/mes</span></p>
+        <ul class="mt-6 space-y-3 text-sm" style="color:var(--cream-text); opacity:0.9;"><li>Postulaciones ilimitadas</li><li>Simulador de ventas con IA</li><li>Prioridad en cada candidatura</li><li>Mentorías grabadas</li></ul>
+        <button onclick="elegirPlan('Elite')" class="btn-gold block text-center mt-8 w-full text-sm !py-3">Elegir Elite</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="py-24 text-center px-6" style="background:var(--green);">
+    <h2 class="serif text-3xl md:text-4xl font-semibold max-w-2xl mx-auto fade-in" style="color:var(--gold-light);">Sé uno de los 50 primeros socios y consigue Elite gratis de por vida.</h2>
+    <p class="mt-4 fade-in" style="color:var(--cream-text); opacity:0.85;">Sin tarjeta. Menos de dos minutos para crear tu perfil.</p>
+    <button onclick="openAuth('signup')" class="btn-gold inline-block mt-8 fade-in">Crear mi perfil gratis</button>
+  </section>
+
+  <footer class="px-6 py-12" style="background:var(--green-deep); color:var(--cream-text);">
+    <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between gap-8">
+      <div>
+        <span class="serif text-xl font-semibold" style="color:var(--gold-light);">KLOSERS</span>
+        <p class="text-sm mt-2 opacity-70 max-w-xs">El club de talento comercial para ventas B2B y B2C.</p>
+      </div>
+      <div class="flex flex-wrap gap-x-12 gap-y-4 text-sm opacity-80">
+        <div class="flex flex-col gap-2">
+          <span class="font-semibold opacity-100" style="color:var(--gold-light);">Producto</span>
+          <a href="#como-funciona" onclick="showView('landing')">Cómo funciona</a>
+          <a href="#planes" onclick="showView('landing')">Planes</a>
+          <a href="#empresas" onclick="showView('landing')">Empresas</a>
+        </div>
+        <div class="flex flex-col gap-2">
+          <span class="font-semibold opacity-100" style="color:var(--gold-light);">Legal</span>
+          <a href="#">Términos y condiciones</a>
+          <a href="#">Política de privacidad</a>
+        </div>
+      </div>
+    </div>
+    <p class="max-w-6xl mx-auto mt-10 text-xs opacity-50">© 2026 Klosers. Club de Talento Comercial.</p>
+  </footer>
+</section>
+
+<!-- ================= VIEW: AUTH (login/signup) ================= -->
+<section id="view-auth" class="view">
+  <div class="min-h-[80vh] grid lg:grid-cols-2">
+    <div class="flex items-center justify-center px-6 py-16">
+      <div class="w-full max-w-sm surface rounded-2xl p-8">
+        <h2 id="auth-title" class="serif text-2xl font-semibold" style="color:var(--gold-strong);">Crear cuenta</h2>
+        <p id="auth-subtitle" class="text-sm ink-soft mt-1">Únete hoy</p>
+
+        <form id="auth-form" class="mt-7 space-y-4">
+          <div id="auth-name-field">
+            <label class="text-sm font-medium">Nombre</label>
+            <input id="auth-name" type="text" placeholder="Tu nombre" autocomplete="name" class="field-input mt-1.5">
+          </div>
+          <div>
+            <label class="text-sm font-medium">Email</label>
+            <input id="auth-email" type="email" required autocomplete="email" placeholder="Introduce tu email" class="field-input mt-1.5">
+          </div>
+          <div>
+            <label class="text-sm font-medium">Contraseña</label>
+            <input id="auth-password" type="password" required minlength="8" autocomplete="current-password" placeholder="Mínimo 8 caracteres" class="field-input mt-1.5">
+          </div>
+          <button type="submit" class="btn-gold w-full !py-3">Continuar</button>
+          <p id="auth-msg" class="text-sm hidden" role="alert"></p>
+        </form>
+
+        <p id="auth-legal" class="text-xs ink-soft mt-4">Al registrarte, aceptas nuestros Términos y Condiciones y nuestra Política de Privacidad.</p>
+        <p class="text-sm mt-6 text-center">
+          <span id="auth-switch-text">¿Ya tienes una cuenta?</span>
+          <button id="auth-switch-btn" onclick="openAuth('login')" class="font-semibold gold-text">Inicia sesión</button>
+        </p>
+      </div>
+    </div>
+    <div class="hidden lg:flex flex-col items-center justify-center px-14" style="background:var(--green);">
+      <span class="serif text-4xl font-semibold" style="color:var(--gold-light);">KLOSERS</span>
+      <span class="serif italic text-xs tracking-[0.15em] mt-1 mb-8" style="color:var(--cream-text); opacity:0.75;">Club de Talento Comercial</span>
+      <h3 class="serif text-2xl font-semibold text-center" style="color:var(--gold-light);">Únete al club de los mejores comerciales.</h3>
+      <p class="text-center mt-4 max-w-sm" style="color:var(--cream-text); opacity:0.85;">Klosers conecta a Setters, Closers, SDRs y Key Account Managers con las ofertas de venta que no llegan a los portales de empleo genéricos.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ================= VIEW: ONBOARDING ================= -->
+<section id="view-onboarding" class="view">
+  <div class="max-w-2xl mx-auto px-6 py-14">
+    <div class="flex items-center justify-between mb-2">
+      <span class="serif text-xl font-semibold" style="color:var(--gold-strong);">KLOSERS</span>
+      <span id="ob-step-label" class="text-sm ink-soft">Paso 1 de 6</span>
+    </div>
+    <div class="progress-track mb-10"><div id="ob-progress" class="progress-fill" style="width:16.6%"></div></div>
+
+    <div class="surface rounded-2xl p-8" id="ob-card">
+      <!-- filled by JS -->
+    </div>
+
+    <div class="flex justify-between mt-6">
+      <button id="ob-prev" onclick="obPrev()" class="btn-outline text-sm !py-2.5 !px-5">Anterior</button>
+      <button id="ob-next" onclick="obNext()" class="btn-gold text-sm !py-2.5 !px-6">Siguiente</button>
+    </div>
+    <p id="ob-error" class="text-sm mt-3 text-center hidden" style="color:var(--danger);">Selecciona al menos una opción para continuar.</p>
+  </div>
+</section>
+
+<!-- ================= VIEW: DASHBOARD ================= -->
+<section id="view-dashboard" class="view">
+  <div class="max-w-5xl mx-auto px-6 py-10 space-y-6">
+
+    <div class="surface rounded-2xl p-7 flex items-start justify-between gap-6 flex-wrap">
+      <div>
+        <h1 id="dash-welcome" class="serif text-3xl font-semibold" style="color:var(--gold-strong);">Bienvenido</h1>
+        <p class="ink-soft mt-1">Tu panel personal de Kloser. Gestiona tus postulaciones, mejora tu perfil y encuentra tu próximo rol comercial.</p>
+      </div>
+      <div id="dash-avatar" class="w-14 h-14 rounded-full flex items-center justify-center serif text-lg font-semibold shrink-0" style="background:var(--green); color:var(--gold-light);">--</div>
+    </div>
+
+    <div id="verif-banner" class="surface rounded-2xl p-6 flex items-center justify-between gap-4 flex-wrap"></div>
+
+    <div class="grid md:grid-cols-3 gap-6">
+      <div class="surface rounded-2xl p-6">
+        <p class="text-sm font-semibold ink-soft">TU PLAN</p>
+        <p id="dash-plan" class="serif text-2xl font-semibold mt-1" style="color:var(--gold-strong);">Rookie</p>
+        <p id="dash-postulaciones" class="text-sm ink-soft mt-1">1 postulación disponible esta semana</p>
+        <div id="dash-upgrade" class="hidden mt-4"><a href="#" onclick="showView('landing'); document.getElementById('planes').scrollIntoView(); return false;" class="text-sm font-semibold gold-text">Mejorar mi plan →</a></div>
+        <div id="dash-manage" class="hidden mt-4"><button onclick="gestionarSuscripcion()" class="text-sm font-semibold gold-text">Gestionar mi suscripción →</button></div>
+      </div>
+
+      <div class="surface rounded-2xl p-6 relative overflow-hidden">
+        <p class="text-sm font-semibold ink-soft">ACADEMIA · SIMULADOR IA</p>
+        <p class="serif text-xl font-semibold mt-1" style="color:var(--gold-strong);">Entrena tu pitch</p>
+        <p class="text-sm ink-soft mt-1">Practica objeciones antes de la llamada real.</p>
+        <button onclick="openSimulator()" id="sim-btn" class="btn-gold text-sm mt-4 !py-2.5">Abrir simulador</button>
+        <div id="sim-lock" class="lock-overlay hidden">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--gold-light)" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg>
+          <p class="font-semibold" style="color:var(--gold-light);">Disponible solo en Elite</p>
+          <a href="#" onclick="showView('landing'); document.getElementById('planes').scrollIntoView(); return false;" class="text-sm gold-text underline">Ver planes</a>
+        </div>
+      </div>
+
+      <div class="surface rounded-2xl p-6">
+        <p class="text-sm font-semibold ink-soft">COMUNIDAD</p>
+        <p class="serif text-xl font-semibold mt-1" style="color:var(--gold-strong);">Habla con otros Klosers</p>
+        <p class="text-sm ink-soft mt-1">Comparte guiones, analiza llamadas y no vendas en soledad.</p>
+        <button onclick="abrirComunidad()" class="btn-gold text-sm mt-4 !py-2.5">Unirme a la comunidad</button>
+      </div>
+    </div>
+
+    <div class="surface rounded-2xl p-6">
+      <div class="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <p class="text-sm font-semibold ink-soft">CALCULADORA DE COMISIONES</p>
+          <p class="text-sm ink-soft mt-1">¿Cuánto podrías ganar este mes con tu ritmo actual?</p>
+        </div>
+        <button onclick="showView('landing'); setTimeout(()=>document.getElementById('calculadora').scrollIntoView(),50);" class="text-sm font-semibold gold-text">Abrir calculadora →</button>
+      </div>
+    </div>
+
+    <div class="surface rounded-2xl p-6">
+      <div class="flex items-center justify-between flex-wrap gap-3">
+        <div>
+          <p class="text-sm font-semibold ink-soft">MI PERFIL</p>
+          <p class="text-sm ink-soft mt-1">Revisa o actualiza tus datos, sectores y números.</p>
+        </div>
+        <button onclick="showView('perfil')" class="text-sm font-semibold gold-text">Ver mi perfil →</button>
+      </div>
+    </div>
+
+    <div class="surface rounded-2xl p-6">
+      <div class="flex items-center justify-between">
+        <h2 class="serif text-xl font-semibold" style="color:var(--gold-strong);">Ofertas recomendadas para ti</h2>
+        <button onclick="showView('ofertas')" class="text-sm font-semibold gold-text">Ver todas →</button>
+      </div>
+      <div id="dash-ofertas" class="mt-5 space-y-3"></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ================= VIEW: OFERTAS (job board) ================= -->
+<section id="view-ofertas" class="view">
+  <div class="max-w-5xl mx-auto px-6 py-10">
+    <h1 class="serif text-3xl font-semibold" style="color:var(--gold-strong);">Job Board</h1>
+    <p class="ink-soft mt-1">Ordenado por compatibilidad con tu perfil.</p>
+
+    <div class="flex flex-wrap gap-2 mt-6" id="ofertas-tabs">
+      <button class="tab active" data-filter="Todas" onclick="setOfertaFilter('Todas')">Todas</button>
+      <button class="tab" data-filter="Remoto" onclick="setOfertaFilter('Remoto')">Remoto</button>
+      <button class="tab" data-filter="Híbrido" onclick="setOfertaFilter('Híbrido')">Híbrido</button>
+      <button class="tab" data-filter="Presencial" onclick="setOfertaFilter('Presencial')">Presencial</button>
+    </div>
+
+    <div id="ofertas-list" class="mt-6 space-y-4"></div>
+  </div>
+</section>
+
+<!-- ================= VIEW: MI PERFIL ================= -->
+<section id="view-perfil" class="view">
+  <div class="max-w-3xl mx-auto px-6 py-10 space-y-6">
+    <h1 class="serif text-3xl font-semibold" style="color:var(--gold-strong);">Mi perfil</h1>
+
+    <!-- Tarjeta de socio con tus números reales, mismo estilo que la de la Landing -->
+    <div class="card-tilt max-w-sm rounded-2xl p-7 mx-auto" style="background:linear-gradient(155deg, var(--green) 0%, var(--green-deep) 100%); box-shadow:var(--shadow);">
+      <div class="flex items-center justify-between">
+        <span class="serif text-lg font-semibold" style="color:var(--gold-light);">KLOSERS</span>
+        <span id="perfil-badge-mini" class="text-[10px] tracking-[0.18em] font-medium" style="color:var(--cream-text); opacity:0.7;"></span>
+      </div>
+      <div class="mt-8 flex items-center gap-4">
+        <div id="perfil-avatar" class="w-14 h-14 rounded-full flex items-center justify-center serif text-lg font-semibold" style="background:var(--gold-light); color:var(--green-deep);">--</div>
+        <div>
+          <p id="perfil-nombre-card" class="font-semibold" style="color:var(--cream-text);">—</p>
+          <p id="perfil-rol-card" class="text-sm" style="color:var(--gold-light);">—</p>
+        </div>
+      </div>
+      <div class="mt-7 grid grid-cols-2 gap-4 pt-6" style="border-top:1px solid rgba(240,212,138,0.2);">
+        <div>
+          <p class="text-[11px] tracking-wide" style="color:var(--cream-text); opacity:0.65;">TICKET MEDIO</p>
+          <p id="perfil-ticket-card" class="serif text-xl font-semibold" style="color:var(--cream-text);">—</p>
+        </div>
+        <div>
+          <p class="text-[11px] tracking-wide" style="color:var(--cream-text); opacity:0.65;">TASA DE CIERRE</p>
+          <p id="perfil-cierre-card" class="serif text-xl font-semibold" style="color:var(--cream-text);">—</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="surface rounded-2xl p-7">
+      <h2 class="serif text-lg font-semibold mb-4" style="color:var(--gold-strong);">Tus números (visibles en tu escaparate)</h2>
+      <div class="grid sm:grid-cols-2 gap-4">
+        <div>
+          <label class="text-sm font-medium">Ticket medio exacto (€, opcional)</label>
+          <input id="perfil-input-ticket" type="number" placeholder="Ej. 2400" class="field-input mt-1.5">
+        </div>
+        <div>
+          <label class="text-sm font-medium">Tasa de cierre exacta (%, opcional)</label>
+          <input id="perfil-input-cierre" type="number" placeholder="Ej. 34" class="field-input mt-1.5">
+        </div>
+      </div>
+    </div>
+
+    <div class="surface rounded-2xl p-7">
+      <h2 class="serif text-lg font-semibold mb-4" style="color:var(--gold-strong);">Datos de tu perfil</h2>
+
+      <label class="text-sm font-medium">Nombre</label>
+      <input id="perfil-input-nombre" class="field-input mt-1.5 mb-4">
+
+      <label class="text-sm font-medium">Rol comercial (puedes marcar varios)</label>
+      <div id="perfil-chips-rol" class="flex flex-wrap gap-2 mt-1.5 mb-4"></div>
+
+      <label class="text-sm font-medium">Terreno de juego</label>
+      <div id="perfil-chips-modalidad" class="flex flex-wrap gap-2 mt-1.5 mb-4"></div>
+
+      <div class="grid sm:grid-cols-2 gap-4 mb-4">
+        <div>
+          <label class="text-sm font-medium">País</label>
+          <select id="perfil-input-pais" class="field-input mt-1.5"></select>
+        </div>
+        <div>
+          <label class="text-sm font-medium">Ciudad / provincia</label>
+          <input id="perfil-input-ciudad" class="field-input mt-1.5">
+        </div>
+      </div>
+
+      <label class="text-sm font-medium">Movilidad (para ofertas presenciales o híbridas)</label>
+      <div id="perfil-chips-movilidad" class="flex flex-wrap gap-2 mt-1.5 mb-4"></div>
+
+      <label class="text-sm font-medium">A quién le vendes</label>
+      <div id="perfil-chips-target" class="flex flex-wrap gap-2 mt-1.5 mb-4"></div>
+
+      <label class="text-sm font-medium">Rango de ticket</label>
+      <div id="perfil-chips-ticket" class="flex flex-wrap gap-2 mt-1.5 mb-4"></div>
+
+      <label class="text-sm font-medium">Sectores (puedes marcar varios)</label>
+      <div id="perfil-chips-sector" class="flex flex-wrap gap-2 mt-1.5"></div>
+
+      <button onclick="guardarPerfil()" class="btn-gold mt-6">Guardar cambios</button>
+      <p id="perfil-msg" class="text-sm mt-3 hidden gold-text"></p>
+    </div>
+
+    <div class="surface rounded-2xl p-7" style="border-color:var(--danger);">
+      <h2 class="serif text-lg font-semibold" style="color:var(--danger);">Eliminar mi cuenta</h2>
+      <p class="text-sm ink-soft mt-1">Borra de forma definitiva tu perfil, tus postulaciones y cualquier suscripción activa. No se puede deshacer.</p>
+      <button onclick="eliminarCuenta()" class="mt-4 text-sm font-semibold" style="color:var(--danger);">Eliminar mi cuenta y mis datos</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= VIEW: VERIFICACIÓN ================= -->
+<section id="view-verificacion" class="view">
+  <div class="max-w-2xl mx-auto px-6 py-10 space-y-6">
+    <h1 class="serif text-3xl font-semibold" style="color:var(--gold-strong);">Sube de nivel: Verificación</h1>
+    <p class="ink-soft">Cualquiera puede decir que cierra bien. Demuéstralo por una de estas dos vías y consigue la insignia <span class="gold-text font-semibold">Kloser Verificado</span>.</p>
+
+    <div id="verificacion-estado" class="surface rounded-2xl p-6"></div>
+
+    <div class="surface rounded-2xl p-7">
+      <h2 class="serif text-lg font-semibold" style="color:var(--gold-strong);">Vía 1 — Pitch de vídeo</h2>
+      <p class="text-sm ink-soft mt-1 mb-4">Pega un enlace a un vídeo de Loom o YouTube (máx. 2 minutos) contando tu mayor hito de ventas.</p>
+      <div class="flex flex-col sm:flex-row gap-3">
+        <input id="verif-input-loom" type="url" placeholder="https://www.loom.com/share/..." class="field-input flex-1">
+        <button onclick="guardarPitch()" class="btn-gold text-sm !py-3 whitespace-nowrap">Enviar a revisión</button>
+      </div>
+      <div id="verif-loom-embed" class="mt-4"></div>
+    </div>
+
+    <div class="surface rounded-2xl p-7">
+      <h2 class="serif text-lg font-semibold" style="color:var(--gold-strong);">Vía 2 — Roleplay con IA (plan Elite)</h2>
+      <p class="text-sm ink-soft mt-1 mb-4">Defiende tu pitch frente a un director de compras exigente. Tras 5 intercambios, la IA evalúa tu manejo de objeciones: con 8/10 o más obtienes la insignia al instante.</p>
+      <button id="verif-sim-btn" onclick="openSimulator()" class="btn-gold text-sm !py-3 hidden">Abrir el simulador</button>
+      <p id="verif-sim-lock" class="text-sm ink-soft hidden">Esta vía está disponible solo en el plan Elite. <a href="#" onclick="showView('landing'); document.getElementById('planes').scrollIntoView(); return false;" class="gold-text underline">Ver planes</a></p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<!-- Simulator modal -->
+<div id="sim-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background:rgba(8,23,18,0.6);">
+  <div class="surface rounded-2xl w-full max-w-lg p-6 max-h-[85vh] flex flex-col">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="serif text-xl font-semibold" style="color:var(--gold-strong);">Simulador de ventas</h3>
+      <button onclick="closeSimulator()" class="text-2xl leading-none ink-soft">&times;</button>
+    </div>
+    <p class="text-xs ink-soft mb-1">Roleplay con IA: defiende tu pitch frente a un director de compras exigente. Tras 5 intercambios puedes pedir tu evaluación; con 8/10 o más consigues la insignia Kloser Verificado.</p>
+    <p id="sim-contador" class="text-xs mb-3" style="color:var(--gold-strong);"></p>
+    <div id="sim-chat" class="flex-1 overflow-y-auto space-y-3 pr-1"></div>
+    <form id="sim-form" class="mt-4 flex gap-2">
+      <input id="sim-input" type="text" maxlength="800" placeholder="Escribe tu pitch o respuesta..." class="field-input flex-1 text-sm">
+      <button id="sim-send" type="submit" class="btn-gold text-sm !py-2.5 !px-5">Enviar</button>
+    </form>
+    <button id="sim-eval-btn" onclick="simEvaluar()" class="btn-outline text-sm !py-2.5 mt-3 hidden">Terminar y pedir mi evaluación</button>
+  </div>
+</div>
+
+<script>
+/* ===================== DATA ===================== */
+const ROLES = ["Setter","Cold Caller","SDR","BDR","Closer High Ticket","Account Executive (AE)","Account Manager (AM)","Key Account Manager (KAM)","Customer Success Manager (CSM)","Ingeniero de Ventas","Comercial de Campo / Delegado","Jefe de Ventas","Director Comercial","Otro"];
+const MODALIDADES = ["Presencial","Híbrido","Remoto","Me adapto a todo"];
+const PAISES = ["España","Latinoamérica","Resto del mundo"];
+const TARGETS = ["B2B","B2C","Ambos"];
+const MOVILIDADES = ["Provincial","Nacional","Internacional","Sin movilidad"];
+const TICKETS = ["<500€","500€-3.000€","High Ticket >3.000€","Gestión de cartera +100k€"];
+const SECTORES = ["Infoproductos","SaaS/Tecnología","Industrial/Maquinaria","Seguros/Finanzas","Salud/Farma","Marketing/Agencias","Retail/Horeca","Educación","Logística"];
+
+
+function timeAgo(dateStr){
+  const diffMs = new Date() - new Date(dateStr+'T00:00:00');
+  const diffDays = Math.floor(diffMs / 86400000);
+  if(diffDays<=0) return 'Hoy';
+  if(diffDays===1) return 'Ayer';
+  if(diffDays<7) return `Hace ${diffDays} días`;
+  const weeks = Math.floor(diffDays/7);
+  if(weeks<5) return `Hace ${weeks} semana${weeks>1?'s':''}`;
+  const months = Math.floor(diffDays/30);
+  return `Hace ${months} mes${months>1?'es':''}`;
+}
+
+/* ===================== SUPABASE ===================== */
+// La clave "publishable" está pensada para ir en el navegador: la seguridad la dan las reglas RLS de la base de datos.
+const SUPABASE_URL = 'https://jnqzpoyyherlumwboacu.supabase.co';
+const SUPABASE_KEY = 'sb_publishable__xEYUdnaER23Cjz-bqrFcw_5skLulOd';
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+/* ===================== STATE ===================== */
+let state = {
+  authMode:'signup',
+  user:null,
+  ofertaFilter:'Todas',
+  ofertas:[],
+  ofertasError:false,
+};
+
+function esc(v){
+  return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function toast(msg){
+  const t = document.createElement('div');
+  t.textContent = msg;
+  t.setAttribute('role','status');
+  t.style.cssText = 'position:fixed;left:50%;bottom:28px;transform:translateX(-50%);z-index:100;max-width:90vw;padding:12px 20px;border-radius:12px;background:var(--green-deep);color:var(--cream-text);font-size:14px;box-shadow:0 8px 30px rgba(0,0,0,.25);';
+  document.body.appendChild(t);
+  setTimeout(()=>t.remove(), 4500);
+}
+
+function userFromRow(r){
+  return {
+    id:r.id, nombre:r.nombre_completo||'', email:r.email||'',
+    rol:r.rol_comercial||[], modalidad:r.modalidad||'', pais:r.pais||'España', ciudad:r.ciudad_provincia||'',
+    movilidad:r.movilidad||'', target:r.target||'', ticket:r.track_record_ticket||'', sectores:r.sectores_experiencia||[],
+    verificado:!!r.insignia_verificado, plan:r.plan_stripe||'Rookie',
+    postulacionesRestantes: r.plan_stripe==='Elite' ? Infinity : (r.postulaciones_restantes ?? 0),
+    ticketMedioExacto: r.ticket_medio_exacto ?? '', tasaCierreExacta: r.tasa_cierre_exacta ?? '',
+    urlPitchLoom:r.url_pitch_loom||'', estadoVerificacion:r.estado_verificacion||'Pendiente',
+  };
+}
+
+function perfilCompleto(u){
+  return u.rol.length>0 && !!u.modalidad && !!u.ciudad && !!u.target && !!u.ticket && u.sectores.length>0;
+}
+
+function datosPerfilParaGuardar(u){
+  return {
+    nombre_completo:u.nombre, rol_comercial:u.rol, modalidad:u.modalidad || null,
+    pais:u.pais, ciudad_provincia:u.ciudad || null, movilidad:u.movilidad || null,
+    target:u.target || null, track_record_ticket:u.ticket || null, sectores_experiencia:u.sectores,
+  };
+}
+
+/* ===================== VIEW SWITCHING ===================== */
+function showView(name){
+  if(['dashboard','ofertas','perfil','verificacion','onboarding'].includes(name) && !state.user){
+    return openAuth('login');
+  }
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
+  document.getElementById('view-'+name).classList.add('active');
+
+  const isPrivate = ['dashboard','ofertas','perfil','verificacion'].includes(name);
+  document.getElementById('public-header').classList.toggle('hidden', isPrivate);
+  document.getElementById('private-header').classList.toggle('hidden', !isPrivate);
+
+  if(name==='dashboard'){ renderDashboard(); cargarOfertas().then(()=>{ if(location.hash==='#dashboard') renderDashboard(); }); }
+  if(name==='ofertas'){ renderOfertas(); cargarOfertas().then(()=>{ if(location.hash==='#ofertas') renderOfertas(); }); }
+  if(name==='perfil') renderPerfil();
+  if(name==='verificacion') renderVerificacion();
+  if(name==='landing') setTimeout(calcularComisiones, 0);
+
+  window.scrollTo(0,0);
+  location.hash = name;
+}
+
+function openAuth(mode){
+  if(state.user){ showView('dashboard'); return; }
+  state.authMode = mode;
+  document.getElementById('auth-msg').classList.add('hidden');
+  document.getElementById('auth-password').autocomplete = mode==='signup' ? 'new-password' : 'current-password';
+  const title = document.getElementById('auth-title');
+  const subtitle = document.getElementById('auth-subtitle');
+  const nameField = document.getElementById('auth-name-field');
+  const switchText = document.getElementById('auth-switch-text');
+  const switchBtn = document.getElementById('auth-switch-btn');
+  const legal = document.getElementById('auth-legal');
+
+  if(mode==='signup'){
+    title.textContent='Crear cuenta'; subtitle.textContent='Únete hoy';
+    nameField.classList.remove('hidden');
+    switchText.textContent='¿Ya tienes una cuenta?'; switchBtn.textContent='Inicia sesión'; switchBtn.onclick=()=>openAuth('login');
+    legal.classList.remove('hidden');
+  } else {
+    title.textContent='¡Bienvenido de nuevo!'; subtitle.textContent='Inicia sesión para continuar';
+    nameField.classList.add('hidden');
+    switchText.textContent='¿No tienes cuenta todavía?'; switchBtn.textContent='Regístrate'; switchBtn.onclick=()=>openAuth('signup');
+    legal.classList.add('hidden');
+  }
+  showView('auth');
+}
+
+function setAuthMsg(texto, esError){
+  const el = document.getElementById('auth-msg');
+  el.textContent = texto;
+  el.style.color = esError ? 'var(--danger)' : 'var(--green)';
+  el.classList.remove('hidden');
+}
+
+function traducirErrorAuth(err){
+  const m = String(err && err.message || '').toLowerCase();
+  if(m.includes('invalid login')) return 'Email o contraseña incorrectos.';
+  if(m.includes('email not confirmed')) return 'Confirma tu email antes de entrar: revisa tu bandeja de entrada.';
+  if(m.includes('already registered')) return 'Ya existe una cuenta con ese email. Inicia sesión.';
+  if(m.includes('at least')) return 'La contraseña debe tener al menos 8 caracteres.';
+  if(m.includes('rate limit') || m.includes('too many')) return 'Demasiados intentos. Espera unos minutos y vuelve a probar.';
+  if(m.includes('failed to fetch') || m.includes('network')) return 'No hay conexión con el servidor. Revisa tu internet.';
+  console.error(err);
+  return 'No se ha podido completar la operación. Inténtalo de nuevo.';
+}
+
+document.getElementById('auth-form').addEventListener('submit', async function(e){
+  e.preventDefault();
+  const email = document.getElementById('auth-email').value.trim();
+  const password = document.getElementById('auth-password').value;
+  const btn = this.querySelector('button[type=submit]');
+  document.getElementById('auth-msg').classList.add('hidden');
+  if(!email) return;
+  if(password.length < 8){ setAuthMsg('La contraseña debe tener al menos 8 caracteres.', true); return; }
+
+  btn.disabled = true;
+  try{
+    if(state.authMode==='signup'){
+      const nombre = document.getElementById('auth-name').value.trim();
+      if(!nombre){ setAuthMsg('Escribe tu nombre.', true); return; }
+      const { data, error } = await sb.auth.signUp({
+        email, password,
+        options:{ data:{ nombre_completo:nombre }, emailRedirectTo: location.origin }
+      });
+      if(error) throw error;
+      if(!data.session){
+        setAuthMsg('Te hemos enviado un email para confirmar tu cuenta. Ábrelo y vuelve aquí para entrar.', false);
+        return;
+      }
+      await cargarSesion();
+    } else {
+      const { error } = await sb.auth.signInWithPassword({ email, password });
+      if(error) throw error;
+      await cargarSesion();
+    }
+  } catch(err){
+    setAuthMsg(traducirErrorAuth(err), true);
+  } finally {
+    btn.disabled = false;
+  }
+});
+
+// Lee la sesión guardada y el perfil del comercial; lleva a onboarding o dashboard.
+async function cargarSesion(){
+  const { data:{ session } } = await sb.auth.getSession();
+  if(!session){ state.user = null; return false; }
+
+  let fila = null;
+  for(let intento=0; intento<3 && !fila; intento++){
+    const { data, error } = await sb.from('usuarios').select('*').eq('id', session.user.id).maybeSingle();
+    if(error){ console.error(error); }
+    fila = data;
+    if(!fila) await new Promise(r=>setTimeout(r, 600));
+  }
+  if(!fila){
+    await sb.auth.signOut();
+    state.user = null;
+    setAuthMsg('No hemos encontrado tu perfil. Escríbenos y lo revisamos.', true);
+    return false;
+  }
+
+  state.user = userFromRow(fila);
+  if(!perfilCompleto(state.user)){ startOnboarding(); }
+  else { showView('dashboard'); }
+  return true;
+}
+
+async function logout(){
+  await sb.auth.signOut();
+  state.user = null;
+  state.ofertas = [];
+  showView('landing');
+}
+
+sb.auth.onAuthStateChange((evento)=>{
+  if(evento==='SIGNED_OUT' && state.user){
+    state.user = null;
+    state.ofertas = [];
+    showView('landing');
+  }
+});
+
+// Llamada autenticada a nuestra API (Vercel): envía el token de sesión de Supabase.
+async function llamarApi(ruta, cuerpo){
+  const { data:{ session } } = await sb.auth.getSession();
+  if(!session){ const e = new Error('sin_sesion'); e.codigo = 'sin_sesion'; throw e; }
+  const r = await fetch(ruta, {
+    method:'POST',
+    headers:{ 'Content-Type':'application/json', Authorization:`Bearer ${session.access_token}` },
+    body: JSON.stringify(cuerpo),
+  });
+  const datos = await r.json().catch(()=>({}));
+  if(!r.ok){
+    const e = new Error(datos.error || 'error');
+    e.codigo = datos.error || 'error';
+    e.status = r.status;
+    throw e;
+  }
+  return datos;
+}
+
+async function elegirPlan(plan){
+  if(!state.user){ openAuth('signup'); return; }
+  if(state.user.plan!=='Rookie'){ return gestionarSuscripcion(); }
+  toast('Te llevamos al pago seguro de Stripe…');
+  try{
+    const { url } = await llamarApi('/api/cuenta', { accion:'checkout', plan });
+    location.href = url;
+  } catch(err){
+    if(err.codigo==='ya_tienes_plan_de_pago') return gestionarSuscripcion();
+    console.error(err);
+    toast('No se ha podido iniciar el pago. Inténtalo de nuevo en un momento.');
+  }
+}
+
+async function gestionarSuscripcion(){
+  try{
+    const { url } = await llamarApi('/api/cuenta', { accion:'portal' });
+    location.href = url;
+  } catch(err){
+    console.error(err);
+    toast(err.codigo==='portal_no_configurado'
+      ? 'La gestión de la suscripción aún no está activada. Escríbenos y la gestionamos nosotros.'
+      : 'No se ha podido abrir la gestión de tu suscripción.');
+  }
+}
+
+// Al volver de Stripe: espera a que el webhook active el plan y refresca el perfil.
+async function revisarRetornoPago(){
+  const pago = new URLSearchParams(location.search).get('pago');
+  if(!pago) return;
+  history.replaceState(null, '', location.pathname + location.hash);
+  if(pago==='cancelado'){ toast('Pago cancelado. No se ha hecho ningún cargo.'); return; }
+  if(!state.user) return;
+  toast('Pago recibido. Activando tu plan…');
+  for(let i=0; i<10; i++){
+    await new Promise(r=>setTimeout(r, 1500));
+    const { data } = await sb.from('usuarios').select('*').eq('id', state.user.id).maybeSingle();
+    if(data && data.plan_stripe!=='Rookie'){
+      state.user = userFromRow(data);
+      toast(`¡Plan ${state.user.plan} activado!`);
+      await cargarOfertas();
+      showView('dashboard');
+      return;
+    }
+  }
+  toast('Estamos confirmando tu pago. Si no ves el cambio en un minuto, recarga la página.');
+}
+
+async function eliminarCuenta(){
+  const t = prompt('Vas a borrar tu cuenta, tus datos y cualquier suscripción activa. No se puede deshacer.\n\nEscribe ELIMINAR para confirmar:');
+  if(t===null) return;
+  if(t.trim()!=='ELIMINAR'){ toast('No se ha eliminado nada: tienes que escribir ELIMINAR.'); return; }
+  try{
+    await llamarApi('/api/cuenta', { accion:'eliminar', confirmar:'ELIMINAR' });
+  } catch(err){
+    console.error(err);
+    toast('No se ha podido eliminar la cuenta. Inténtalo de nuevo o escríbenos.');
+    return;
+  }
+  try{ await sb.auth.signOut({ scope:'local' }); } catch(_){}
+  state.user = null;
+  state.ofertas = [];
+  showView('landing');
+  toast('Tu cuenta y tus datos se han eliminado.');
+}
+
+/* ===================== ONBOARDING ===================== */
+const OB_STEPS = [
+  {key:'rol', title:'¿Con qué rol comercial te identificas principalmente?', type:'multi', options:ROLES},
+  {key:'modalidad', title:'¿Cuál es tu terreno de juego ideal?', type:'single', options:MODALIDADES},
+  {key:'ubicacion', title:'¿Dónde está tu base de operaciones?', type:'ubicacion'},
+  {key:'target', title:'¿A quién se te da mejor venderle?', type:'single', options:TARGETS},
+  {key:'ticket', title:'Hablemos de tus números. ¿Qué rango de tickets sueles manejar?', type:'single', options:TICKETS},
+  {key:'sectores', title:'¿En qué sectores te mueves como pez en el agua?', type:'multi', options:SECTORES},
+];
+let obIndex = 0;
+
+function startOnboarding(){
+  obIndex = 0;
+  showView('onboarding');
+  renderObStep();
+}
+
+function renderObStep(){
+  const step = OB_STEPS[obIndex];
+  document.getElementById('ob-step-label').textContent = `Paso ${obIndex+1} de ${OB_STEPS.length}`;
+  document.getElementById('ob-progress').style.width = `${((obIndex+1)/OB_STEPS.length)*100}%`;
+  document.getElementById('ob-error').classList.add('hidden');
+  document.getElementById('ob-prev').style.visibility = obIndex===0 ? 'hidden' : 'visible';
+  document.getElementById('ob-next').textContent = obIndex===OB_STEPS.length-1 ? 'Empezar a recibir ofertas' : 'Siguiente';
+
+  const card = document.getElementById('ob-card');
+  let html = `<h2 class="serif text-xl font-semibold mb-5" style="color:var(--gold-strong);">${step.title}</h2>`;
+
+  if(step.type==='ubicacion'){
+    html += `<div class="space-y-4">
+      <div>
+        <label class="text-sm font-medium">País</label>
+        <select id="ob-input-pais" class="field-input mt-1.5">${PAISES.map(p=>`<option ${state.user.pais===p?'selected':''}>${p}</option>`).join('')}</select>
+      </div>
+      <div>
+        <label class="text-sm font-medium">Ciudad o provincia</label>
+        <input id="ob-input-ciudad" type="text" placeholder="Ej. Madrid" value="${esc(state.user.ciudad)}" class="field-input mt-1.5">
+      </div>
+      <div>
+        <label class="text-sm font-medium">¿Hasta dónde puedes desplazarte para trabajar?</label>
+        <select id="ob-input-movilidad" class="field-input mt-1.5">${MOVILIDADES.map(m=>`<option ${(state.user.movilidad||'Provincial')===m?'selected':''}>${m}</option>`).join('')}</select>
+      </div>
+    </div>`;
+  } else {
+    const selected = step.type==='multi' ? state.user[step.key] : [state.user[step.key]];
+    html += `<div class="flex flex-wrap gap-2.5">` + step.options.map(opt=>
+      `<button type="button" class="chip ${selected.includes(opt)?'selected':''}" data-value="${opt}" onclick="obToggle('${step.key}','${step.type}', this)">${opt}</button>`
+    ).join('') + `</div>`;
+  }
+  card.innerHTML = html;
+}
+
+function obToggle(key, type, btn){
+  const value = btn.getAttribute('data-value');
+  if(type==='multi'){
+    const arr = state.user[key];
+    const i = arr.indexOf(value);
+    if(i>-1) arr.splice(i,1); else arr.push(value);
+    btn.classList.toggle('selected');
+  } else {
+    state.user[key] = value;
+    btn.parentElement.querySelectorAll('.chip').forEach(c=>c.classList.remove('selected'));
+    btn.classList.add('selected');
+  }
+}
+
+function obValidateCurrent(){
+  const step = OB_STEPS[obIndex];
+  if(step.type==='ubicacion'){
+    state.user.pais = document.getElementById('ob-input-pais').value;
+    state.user.ciudad = document.getElementById('ob-input-ciudad').value.trim();
+    state.user.movilidad = document.getElementById('ob-input-movilidad').value;
+    return state.user.ciudad.length>0;
+  }
+  if(step.type==='multi') return state.user[step.key].length>0;
+  return !!state.user[step.key];
+}
+
+async function obNext(){
+  const errEl = document.getElementById('ob-error');
+  const textoOriginal = 'Selecciona al menos una opción para continuar.';
+  if(!obValidateCurrent()){
+    errEl.textContent = textoOriginal;
+    errEl.classList.remove('hidden');
+    return;
+  }
+  if(obIndex < OB_STEPS.length-1){
+    obIndex++;
+    renderObStep();
+    return;
+  }
+  const btn = document.getElementById('ob-next');
+  btn.disabled = true;
+  const { error } = await sb.from('usuarios').update(datosPerfilParaGuardar(state.user)).eq('id', state.user.id);
+  btn.disabled = false;
+  if(error){
+    console.error(error);
+    errEl.textContent = 'No se ha podido guardar tu perfil. Inténtalo de nuevo.';
+    errEl.classList.remove('hidden');
+    return;
+  }
+  showView('dashboard');
+}
+function obPrev(){
+  if(obIndex>0){ obIndex--; renderObStep(); }
+}
+
+/* ===================== MATCHING (Módulo 1) ===================== */
+// La puntuación y el filtrado estricto (modalidad + ubicación) se calculan en la base de datos (función mis_ofertas).
+async function cargarOfertas(){
+  if(!state.user) return;
+  const { data, error } = await sb.rpc('mis_ofertas');
+  if(error){
+    console.error(error);
+    state.ofertasError = true;
+    return;
+  }
+  state.ofertasError = false;
+  state.ofertas = (data||[]).map(o=>({
+    id:o.id, titulo:o.titulo_oferta, empresa:o.empresa_nombre || 'Empresa confidencial',
+    modalidad:o.modalidad_oferta || '—', ciudad:o.ciudad_provincia_oferta || '—',
+    target:o.target_oferta || '—', sector:o.sector_oferta || [],
+    remuneracion:o.tipo_remuneracion || 'A convenir', fecha:o.fecha_publicacion,
+    score:o.compatibilidad, postulado:!!o.postulado, destacado:!!o.destacado,
+  }));
+}
+
+function visibleOfertas(){
+  return state.ofertas;
+}
+
+/* ===================== DASHBOARD ===================== */
+function initials(name){
+  return name.split(' ').filter(Boolean).slice(0,2).map(n=>n[0].toUpperCase()).join('') || '--';
+}
+
+function renderDashboard(){
+  const u = state.user;
+  document.getElementById('dash-welcome').textContent = `Bienvenido, ${u.nombre}`;
+  document.getElementById('dash-avatar').textContent = initials(u.nombre);
+  document.getElementById('nav-avatar').textContent = initials(u.nombre);
+
+  const banner = document.getElementById('verif-banner');
+  if(u.verificado){
+    banner.innerHTML = `
+      <div class="flex items-center gap-3">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gold-strong)" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>
+        <div><p class="font-semibold gold-text">Kloser Verificado</p><p class="text-sm ink-soft">Tu perfil tiene prioridad absoluta en cada candidatura.</p></div>
+      </div>`;
+  } else {
+    banner.innerHTML = `
+      <div class="flex items-center gap-3">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gold-strong)" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg>
+        <div><p class="font-semibold" style="color:var(--gold-strong);">Verifica tu perfil y consigue prioridad</p><p class="text-sm ink-soft">Completa la verificación para destacar frente a otros candidatos.</p></div>
+      </div>
+      <button onclick="showView('verificacion')" class="btn-gold text-sm !py-2.5">Verificar ahora</button>`;
+  }
+
+  document.getElementById('dash-plan').textContent = u.plan;
+  const restantes = u.postulacionesRestantes;
+  document.getElementById('dash-postulaciones').textContent =
+    restantes===Infinity ? 'Postulaciones ilimitadas' : `${restantes} ${restantes===1 ? 'postulación disponible' : 'postulaciones disponibles'} esta semana`;
+  document.getElementById('dash-upgrade').classList.toggle('hidden', u.plan!=='Rookie');
+  document.getElementById('dash-manage').classList.toggle('hidden', u.plan==='Rookie');
+
+  const simLocked = u.plan!=='Elite';
+  document.getElementById('sim-lock').classList.toggle('hidden', !simLocked);
+  document.getElementById('sim-btn').classList.toggle('hidden', simLocked);
+
+  document.getElementById('dash-ofertas').innerHTML =
+    listaOfertasHtml(visibleOfertas().slice(0,3), 'No hay ofertas que encajen con tu perfil todavía. Vuelve pronto.');
+}
+
+/* ===================== OFERTAS (job board) ===================== */
+function setOfertaFilter(f){
+  state.ofertaFilter = f;
+  document.querySelectorAll('#ofertas-tabs .tab').forEach(t=>t.classList.toggle('active', t.dataset.filter===f));
+  renderOfertas();
+}
+
+function ofertaCardHtml(o){
+  const canApply = state.user.postulacionesRestantes > 0;
+  const pillColor = o.score>=70 ? 'background:var(--gold-light); color:var(--green-deep);' : 'background:var(--border-gold); color:var(--ink-soft);';
+  const boton = o.postulado
+    ? `<button onclick="postular('${esc(o.id)}')" class="btn-outline text-sm !py-2.5 !px-5 shrink-0">Postulado ✓ · Ver oferta</button>`
+    : `<button ${canApply ? '' : 'disabled'} onclick="postular('${esc(o.id)}')" class="btn-gold text-sm !py-2.5 !px-5 shrink-0">${canApply ? 'Postular' : 'Sin postulaciones'}</button>`;
+  return `
+  <div class="surface rounded-xl p-5 flex items-start justify-between gap-4 flex-wrap">
+    <div>
+      <div class="flex items-center gap-2 flex-wrap">
+        <p class="font-semibold">${esc(o.titulo)}</p>
+        <span class="match-pill" style="${pillColor}">${esc(o.score)}% match</span>
+        ${o.destacado ? '<span class="match-pill" style="background:var(--green); color:var(--gold-light);">Destacada</span>' : ''}
+      </div>
+      <p class="text-sm ink-soft mt-0.5">${esc(o.empresa)}</p>
+      <p class="text-xs ink-soft mt-2">${esc(o.modalidad)}${o.ciudad!=='—' ? ' · '+esc(o.ciudad) : ''} · ${esc(o.target)} · ${esc(o.sector.join(', ') || 'Sector no especificado')} · ${esc(o.remuneracion)}</p>
+      ${o.fecha ? `<p class="text-xs mt-1" style="color:var(--gold-strong);">Publicado ${timeAgo(o.fecha)}</p>` : ''}
+    </div>
+    ${boton}
+  </div>`;
+}
+
+function listaOfertasHtml(lista, vacio){
+  if(state.ofertasError && !state.ofertas.length){
+    return `<p class="ink-soft text-sm">No hemos podido cargar las ofertas ahora mismo. Recarga la página en unos minutos.</p>`;
+  }
+  return lista.length ? lista.map(ofertaCardHtml).join('') : `<p class="ink-soft text-sm">${vacio}</p>`;
+}
+
+function renderOfertas(){
+  let list = visibleOfertas();
+  if(state.ofertaFilter!=='Todas') list = list.filter(o=>o.modalidad===state.ofertaFilter);
+  document.getElementById('ofertas-list').innerHTML =
+    listaOfertasHtml(list, 'No hay ofertas en este filtro para tu perfil todavía. Vuelve pronto.');
+}
+
+async function postular(id){
+  const oferta = state.ofertas.find(o=>o.id===id);
+  if(!oferta) return;
+  if(!oferta.postulado && state.user.postulacionesRestantes<=0){
+    toast('Has agotado tus postulaciones de esta semana.');
+    return;
+  }
+  // Se abre la pestaña ahora (con el clic) para que el navegador no la bloquee; la URL llega después.
+  const ventana = window.open('', '_blank');
+  if(ventana){ ventana.document.title = 'Klosers'; ventana.document.body.textContent = 'Abriendo oferta…'; }
+
+  const { data, error } = await sb.rpc('postular', { p_oferta:id });
+  if(error){
+    if(ventana) ventana.close();
+    const m = String(error.message||'');
+    if(m.includes('sin_postulaciones')) toast('Has agotado tus postulaciones de esta semana.');
+    else if(m.includes('oferta_no_disponible')){ toast('Esta oferta ya no está disponible.'); await cargarOfertas(); }
+    else { console.error(error); toast('No se ha podido registrar la postulación. Inténtalo de nuevo.'); }
+    renderOfertas(); renderDashboard();
+    return;
+  }
+
+  oferta.postulado = true;
+  state.user.postulacionesRestantes = (data.restantes===null || data.restantes===undefined) ? Infinity : data.restantes;
+
+  if(data.url && /^https?:\/\//i.test(data.url)){
+    if(ventana){ ventana.opener = null; ventana.location.href = data.url; }
+    else toast('Postulación registrada. Permite las ventanas emergentes para abrir la oferta.');
+  } else {
+    if(ventana) ventana.close();
+    toast(data.ya_postulado ? 'Ya te habías postulado a esta oferta.' : 'Postulación registrada. Esta oferta no tiene enlace público: te contactaremos.');
+  }
+  renderOfertas(); renderDashboard();
+}
+
+/* ===================== SIMULADOR (IA, solo Elite) ===================== */
+const SIM_INTRO = 'Cuéntame, ¿qué vendes y por qué debería escucharte?';
+const SIM_MIN_EVAL = 5;
+const SIM_MAX_TURNOS = 12;
+let simTurnos = [];
+let simOcupado = false;
+let simResultadoHtml = '';
+
+function simMensajeError(err){
+  const m = {
+    solo_elite:'El simulador es solo para el plan Elite.',
+    limite_diario:'Has alcanzado el límite diario del simulador. Vuelve mañana.',
+    conversacion_muy_larga:'La conversación es demasiado larga. Cierra el simulador y empieza otra.',
+    pocos_turnos:'Necesitas al menos 5 intercambios para pedir la evaluación.',
+  }[err.codigo];
+  if(!m) console.error(err);
+  return m || 'El simulador no responde ahora mismo. Inténtalo de nuevo en un momento.';
+}
+
+function simPintar(){
+  const chat = document.getElementById('sim-chat');
+  let html = `<div class="text-sm ink-soft"><strong>Director de compras:</strong> ${esc(SIM_INTRO)}</div>`;
+  simTurnos.forEach(t=>{
+    html += t.role==='user'
+      ? `<div class="text-sm text-right"><strong>Tú:</strong> ${esc(t.content)}</div>`
+      : `<div class="text-sm ink-soft"><strong>Director de compras:</strong> ${esc(t.content)}</div>`;
+  });
+  if(simOcupado) html += `<div class="text-sm ink-soft italic">El director está pensando…</div>`;
+  html += simResultadoHtml;
+  chat.innerHTML = html;
+  chat.scrollTop = chat.scrollHeight;
+
+  const n = simTurnos.filter(t=>t.role==='user').length;
+  document.getElementById('sim-contador').textContent = state.user.verificado
+    ? 'Ya eres Kloser Verificado: puedes seguir entrenando.'
+    : `Intercambios: ${Math.min(n, SIM_MIN_EVAL)}/${SIM_MIN_EVAL} para poder pedir tu evaluación`;
+  document.getElementById('sim-eval-btn').classList.toggle('hidden', n < SIM_MIN_EVAL || state.user.verificado || simOcupado || !!simResultadoHtml);
+  document.getElementById('sim-send').disabled = simOcupado;
+}
+
+function openSimulator(){
+  if(!state.user || state.user.plan!=='Elite'){ toast('El simulador es solo para el plan Elite.'); return; }
+  simTurnos = [];
+  simOcupado = false;
+  simResultadoHtml = '';
+  document.getElementById('sim-modal').classList.remove('hidden');
+  document.getElementById('sim-modal').classList.add('flex');
+  simPintar();
+}
+function closeSimulator(){
+  document.getElementById('sim-modal').classList.add('hidden');
+  document.getElementById('sim-modal').classList.remove('flex');
+}
+
+document.getElementById('sim-form').addEventListener('submit', async function(e){
+  e.preventDefault();
+  if(simOcupado) return;
+  const input = document.getElementById('sim-input');
+  const text = input.value.trim();
+  if(!text) return;
+  if(simTurnos.filter(t=>t.role==='user').length >= SIM_MAX_TURNOS){
+    toast('Has llegado al máximo de intercambios. Cierra el simulador y empieza otra conversación.');
+    return;
+  }
+  input.value = '';
+  simTurnos.push({ role:'user', content:text });
+  simOcupado = true; simPintar();
+  try{
+    const { respuesta } = await llamarApi('/api/simulador', { turnos: simTurnos });
+    simTurnos.push({ role:'assistant', content: respuesta });
+  } catch(err){
+    simTurnos.pop();      // se retira el mensaje para poder reenviarlo
+    input.value = text;
+    toast(simMensajeError(err));
+  }
+  simOcupado = false; simPintar();
+});
+
+async function simEvaluar(){
+  if(simOcupado) return;
+  simOcupado = true; simPintar();
+  try{
+    const r = await llamarApi('/api/simulador', { turnos: simTurnos, evaluar:true });
+    if(r.ya_verificado){
+      state.user.verificado = true;
+    } else {
+      simResultadoHtml = `<div class="rounded-xl p-4 mt-2" style="border:1px solid var(--border-gold); background:var(--bg);">
+        <p class="font-semibold" style="color:var(--gold-strong);">Tu nota: ${esc(r.puntuacion)}/10</p>
+        <p class="text-sm ink-soft mt-1">${esc(r.justificacion)}</p>
+        <p class="text-sm mt-2 font-semibold">${r.verificado ? '¡Ya eres Kloser Verificado!' : 'Para la insignia necesitas 8/10 o más. Cierra el simulador y empieza una conversación nueva para volver a intentarlo.'}</p>
+      </div>`;
+      if(r.verificado){ state.user.verificado = true; toast('¡Enhorabuena! Ya eres Kloser Verificado.'); }
+    }
+  } catch(err){
+    toast(simMensajeError(err));
+  }
+  simOcupado = false; simPintar();
+  renderDashboard();
+}
+
+/* ===================== MISC ===================== */
+const menuBtn = document.getElementById('menu-btn');
+const mobileMenu = document.getElementById('mobile-menu');
+menuBtn.addEventListener('click', () => {
+  const isOpen = mobileMenu.style.maxHeight && mobileMenu.style.maxHeight !== '0px';
+  mobileMenu.style.maxHeight = isOpen ? '0px' : mobileMenu.scrollHeight + 'px';
+  menuBtn.setAttribute('aria-expanded', String(!isOpen));
+});
+mobileMenu.querySelectorAll('a,button').forEach(a => a.addEventListener('click', () => {
+  mobileMenu.style.maxHeight = '0px';
+  menuBtn.setAttribute('aria-expanded', 'false');
+}));
+
+const observer = new IntersectionObserver((entries) => {
+  entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('is-visible'); observer.unobserve(entry.target); } });
+}, { threshold: 0.15 });
+document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+document.getElementById('waitlist-form').addEventListener('submit', async function(e){
+  e.preventDefault();
+  const form = this;
+  const email = document.getElementById('waitlist-email').value.trim().toLowerCase();
+  const msg = document.getElementById('waitlist-msg');
+  if(!email) return;
+  const { error } = await sb.from('lista_espera_empresas').insert({ email });
+  // 23505 = ese email ya estaba apuntado: para la persona es igual que éxito
+  if(error && error.code!=='23505'){
+    console.error(error);
+    msg.textContent = 'No se ha podido guardar tu email. Inténtalo de nuevo en un momento.';
+    msg.classList.remove('hidden');
+    return;
+  }
+  msg.textContent = '¡Apuntado! Te avisaremos en cuanto abramos esta fase.';
+  msg.classList.remove('hidden');
+  form.reset();
+});
+
+/* ===================== COMUNIDAD (Circle / Discord) ===================== */
+// Cuando crees tu comunidad, pega aquí el enlace real.
+const COMUNIDAD_URL = '';
+
+function abrirComunidad(){
+  if(COMUNIDAD_URL){
+    window.open(COMUNIDAD_URL, '_blank');
+  } else {
+    alert('Aún no se ha configurado el enlace de la comunidad (variable COMUNIDAD_URL en el código).');
+  }
+}
+
+/* ===================== CALCULADORA DE COMISIONES ===================== */
+function calcularComisiones(){
+  const el = document.getElementById('calc-ventas');
+  if(!el) return; // la calculadora vive solo en la Landing
+  const ventas = parseFloat(document.getElementById('calc-ventas').value) || 0;
+  const ticket = parseFloat(document.getElementById('calc-ticket').value) || 0;
+  const comision = parseFloat(document.getElementById('calc-comision').value) || 0;
+  const resultado = ventas * ticket * (comision / 100);
+  document.getElementById('calc-resultado').textContent =
+    resultado.toLocaleString('es-ES', { maximumFractionDigits: 0 }) + ' €';
+}
+
+/* ===================== MI PERFIL ===================== */
+function chipsHtml(opciones, seleccionados, onclickFn){
+  return opciones.map(opt =>
+    `<button type="button" class="chip ${seleccionados.includes(opt)?'selected':''}" data-value="${opt}" onclick="${onclickFn}(this)">${opt}</button>`
+  ).join('');
+}
+
+function perfilToggleChip(campo, tipo, btn){
+  const value = btn.getAttribute('data-value');
+  if(tipo==='multi'){
+    const arr = state.user[campo];
+    const i = arr.indexOf(value);
+    if(i>-1) arr.splice(i,1); else arr.push(value);
+    btn.classList.toggle('selected');
+  } else {
+    state.user[campo] = value;
+    btn.parentElement.querySelectorAll('.chip').forEach(c=>c.classList.remove('selected'));
+    btn.classList.add('selected');
+  }
+}
+function perfilToggleRol(btn){ perfilToggleChip('rol','multi',btn); }
+function perfilToggleModalidad(btn){ perfilToggleChip('modalidad','single',btn); }
+function perfilToggleTarget(btn){ perfilToggleChip('target','single',btn); }
+function perfilToggleMovilidad(btn){ perfilToggleChip('movilidad','single',btn); }
+function perfilToggleTicket(btn){ perfilToggleChip('ticket','single',btn); }
+function perfilToggleSector(btn){ perfilToggleChip('sectores','multi',btn); }
+
+function renderPerfil(){
+  const u = state.user;
+
+  document.getElementById('perfil-nombre-card').textContent = u.nombre;
+  document.getElementById('perfil-rol-card').textContent = (u.rol[0] || 'Sin rol definido') + (u.target ? ' · '+u.target : '');
+  document.getElementById('perfil-avatar').textContent = initials(u.nombre);
+  document.getElementById('perfil-badge-mini').textContent = u.verificado ? '✓ VERIFICADO' : '';
+  document.getElementById('perfil-ticket-card').textContent = u.ticketMedioExacto ? `${Number(u.ticketMedioExacto).toLocaleString('es-ES')} €` : '—';
+  document.getElementById('perfil-cierre-card').textContent = u.tasaCierreExacta ? `${u.tasaCierreExacta}%` : '—';
+
+  document.getElementById('perfil-input-nombre').value = u.nombre;
+  document.getElementById('perfil-input-ciudad').value = u.ciudad;
+  document.getElementById('perfil-input-ticket').value = u.ticketMedioExacto || '';
+  document.getElementById('perfil-input-cierre').value = u.tasaCierreExacta || '';
+
+  const paisSelect = document.getElementById('perfil-input-pais');
+  paisSelect.innerHTML = PAISES.map(p=>`<option ${u.pais===p?'selected':''}>${p}</option>`).join('');
+
+  document.getElementById('perfil-chips-rol').innerHTML = chipsHtml(ROLES, u.rol, 'perfilToggleRol');
+  document.getElementById('perfil-chips-modalidad').innerHTML = chipsHtml(MODALIDADES, [u.modalidad], 'perfilToggleModalidad');
+  document.getElementById('perfil-chips-movilidad').innerHTML = chipsHtml(MOVILIDADES, [u.movilidad], 'perfilToggleMovilidad');
+  document.getElementById('perfil-chips-target').innerHTML = chipsHtml(TARGETS, [u.target], 'perfilToggleTarget');
+  document.getElementById('perfil-chips-ticket').innerHTML = chipsHtml(TICKETS, [u.ticket], 'perfilToggleTicket');
+  document.getElementById('perfil-chips-sector').innerHTML = chipsHtml(SECTORES, u.sectores, 'perfilToggleSector');
+}
+
+async function guardarPerfil(){
+  const u = state.user;
+  const msg = document.getElementById('perfil-msg');
+  const mostrar = (texto, ok)=>{
+    msg.textContent = texto;
+    msg.style.color = ok ? '' : 'var(--danger)';
+    msg.classList.remove('hidden');
+    setTimeout(()=>msg.classList.add('hidden'), 3500);
+  };
+
+  const nuevo = {
+    ...u,
+    nombre: document.getElementById('perfil-input-nombre').value.trim() || u.nombre,
+    ciudad: document.getElementById('perfil-input-ciudad').value.trim(),
+    pais: document.getElementById('perfil-input-pais').value,
+    ticketMedioExacto: document.getElementById('perfil-input-ticket').value,
+    tasaCierreExacta: document.getElementById('perfil-input-cierre').value,
+  };
+  if(!perfilCompleto(nuevo)){
+    mostrar('Completa rol, terreno de juego, ciudad, cliente, ticket y sectores para recibir ofertas.', false);
+    return;
+  }
+  const cierre = nuevo.tasaCierreExacta===''? null : Number(nuevo.tasaCierreExacta);
+  if(cierre!==null && (cierre<0 || cierre>100)){ mostrar('La tasa de cierre debe estar entre 0 y 100.', false); return; }
+
+  const cambios = {
+    ...datosPerfilParaGuardar(nuevo),
+    ticket_medio_exacto: nuevo.ticketMedioExacto==='' ? null : Number(nuevo.ticketMedioExacto),
+    tasa_cierre_exacta: cierre,
+  };
+  const { error } = await sb.from('usuarios').update(cambios).eq('id', u.id);
+  if(error){ console.error(error); mostrar('No se han podido guardar los cambios. Inténtalo de nuevo.', false); return; }
+
+  state.user = nuevo;
+  await cargarOfertas();
+  renderPerfil();
+  mostrar('Cambios guardados.', true);
+}
+
+/* ===================== VERIFICACIÓN ===================== */
+function loomEmbedUrl(url){
+  const loomMatch = url.match(/loom\.com\/share\/([a-zA-Z0-9]+)/);
+  if(loomMatch) return `https://www.loom.com/embed/${loomMatch[1]}`;
+  const ytMatch = url.match(/(?:youtu\.be\/|youtube\.com\/watch\?v=)([a-zA-Z0-9_-]+)/);
+  if(ytMatch) return `https://www.youtube.com/embed/${ytMatch[1]}`;
+  return null;
+}
+
+function renderVerificacion(){
+  const u = state.user;
+  const estadoEl = document.getElementById('verificacion-estado');
+
+  if(u.verificado){
+    estadoEl.innerHTML = `<div class="flex items-center gap-3">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--gold-strong)" stroke-width="2.4"><path d="M20 6L9 17l-5-5"/></svg>
+      <div><p class="font-semibold gold-text">Ya eres Kloser Verificado</p><p class="text-sm ink-soft">Tu perfil tiene prioridad absoluta en cada candidatura.</p></div>
+    </div>`;
+  } else if(u.urlPitchLoom){
+    estadoEl.innerHTML = `<p class="font-semibold" style="color:var(--gold-strong);">Tu pitch está en revisión</p><p class="text-sm ink-soft mt-1">Lo revisaremos y te avisaremos en cuanto tengamos el resultado.</p>`;
+  } else {
+    estadoEl.innerHTML = `<p class="font-semibold" style="color:var(--green);">Todavía no has iniciado la verificación</p><p class="text-sm ink-soft mt-1">Elige una de las dos vías de abajo.</p>`;
+  }
+
+  document.getElementById('verif-input-loom').value = u.urlPitchLoom || '';
+  const embedWrap = document.getElementById('verif-loom-embed');
+  const embed = u.urlPitchLoom ? loomEmbedUrl(u.urlPitchLoom) : null;
+  embedWrap.innerHTML = embed
+    ? `<iframe src="${embed}" style="width:100%;aspect-ratio:16/9;border-radius:12px;border:1px solid var(--border-gold);" allowfullscreen></iframe>`
+    : '';
+
+  const esElite = u.plan==='Elite';
+  document.getElementById('verif-sim-btn').classList.toggle('hidden', !esElite || u.verificado);
+  document.getElementById('verif-sim-lock').classList.toggle('hidden', esElite);
+}
+
+async function guardarPitch(){
+  const url = document.getElementById('verif-input-loom').value.trim();
+  if(!/^https?:\/\//i.test(url)){ toast('Pega un enlace válido que empiece por https://'); return; }
+  const { error } = await sb.from('usuarios').update({ url_pitch_loom:url }).eq('id', state.user.id);
+  if(error){ console.error(error); toast('No se ha podido enviar el pitch. Inténtalo de nuevo.'); return; }
+  state.user.urlPitchLoom = url;
+  renderVerificacion();
+  toast('Pitch enviado a revisión.');
+}
+
+/* ===================== ARRANQUE ===================== */
+(async function init(){
+  try{
+    const restaurada = await cargarSesion();
+    if(!restaurada) showView('landing');
+    await revisarRetornoPago();
+  } catch(err){
+    console.error(err);
+    showView('landing');
+  }
+})();
+</script>
+</body>
+</html>
