@@ -8,7 +8,7 @@
 
 const { clasificarOferta } = require('../clasificarOferta');
 const { upsertOfertaAutomatica, cerrarOfertasDesaparecidas } = require('../guardarOferta');
-const { SALTABLES, cargarExistentes, marcarVistas } = require('./comun');
+const { SALTABLES, cargarExistentes, marcarVistas, registroJornadas } = require('./comun');
 
 const FUENTE = 'Adzuna';
 const PAIS_ADZUNA = process.env.ADZUNA_PAIS || 'es'; // es, mx, etc. — ver países soportados en su documentación
@@ -28,6 +28,7 @@ async function ingestarAdzuna() {
   if (!process.env.ADZUNA_APP_ID || !process.env.ADZUNA_APP_KEY) return { procesadas: 0, errores: [], omitida: 'sin credenciales (ADZUNA_APP_ID y ADZUNA_APP_KEY)' };
   const existentes = await cargarExistentes(FUENTE);
   const vistas = [];
+  const jornadas = registroJornadas(FUENTE);
 
   for (const kw of KEYWORDS) {
     try {
@@ -36,7 +37,7 @@ async function ingestarAdzuna() {
         try {
           const idExt = String(oferta.id);
           const previa = existentes.get(idExt);
-          if (previa && SALTABLES.includes(previa.estado_oferta)) { vistas.push(previa.id); resultados.ya_existentes++; continue; }
+          if (previa && SALTABLES.includes(previa.estado_oferta)) { vistas.push(previa.id); jornadas.existente(previa, oferta); resultados.ya_existentes++; continue; }
           const textoBruto = `Título: ${oferta.title}\nEmpresa: ${oferta.company?.display_name || 'No especificado'}\nUbicación: ${oferta.location?.display_name || ''}\nDescripción: ${oferta.description || ''}`;
           const clasificada = await clasificarOferta(textoBruto);
           await upsertOfertaAutomatica({
@@ -46,6 +47,7 @@ async function ingestarAdzuna() {
             urlOrigen: oferta.redirect_url,
           });
           resultados.procesadas++;
+        jornadas.nueva(idExt, oferta);
         } catch (err) {
           resultados.errores.push({ oferta: oferta.id, error: err.message });
         }
@@ -56,6 +58,7 @@ async function ingestarAdzuna() {
   }
 
   await marcarVistas(vistas);
+  await jornadas.aplicar();
   const { cerradas } = await cerrarOfertasDesaparecidas(FUENTE);
   resultados.cerradas_por_desaparicion = cerradas;
 

@@ -9,7 +9,7 @@
 
 const { clasificarOferta } = require('../clasificarOferta');
 const { upsertOfertaAutomatica, cerrarOfertasDesaparecidas } = require('../guardarOferta');
-const { SALTABLES, cargarExistentes, marcarVistas } = require('./comun');
+const { SALTABLES, cargarExistentes, marcarVistas, registroJornadas } = require('./comun');
 
 const FUENTE = 'Jobicy';
 const TAG = process.env.JOBICY_TAG || 'sales';   // palabra clave (parámetro `tag` de su API)
@@ -25,6 +25,7 @@ async function ingestarJobicy() {
   const resultados = { procesadas: 0, ya_existentes: 0, errores: [] };
   const existentes = await cargarExistentes(FUENTE);
   const vistas = [];
+  const jornadas = registroJornadas(FUENTE);
 
   try {
     const ofertas = await buscarOfertasJobicy();
@@ -32,7 +33,7 @@ async function ingestarJobicy() {
       try {
         const idExt = String(oferta.id);
         const previa = existentes.get(idExt);
-        if (previa && SALTABLES.includes(previa.estado_oferta)) { vistas.push(previa.id); resultados.ya_existentes++; continue; }
+        if (previa && SALTABLES.includes(previa.estado_oferta)) { vistas.push(previa.id); jornadas.existente(previa, oferta); resultados.ya_existentes++; continue; }
         const textoBruto = `Título: ${oferta.jobTitle}\nEmpresa: ${oferta.companyName}\nUbicación: ${oferta.jobGeo || 'Remoto'}\nDescripción: ${oferta.jobExcerpt || oferta.jobDescription || ''}`;
         const clasificada = await clasificarOferta(textoBruto);
         await upsertOfertaAutomatica({
@@ -42,6 +43,7 @@ async function ingestarJobicy() {
           urlOrigen: oferta.url,
         });
         resultados.procesadas++;
+        jornadas.nueva(idExt, oferta);
       } catch (err) {
         resultados.errores.push({ oferta: oferta.id, error: err.message });
       }
@@ -51,6 +53,7 @@ async function ingestarJobicy() {
   }
 
   await marcarVistas(vistas);
+  await jornadas.aplicar();
   const { cerradas } = await cerrarOfertasDesaparecidas(FUENTE);
   resultados.cerradas_por_desaparicion = cerradas;
 

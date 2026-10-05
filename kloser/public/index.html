@@ -645,11 +645,10 @@
       <button class="tab" data-filter="Híbrido" onclick="setOfertaFilter('Híbrido')">Híbrido</button>
       <button class="tab" data-filter="Presencial" onclick="setOfertaFilter('Presencial')">Presencial</button>
     </div>
-    <div class="mt-3 flex items-center gap-2 flex-wrap">
+    <div id="ofertas-contrato-wrap" class="mt-3 flex items-center gap-2 flex-wrap hidden">
       <label for="ofertas-contrato" class="text-sm ink-soft">Jornada</label>
-      <select id="ofertas-contrato" class="field-input" style="max-width:260px;" onchange="setContratoFilter(this.value)">
-        <option value="Todas">Cualquier jornada</option><option>Autónomo / Freelance</option><option>Jornada completa</option>
-        <option>Jornada parcial</option><option>Jornada flexible</option><option>Prácticas</option>
+      <select id="ofertas-contrato" class="field-input" style="max-width:300px;" onchange="setContratoFilter(this.value)">
+        <option value="Todas">Cualquier jornada</option>
       </select>
     </div>
 
@@ -1337,7 +1336,23 @@ function listaOfertasHtml(lista, vacio){
   return lista.length ? lista.map(ofertaCardHtml).join('') : `<p class="ink-soft text-sm">${vacio}</p>`;
 }
 
+const ORDEN_JORNADAS = ['Jornada completa', 'Jornada parcial', 'Autónomo / Freelance', 'Jornada flexible', 'Prácticas'];
+
+// Solo se ofrecen las jornadas que tienen alguna oferta (con su número). Si ninguna oferta indica jornada, el filtro se oculta.
+function actualizarFiltroJornada(){
+  const sel = document.getElementById('ofertas-contrato');
+  const cuenta = {};
+  visibleOfertas().forEach(o => { if(o.contrato) cuenta[o.contrato] = (cuenta[o.contrato] || 0) + 1; });
+  const disponibles = ORDEN_JORNADAS.filter(j => cuenta[j]);
+  document.getElementById('ofertas-contrato-wrap').classList.toggle('hidden', !disponibles.length);
+  if(state.contratoFilter !== 'Todas' && !disponibles.includes(state.contratoFilter)) state.contratoFilter = 'Todas';
+  sel.innerHTML = '<option value="Todas">Cualquier jornada</option>' +
+    disponibles.map(j => `<option value="${esc(j)}">${esc(j)} (${cuenta[j]})</option>`).join('');
+  sel.value = state.contratoFilter;
+}
+
 function renderOfertas(){
+  actualizarFiltroJornada();
   let list = visibleOfertas();
   if(state.ofertaFilter!=='Todas') list = list.filter(o=>o.modalidad===state.ofertaFilter);
   if(state.contratoFilter!=='Todas') list = list.filter(o=>o.contrato===state.contratoFilter);

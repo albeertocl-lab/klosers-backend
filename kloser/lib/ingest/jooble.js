@@ -9,7 +9,7 @@
 
 const { clasificarOferta } = require('../clasificarOferta');
 const { upsertOfertaAutomatica, cerrarOfertasDesaparecidas } = require('../guardarOferta');
-const { SALTABLES, cargarExistentes, marcarVistas } = require('./comun');
+const { SALTABLES, cargarExistentes, marcarVistas, registroJornadas } = require('./comun');
 
 const FUENTE = 'Jooble';
 const KEYWORDS = (process.env.INGESTA_KEYWORDS || 'comercial,ventas,closer,SDR,account manager,key account').split(',');
@@ -30,6 +30,7 @@ async function ingestarJooble() {
   if (!process.env.JOOBLE_API_KEY) return { procesadas: 0, errores: [], omitida: 'sin clave (JOOBLE_API_KEY)' };
   const existentes = await cargarExistentes(FUENTE);
   const vistas = [];
+  const jornadas = registroJornadas(FUENTE);
 
   for (const kw of KEYWORDS) {
     try {
@@ -38,7 +39,7 @@ async function ingestarJooble() {
         try {
           const idExt = String(oferta.link);
           const previa = existentes.get(idExt);
-          if (previa && SALTABLES.includes(previa.estado_oferta)) { vistas.push(previa.id); resultados.ya_existentes++; continue; }
+          if (previa && SALTABLES.includes(previa.estado_oferta)) { vistas.push(previa.id); jornadas.existente(previa, oferta); resultados.ya_existentes++; continue; }
           const textoBruto = `Título: ${oferta.title}\nEmpresa: ${oferta.company || 'No especificado'}\nUbicación: ${oferta.location || ''}\nDescripción: ${oferta.snippet || ''}`;
           const clasificada = await clasificarOferta(textoBruto);
           // Jooble no siempre da un id estable — usamos la URL como id externo
@@ -49,6 +50,7 @@ async function ingestarJooble() {
             urlOrigen: oferta.link,
           });
           resultados.procesadas++;
+        jornadas.nueva(idExt, oferta);
         } catch (err) {
           resultados.errores.push({ oferta: oferta.link, error: err.message });
         }
@@ -59,6 +61,7 @@ async function ingestarJooble() {
   }
 
   await marcarVistas(vistas);
+  await jornadas.aplicar();
   const { cerradas } = await cerrarOfertasDesaparecidas(FUENTE);
   resultados.cerradas_por_desaparicion = cerradas;
 
