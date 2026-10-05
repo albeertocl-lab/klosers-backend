@@ -1771,6 +1771,25 @@ function tipDetalleHtml(t, abierto){
   </details>`;
 }
 
+// Ejercicio de la mini clase: explicado paso a paso, con un ejemplo resuelto y un criterio para saber que está bien hecho.
+// Si una clase aún no tiene la guía completa, se muestra el ejercicio corto.
+function ejercicioHtml(c){
+  const g = c.guia;
+  if(!g || !Array.isArray(g.pasos)) return `<div class="rounded-xl p-4 mt-4" style="background:var(--bg); border:1px solid var(--border-gold);"><p class="text-sm"><strong>Ejercicio:</strong> ${esc(c.ejercicio)}</p></div>`;
+  return `<div class="rounded-xl p-5 mt-5" style="background:var(--bg); border:1px solid var(--border-gold);">
+    <div class="flex items-center justify-between gap-3 flex-wrap">
+      <h3 class="serif text-xl font-semibold" style="color:var(--gold-strong);">Ejercicio práctico</h3>
+      <span class="tip-tipo">${esc(g.tiempo)}</span>
+    </div>
+    <p class="mt-2">${esc(g.que)}</p>
+    <h4 class="font-semibold mt-4">Paso a paso</h4>
+    <ol class="list-decimal pl-5 mt-2 space-y-2 text-sm">${g.pasos.map(p => `<li>${esc(p)}</li>`).join('')}</ol>
+    <h4 class="font-semibold mt-5">Ejemplo resuelto <span class="text-xs ink-soft font-normal">(las cifras son ilustrativas: usa siempre las tuyas)</span></h4>
+    <div class="rounded-lg p-3 mt-2 text-sm space-y-1" style="border:1px dashed var(--border-gold);">${g.ejemplo.map(l => `<p>${esc(l)}</p>`).join('')}</div>
+    <p class="text-sm mt-4"><strong>Lo has hecho bien si:</strong> ${esc(g.listo)}</p>
+  </div>`;
+}
+
 async function renderAcademia(){
   const u = state.user;
   const esSocio = ['Pro','Elite'].includes(u.plan);
@@ -1841,9 +1860,7 @@ async function renderAcademia(){
       <p class="mt-2 pre">${esc(c.objetivo)}</p>
       <h3 class="font-semibold mt-4">Minuto a minuto</h3>
       <ol class="mt-2 space-y-2 text-sm">${c.bloques.map(b => `<li class="flex gap-3"><span class="font-semibold gold-text shrink-0" style="min-width:64px;">${esc(b.tramo)}</span><span>${esc(b.texto)}</span></li>`).join('')}</ol>
-      <div class="rounded-xl p-4 mt-4" style="background:var(--bg); border:1px solid var(--border-gold);">
-        <p class="text-sm"><strong>Ejercicio:</strong> ${esc(c.ejercicio)}</p>
-      </div>`;
+      ${ejercicioHtml(c)}`;
   } catch(err){
     console.error(err);
     caja.innerHTML = '<p class="text-sm ink-soft">No hemos podido cargar la mini clase ahora mismo. Inténtalo de nuevo en unos minutos.</p>';
