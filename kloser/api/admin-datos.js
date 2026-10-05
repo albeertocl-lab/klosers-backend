@@ -100,8 +100,8 @@ module.exports = async function handler(req, res) {
       }
       case 'comunidad': {
         const [posts, comentarios, reportes] = await Promise.all([
-          sbSelect('comunidad_posts', 'select=id,categoria,titulo,contenido,fijado,oculto,created_at,autor:usuarios(id,nombre_completo,email,comunidad_bloqueado)&order=created_at.desc&limit=100'),
-          sbSelect('comunidad_comentarios', 'select=id,post_id,contenido,oculto,created_at,autor:usuarios(id,nombre_completo,email,comunidad_bloqueado),post:comunidad_posts(titulo)&order=created_at.desc&limit=100'),
+          sbSelect('comunidad_posts', 'select=id,categoria,titulo,contenido,fijado,oculto,created_at,autor:usuarios!autor_id(id,nombre_completo,email,comunidad_bloqueado)&order=created_at.desc&limit=100'),
+          sbSelect('comunidad_comentarios', 'select=id,post_id,contenido,oculto,created_at,autor:usuarios!autor_id(id,nombre_completo,email,comunidad_bloqueado),post:comunidad_posts!post_id(titulo)&order=created_at.desc&limit=100'),
           sbSelect('comunidad_reportes', 'select=post_id,comentario_id,motivo,created_at,usuario:usuarios(email)&order=created_at.desc&limit=300'),
         ]);
         return res.status(200).json({ posts, comentarios, reportes });

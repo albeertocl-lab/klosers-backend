@@ -10,6 +10,10 @@ function clave() {
   return process.env.SUPABASE_SERVICE_ROLE_KEY;
 }
 
+// Clave PÚBLICA de Supabase (la misma que ya va dentro de la web, no es secreta). Se usa solo para comprobar el token de un usuario
+// en /auth/v1/user, que es lo que hace cualquier navegador. Así esa comprobación no depende del formato de la clave de servicio.
+const CLAVE_PUBLICA = process.env.SUPABASE_PUBLISHABLE_KEY || 'sb_publishable__xEYUdnaER23Cjz-bqrFcw_5skLulOd';
+
 function base() {
   return (process.env.SUPABASE_URL || '').replace(/\/+$/, '');
 }
@@ -30,9 +34,12 @@ async function usuarioDesdeToken(req) {
   if (!token) return null;
 
   const r = await fetch(`${base()}/auth/v1/user`, {
-    headers: { apikey: clave(), Authorization: `Bearer ${token}` },
+    headers: { apikey: CLAVE_PUBLICA, Authorization: `Bearer ${token}` },
   });
-  if (!r.ok) return null;
+  if (!r.ok) {
+    console.error('usuarioDesdeToken: Supabase rechaza el token de sesión (HTTP ' + r.status + ')');
+    return null;
+  }
   const u = await r.json();
   return u && u.id ? { id: u.id, email: u.email } : null;
 }
