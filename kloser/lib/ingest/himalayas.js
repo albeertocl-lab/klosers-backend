@@ -13,6 +13,7 @@
 
 const { clasificarOferta } = require('../clasificarOferta');
 const { upsertOfertaAutomatica, cerrarOfertasDesaparecidas } = require('../guardarOferta');
+const { SALTABLES, cargarExistentes, marcarVistas } = require('./comun');
 
 const FUENTE = 'Himalayas';
 const KEYWORDS = process.env.HIMALAYAS_KEYWORDS || 'sales';
@@ -25,12 +26,17 @@ async function buscarOfertasHimalayas() {
 }
 
 async function ingestarHimalayas() {
-  const resultados = { procesadas: 0, errores: [] };
+  const resultados = { procesadas: 0, ya_existentes: 0, errores: [] };
+  const existentes = await cargarExistentes(FUENTE);
+  const vistas = [];
 
   try {
     const ofertas = await buscarOfertasHimalayas();
     for (const oferta of ofertas) {
       try {
+        const idExt = String(oferta.id);
+        const previa = existentes.get(idExt);
+        if (previa && SALTABLES.includes(previa.estado_oferta)) { vistas.push(previa.id); resultados.ya_existentes++; continue; }
         const textoBruto = `Título: ${oferta.title}\nEmpresa: ${oferta.companyName}\nUbicación: ${(oferta.locationRestrictions || []).join(', ') || 'Remoto'}\nDescripción: ${oferta.description || ''}`;
         const clasificada = await clasificarOferta(textoBruto);
         await upsertOfertaAutomatica({
@@ -48,6 +54,7 @@ async function ingestarHimalayas() {
     resultados.errores.push({ general: err.message });
   }
 
+  await marcarVistas(vistas);
   const { cerradas } = await cerrarOfertasDesaparecidas(FUENTE);
   resultados.cerradas_por_desaparicion = cerradas;
 

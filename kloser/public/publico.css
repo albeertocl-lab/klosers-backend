@@ -1,0 +1,75 @@
+/* Estilos de las páginas públicas de Klosers (ofertas, roles, guías y legal) */
+:root{--verde:#0B3D2E;--verde-2:#12503d;--oro:#AD7F12;--oro-claro:#F0D48A;--crema:#FAF7EF;--tarjeta:#FBF8F0;--borde:rgba(180,136,31,.35);--tinta:#132A20;--suave:#55665c;--peligro:#A5432F;}
+*{box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{margin:0;background:var(--crema);color:var(--tinta);font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.65;}
+a{color:var(--verde);text-decoration-color:var(--borde);text-underline-offset:3px;}
+a:hover{color:var(--oro);}
+h1,h2,h3{font-family:Georgia,"Times New Roman",serif;color:var(--verde);line-height:1.25;}
+h1{font-size:clamp(1.9rem,4.5vw,2.6rem);margin:.2em 0 .4em;}
+h2{font-size:1.45rem;margin:2em 0 .5em;}
+h3{font-size:1.1rem;margin:1.4em 0 .4em;}
+p{margin:.7em 0;}
+ul,ol{padding-left:1.3em;} li{margin:.35em 0;}
+
+.cab{background:var(--crema);border-bottom:1px solid var(--borde);position:sticky;top:0;z-index:20;}
+.cab-in{max-width:1080px;margin:0 auto;padding:14px 20px;display:flex;align-items:center;gap:18px;flex-wrap:wrap;}
+.marca{font-family:Georgia,serif;font-weight:700;font-size:1.45rem;letter-spacing:.06em;color:var(--oro);text-decoration:none;}
+.menu{display:flex;gap:18px;flex:1;flex-wrap:wrap;}
+.menu a{text-decoration:none;font-weight:600;font-size:.92rem;color:var(--tinta);}
+.menu a:hover{color:var(--oro);}
+.acciones{display:flex;gap:10px;align-items:center;}
+.boton,.boton-sec{display:inline-block;text-decoration:none;font-weight:700;font-size:.9rem;border-radius:999px;padding:10px 20px;}
+.boton{background:var(--oro);color:#fff;}
+.boton:hover{background:#946a0e;color:#fff;}
+.boton-sec{border:1px solid var(--verde);color:var(--verde);}
+.boton-sec:hover{background:var(--verde);color:#fff;}
+
+.contenido{max-width:820px;margin:0 auto;padding:34px 20px 60px;}
+.migas{font-size:.85rem;color:var(--suave);margin-bottom:.5em;}
+.migas a{color:var(--suave);}
+.entradilla{font-size:1.12rem;color:var(--suave);}
+.etiquetas{display:flex;gap:8px;flex-wrap:wrap;margin:.8em 0;}
+.etq{display:inline-block;font-size:.78rem;font-weight:700;border-radius:999px;padding:3px 12px;background:var(--verde);color:var(--oro-claro);}
+.etq.clara{background:transparent;border:1px solid var(--borde);color:var(--verde);}
+
+.caja{background:var(--tarjeta);border:1px solid var(--borde);border-radius:16px;padding:22px 24px;margin:26px 0;}
+.caja h2,.caja h3{margin-top:0;}
+.cta{background:var(--verde);color:#fff;border-radius:18px;padding:28px 26px;margin:38px 0;text-align:center;}
+.cta h2{color:var(--oro-claro);margin:0 0 .3em;}
+.cta p{color:#e6efe9;}
+.cta .boton{background:var(--oro-claro);color:var(--verde);}
+.cta .boton:hover{background:#fff;color:var(--verde);}
+
+.lista-ofertas{display:grid;gap:14px;margin:22px 0;}
+.oferta{display:block;text-decoration:none;color:inherit;background:var(--tarjeta);border:1px solid var(--borde);border-radius:16px;padding:18px 20px;}
+.oferta:hover{border-color:var(--oro);}
+.oferta h2{font-size:1.2rem;margin:0 0 .15em;}
+.oferta .empresa{color:var(--suave);font-size:.92rem;margin:0;}
+.oferta .meta{font-size:.84rem;color:var(--suave);margin:.5em 0 0;}
+.filtros{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0;}
+.filtros a{border:1px solid var(--borde);border-radius:999px;padding:5px 14px;font-size:.85rem;text-decoration:none;color:var(--verde);font-weight:600;}
+.filtros a.activo,.filtros a:hover{background:var(--verde);color:#fff;}
+.descripcion{white-space:pre-wrap;word-break:break-word;}
+.vacio{background:var(--tarjeta);border:1px dashed var(--borde);border-radius:16px;padding:26px;text-align:center;color:var(--suave);}
+
+.faq details{border:1px solid var(--borde);border-radius:12px;padding:12px 16px;margin:10px 0;background:var(--tarjeta);}
+.faq summary{cursor:pointer;font-weight:700;color:var(--verde);}
+.faq details p{margin:.6em 0 0;}
+.relacionadas{display:flex;gap:10px;flex-wrap:wrap;}
+.relacionadas a{border:1px solid var(--borde);border-radius:999px;padding:6px 14px;text-decoration:none;font-weight:600;font-size:.88rem;}
+
+.borrador{background:#FFF3CD;border:1px solid #E0B94A;border-radius:12px;padding:14px 18px;margin:0 0 24px;font-size:.92rem;color:#6b4f00;}
+mark.falta{background:#FFE08A;color:#4a3500;padding:0 4px;border-radius:4px;font-weight:700;}
+.legal h2{font-size:1.2rem;}
+.legal .tabla{overflow-x:auto;max-width:100%;margin:14px 0;}
+.legal table{border-collapse:collapse;width:100%;min-width:520px;font-size:.9rem;margin:0;}
+.legal th,.legal td{border:1px solid var(--borde);padding:8px 10px;text-align:left;vertical-align:top;}
+.legal th{background:var(--tarjeta);}
+
+.pie{border-top:1px solid var(--borde);background:var(--tarjeta);padding:34px 20px 40px;}
+.pie-in{max-width:1080px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:22px;}
+.pie-t{font-weight:800;color:var(--verde);margin:0 0 .4em;}
+.pie a{display:block;font-size:.9rem;text-decoration:none;margin:.3em 0;}
+.pie-aviso{max-width:1080px;margin:18px auto 0;font-size:.8rem;color:var(--suave);}
+@media(max-width:640px){.acciones{width:100%;}.acciones a{flex:1;text-align:center;}.menu{order:3;width:100%;}}

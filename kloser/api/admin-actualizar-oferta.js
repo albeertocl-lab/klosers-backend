@@ -9,11 +9,14 @@
 // Usuarios { entidad:'usuario', accion, id }     verificar | quitar_verificacion | rechazar_pitch |
 //                                               reset_postulaciones | eliminar
 //          { entidad:'usuario', accion:'set_plan', id, plan }
+//          { entidad:'usuario', accion:'bloquear_comunidad' | 'desbloquear_comunidad', id }
+// Comunidad { entidad:'comunidad', tipo:'post'|'comentario', accion:'ocultar'|'mostrar'|'descartar'|'eliminar'|'fijar'|'desfijar', id }
+//          { entidad:'comunidad', accion:'publicar', categoria, titulo, contenido, fijado }   (firma «Equipo Klosers»)
 //
 // Cada acción queda anotada en admin_log. Se llama con la cabecera x-admin-password.
 // Requiere: ADMIN_PASSWORD, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY (y STRIPE_SECRET_KEY para borrar usuarios)
 
-const { sbSelect, sbUpdate, sbDelete, sbRpc, leerJson } = require('../lib/sesion');
+const { sbSelect, sbUpdate, sbInsert, sbDelete, sbRpc, leerJson } = require('../lib/sesion');
 const { stripe } = require('../lib/stripe');
 const { autorizar, registrar, validarEdicionOferta, LIMITES_PLAN, UUID } = require('../lib/admin');
 
@@ -120,6 +123,12 @@ async function accionUsuario(b, res) {
       quien.a = b.plan;
       break;
     }
+    case 'bloquear_comunidad':
+      await sbUpdate('usuarios', filtro, { comunidad_bloqueado: true });
+      break;
+    case 'desbloquear_comunidad':
+      await sbUpdate('usuarios', filtro, { comunidad_bloqueado: false });
+      break;
     case 'eliminar':
       // Borrar el cliente en Stripe cancela al instante cualquier suscripción activa
       if (u.stripe_customer_id) {
@@ -139,6 +148,50 @@ async function accionUsuario(b, res) {
   return res.status(200).json({ ok: true });
 }
 
+const CATEGORIAS_COMUNIDAD = ['guiones', 'objeciones', 'llamadas', 'networking', 'logros', 'preguntas', 'anuncios'];
+
+async function accionComunidad(b, res) {
+  if (b.accion === 'publicar') {
+    const titulo = String(b.titulo || '').trim();
+    const contenido = String(b.contenido || '').trim();
+    if (!CATEGORIAS_COMUNIDAD.includes(b.categoria)) return res.status(400).json({ error: 'Categoría no válida.' });
+    if (titulo.length < 3 || titulo.length > 120) return res.status(400).json({ error: 'El título debe tener entre 3 y 120 caracteres.' });
+    if (contenido.length < 10 || contenido.length > 4000) return res.status(400).json({ error: 'El texto debe tener entre 10 y 4000 caracteres.' });
+    const [fila] = await sbInsert('comunidad_posts', {
+      autor_id: null, categoria: b.categoria, titulo, contenido, fijado: b.fijado === true,
+    });
+    await registrar('publicar_anuncio', 'comunidad', fila && fila.id, { titulo, categoria: b.categoria });
+    return res.status(200).json({ ok: true });
+  }
+
+  const tabla = b.tipo === 'comentario' ? 'comunidad_comentarios' : b.tipo === 'post' ? 'comunidad_posts' : null;
+  if (!tabla) return res.status(400).json({ error: 'Tipo no válido.' });
+  if (!UUID.test(b.id || '')) return res.status(400).json({ error: 'Identificador no válido' });
+  const filtro = `id=eq.${b.id}`;
+  const [actual] = await sbSelect(tabla, `${filtro}&select=id`);
+  if (!actual) return res.status(404).json({ error: 'Ese contenido ya no existe.' });
+
+  const columnaReporte = b.tipo === 'post' ? 'post_id' : 'comentario_id';
+  if (b.accion === 'ocultar') {
+    await sbUpdate(tabla, filtro, { oculto: true });
+  } else if (b.accion === 'mostrar') {
+    // Al restaurarlo se descartan las denuncias: ya lo has revisado y no debe volver a ocultarse por las antiguas
+    await sbUpdate(tabla, filtro, { oculto: false });
+    await sbDelete('comunidad_reportes', `${columnaReporte}=eq.${b.id}`);
+  } else if (b.accion === 'descartar') {
+    // Se da por revisada la denuncia sin tocar el contenido
+    await sbDelete('comunidad_reportes', `${columnaReporte}=eq.${b.id}`);
+  } else if (b.accion === 'eliminar') {
+    await sbDelete(tabla, filtro);
+  } else if ((b.accion === 'fijar' || b.accion === 'desfijar') && b.tipo === 'post') {
+    await sbUpdate(tabla, filtro, { fijado: b.accion === 'fijar' });
+  } else {
+    return res.status(400).json({ error: 'Acción no válida.' });
+  }
+  await registrar(`${b.accion}_${b.tipo}`, 'comunidad', b.id, null);
+  return res.status(200).json({ ok: true });
+}
+
 module.exports = async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Método no permitido' });
   if (!(await autorizar(req, res))) return;
@@ -148,6 +201,7 @@ module.exports = async function handler(req, res) {
     const entidad = b.entidad || 'oferta';
     if (entidad === 'oferta') return await accionOferta(b, res);
     if (entidad === 'usuario') return await accionUsuario(b, res);
+    if (entidad === 'comunidad') return await accionComunidad(b, res);
     return res.status(400).json({ error: 'Entidad no válida.' });
   } catch (err) {
     console.error('admin-actualizar-oferta:', err);

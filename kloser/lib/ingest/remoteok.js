@@ -13,6 +13,7 @@
 
 const { clasificarOferta } = require('../clasificarOferta');
 const { upsertOfertaAutomatica, cerrarOfertasDesaparecidas } = require('../guardarOferta');
+const { SALTABLES, cargarExistentes, marcarVistas } = require('./comun');
 
 const FUENTE = 'Remote OK';
 const TAGS = (process.env.REMOTEOK_TAGS || 'sales').split(',');
@@ -26,13 +27,18 @@ async function buscarOfertasRemoteOk(tag) {
 }
 
 async function ingestarRemoteok() {
-  const resultados = { procesadas: 0, errores: [] };
+  const resultados = { procesadas: 0, ya_existentes: 0, errores: [] };
+  const existentes = await cargarExistentes(FUENTE);
+  const vistas = [];
 
   for (const tag of TAGS) {
     try {
       const ofertas = await buscarOfertasRemoteOk(tag);
       for (const oferta of ofertas) {
         try {
+          const idExt = String(oferta.id);
+          const previa = existentes.get(idExt);
+          if (previa && SALTABLES.includes(previa.estado_oferta)) { vistas.push(previa.id); resultados.ya_existentes++; continue; }
           const textoBruto = `Título: ${oferta.position}\nEmpresa: ${oferta.company}\nUbicación: ${oferta.location || 'Remoto'}\nDescripción: ${oferta.description || ''}`;
           const clasificada = await clasificarOferta(textoBruto);
           await upsertOfertaAutomatica({
@@ -51,6 +57,7 @@ async function ingestarRemoteok() {
     }
   }
 
+  await marcarVistas(vistas);
   const { cerradas } = await cerrarOfertasDesaparecidas(FUENTE);
   resultados.cerradas_por_desaparicion = cerradas;
 

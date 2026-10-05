@@ -15,6 +15,7 @@
 
 const { clasificarOferta } = require('../clasificarOferta');
 const { upsertOfertaAutomatica, cerrarOfertasDesaparecidas } = require('../guardarOferta');
+const { SALTABLES, cargarExistentes, marcarVistas } = require('./comun');
 
 const FUENTE = 'Remotive';
 const CATEGORIA = process.env.REMOTIVE_CATEGORIA || 'sales';
@@ -27,12 +28,17 @@ async function buscarOfertasRemotive() {
 }
 
 async function ingestarRemotive() {
-  const resultados = { procesadas: 0, errores: [] };
+  const resultados = { procesadas: 0, ya_existentes: 0, errores: [] };
+  const existentes = await cargarExistentes(FUENTE);
+  const vistas = [];
 
   try {
     const ofertas = await buscarOfertasRemotive();
     for (const oferta of ofertas) {
       try {
+        const idExt = String(oferta.id);
+        const previa = existentes.get(idExt);
+        if (previa && SALTABLES.includes(previa.estado_oferta)) { vistas.push(previa.id); resultados.ya_existentes++; continue; }
         const textoBruto = `Título: ${oferta.title}\nEmpresa: ${oferta.company_name}\nUbicación: ${oferta.candidate_required_location || 'Remoto'}\nDescripción: ${oferta.description || ''}`;
         const clasificada = await clasificarOferta(textoBruto);
         await upsertOfertaAutomatica({
@@ -50,6 +56,7 @@ async function ingestarRemotive() {
     resultados.errores.push({ general: err.message });
   }
 
+  await marcarVistas(vistas);
   const { cerradas } = await cerrarOfertasDesaparecidas(FUENTE);
   resultados.cerradas_por_desaparicion = cerradas;
 

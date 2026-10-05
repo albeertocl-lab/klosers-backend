@@ -6,6 +6,7 @@
 //   { accion: 'checkout', plan: 'Pro' | 'Elite' }  -> URL de pago de Stripe Checkout
 //   { accion: 'portal' }                           -> URL del portal de Stripe (cambiar tarjeta, cancelar...)
 //   { accion: 'eliminar', confirmar: 'ELIMINAR' }  -> cancela la suscripción y borra todos sus datos (RGPD)
+//   { accion: 'clase', semana: 1..52 }             -> mini clase de la Academia (solo planes Pro y Elite)
 //
 // Se llama desde la web con "Authorization: Bearer <token de sesión de Supabase>".
 // Requiere: STRIPE_SECRET_KEY, STRIPE_PRICE_PRO, STRIPE_PRICE_ELITE, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
@@ -94,6 +95,23 @@ module.exports = async function handler(req, res) {
         console.error('portal Stripe:', e.message);
         return res.status(502).json({ error: 'portal_no_configurado' });
       }
+    }
+
+    if (body.accion === 'clase') {
+      if (!['Pro', 'Elite'].includes(perfil.plan_stripe)) return res.status(403).json({ error: 'solo_pro' });
+      const semana = Number(body.semana);
+      if (!Number.isInteger(semana) || semana < 1 || semana > 52) return res.status(400).json({ error: 'semana_invalida' });
+      let clases;
+      try {
+        // Carga perezosa: si faltara el archivo, solo fallan las clases, nunca los pagos
+        clases = require('../lib/data/clases.json');
+      } catch (e) {
+        console.error('clases.json:', e.message);
+        return res.status(503).json({ error: 'clases_no_disponibles' });
+      }
+      const clase = clases.find((c) => c.semana === semana);
+      if (!clase) return res.status(404).json({ error: 'no_existe' });
+      return res.status(200).json({ clase });
     }
 
     if (body.accion === 'eliminar') {

@@ -21,6 +21,7 @@ const ENUMS = {
   target_oferta: ['B2B', 'B2C', 'Ambos'],
   rango_ticket_oferta: ['<500€', '500€-3.000€', 'High Ticket >3.000€', 'Gestión de cartera +100k€'],
   tipo_remuneracion: ['Fijo+Variable', 'Solo comisión', 'Gastos pagados'],
+  tipo_contrato: ['Autónomo / Freelance', 'Jornada completa', 'Jornada parcial', 'Jornada flexible', 'Prácticas'],
   estado_oferta: ['Activa', 'Pausada', 'Cerrada', 'Revisión Manual'],
 };
 
@@ -113,6 +114,7 @@ function validarEdicionOferta(d) {
   if (sectores.valor !== undefined) c.sector_oferta = sectores.valor;
 
   if (d.editada_manualmente !== undefined) c.editada_manualmente = d.editada_manualmente === true;
+  if (d.publica !== undefined) c.publica = d.publica === true;
 
   return { cambios: c };
 }

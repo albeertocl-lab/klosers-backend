@@ -1,7 +1,7 @@
 // api/admin-datos.js
 //
 // Datos de solo lectura para el panel de administración (/admin), por secciones:
-//   ?seccion=resumen | ofertas | usuarios | postulaciones | ingesta | espera | actividad
+//   ?seccion=resumen | ofertas | usuarios | postulaciones | ingesta | espera | comunidad | actividad
 //   ?oferta=<id>   -> ficha completa de una oferta + quién se ha postulado
 //   ?usuario=<id>  -> ficha completa de un comercial + sus postulaciones
 // Sin parámetros devuelve { usuarios, postulaciones, ofertas } (formato del panel anterior).
@@ -13,13 +13,13 @@ const { autorizar, UUID } = require('../lib/admin');
 
 const OFERTA_LISTA = 'id,titulo_oferta,empresa_nombre,fuente,fuente_tipo,modalidad_oferta,pais_oferta,' +
   'ciudad_provincia_oferta,target_oferta,rango_ticket_oferta,estado_oferta,fecha_publicacion,created_at,' +
-  'destacado,orden_destacado,url_origen,editada_manualmente';
+  'destacado,orden_destacado,url_origen,editada_manualmente,tipo_contrato,publica';
 
 const OFERTA_FICHA = OFERTA_LISTA + ',rol_requerido,sector_oferta,tipo_remuneracion,descripcion_completa,id_externo,ultima_vista_en_origen';
 
 const USUARIO_LISTA = 'id,nombre_completo,email,plan_stripe,postulaciones_restantes,insignia_verificado,' +
   'estado_verificacion,url_pitch_loom,puntuacion_ia,rol_comercial,modalidad,pais,ciudad_provincia,movilidad,' +
-  'target,track_record_ticket,sectores_experiencia,ticket_medio_exacto,tasa_cierre_exacta,created_at,stripe_customer_id';
+  'target,track_record_ticket,sectores_experiencia,ticket_medio_exacto,tasa_cierre_exacta,created_at,stripe_customer_id,comunidad_bloqueado';
 
 // El id de Stripe no sale del servidor: el panel solo necesita saber si existe
 function sinStripe(u) {
@@ -61,11 +61,12 @@ module.exports = async function handler(req, res) {
 
     switch (q.seccion) {
       case 'resumen': {
-        const [resumen, ultimas] = await Promise.all([
+        const [resumen, comunidad, ultimas] = await Promise.all([
           sbRpc('admin_resumen'),
+          sbRpc('admin_resumen_comunidad'),
           sbSelect('ingesta_log', 'select=inicio,fin,resultados&order=inicio.desc&limit=1'),
         ]);
-        return res.status(200).json({ resumen, ingesta_ultima: ultimas[0] || null });
+        return res.status(200).json({ resumen: { ...resumen, ...comunidad }, ingesta_ultima: ultimas[0] || null });
       }
       case 'ofertas': {
         const [ofertas, cuenta] = await Promise.all([
@@ -91,8 +92,19 @@ module.exports = async function handler(req, res) {
         return res.status(200).json({ logs, por_fuente: resumen.ofertas_por_fuente });
       }
       case 'espera': {
-        const espera = await sbSelect('lista_espera_empresas', 'select=email,created_at&order=created_at.desc&limit=2000');
-        return res.status(200).json({ espera });
+        const [espera, suscriptores] = await Promise.all([
+          sbSelect('lista_espera_empresas', 'select=email,created_at&order=created_at.desc&limit=2000'),
+          sbSelect('avisos_suscriptores', 'select=email,origen,consentimiento_at,confirmado_at&order=consentimiento_at.desc&limit=2000'),
+        ]);
+        return res.status(200).json({ espera, suscriptores });
+      }
+      case 'comunidad': {
+        const [posts, comentarios, reportes] = await Promise.all([
+          sbSelect('comunidad_posts', 'select=id,categoria,titulo,contenido,fijado,oculto,created_at,autor:usuarios(id,nombre_completo,email,comunidad_bloqueado)&order=created_at.desc&limit=100'),
+          sbSelect('comunidad_comentarios', 'select=id,post_id,contenido,oculto,created_at,autor:usuarios(id,nombre_completo,email,comunidad_bloqueado),post:comunidad_posts(titulo)&order=created_at.desc&limit=100'),
+          sbSelect('comunidad_reportes', 'select=post_id,comentario_id,motivo,created_at,usuario:usuarios(email)&order=created_at.desc&limit=300'),
+        ]);
+        return res.status(200).json({ posts, comentarios, reportes });
       }
       case 'actividad': {
         const actividad = await sbSelect('admin_log', 'select=created_at,accion,entidad,entidad_id,detalle&order=created_at.desc&limit=150');

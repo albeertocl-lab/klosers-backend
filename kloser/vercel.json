@@ -3,5 +3,10 @@
     { "path": "/api/ingest-todas", "schedule": "0 6 * * *" },
     { "path": "/api/reset-postulaciones-semanal", "schedule": "0 0 * * 1" },
     { "path": "/api/alerta-semanal-manual", "schedule": "0 9 * * 1" }
+  ],
+  "rewrites": [
+    { "source": "/ofertas", "destination": "/api/publico?vista=lista" },
+    { "source": "/oferta/:id", "destination": "/api/publico?vista=oferta&id=:id" },
+    { "source": "/sitemap.xml", "destination": "/api/publico?vista=sitemap" }
   ]
 }

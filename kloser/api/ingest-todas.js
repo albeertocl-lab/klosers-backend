@@ -3,7 +3,8 @@
 // Único cron diario que ejecuta las 7 ingestas EN EL MISMO PROCESO (sin llamadas HTTP internas).
 // Cada ejecución queda anotada en la tabla ingesta_log, que se ve en la pestaña "Ingesta" del panel:
 //   - una fila con "inicio" y sin "fin" significa que la función se cortó antes de terminar (límite de tiempo)
-//   - por fuente: ofertas procesadas, errores (con una muestra del mensaje) y ofertas cerradas
+//   - por fuente: ofertas nuevas procesadas, ya existentes (no se reclasifican), errores (con una muestra del mensaje) y cerradas
+//   - una fuente sin credenciales aparece como «omitida», no como error
 //
 // Requiere: CRON_SECRET (y las claves de cada fuente), SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
 
@@ -59,15 +60,21 @@ module.exports = async function handler(req, res) {
       const v = r.value || {};
       const errores = Array.isArray(v.errores) ? v.errores : [];
       const procesadas = Number(v.procesadas) || 0;
+      if (v.omitida) {
+        // Fuente sin credenciales configuradas: no es un fallo, simplemente no se ha ejecutado
+        resumen[nombre] = { estado: 'omitida', procesadas: 0, ya_existentes: 0, errores: 0, cerradas: 0, muestra_errores: [String(v.omitida)] };
+        return;
+      }
       resumen[nombre] = {
-        estado: errores.length && !procesadas ? 'error' : errores.length ? 'parcial' : 'ok',
+        estado: errores.length && !procesadas && !v.ya_existentes ? 'error' : errores.length ? 'parcial' : 'ok',
         procesadas,
+        ya_existentes: Number(v.ya_existentes) || 0,
         errores: errores.length,
         cerradas: contar(v.cerradas_por_desaparicion),
         muestra_errores: errores.slice(0, 3).map(mensaje),
       };
     } else {
-      resumen[nombre] = { estado: 'error', procesadas: 0, errores: 1, cerradas: 0, muestra_errores: [mensaje(r.reason)] };
+      resumen[nombre] = { estado: 'error', procesadas: 0, ya_existentes: 0, errores: 1, cerradas: 0, muestra_errores: [mensaje(r.reason)] };
     }
   });
 

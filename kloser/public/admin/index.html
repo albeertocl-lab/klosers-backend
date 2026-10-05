@@ -43,6 +43,7 @@
   .badge.pausada,.badge.pro,.badge.parcial{background:var(--gold);color:#fff;}
   .badge.cerrada,.badge.error{background:var(--danger);color:#fff;}
   .badge.revision,.badge.curso{background:#888;color:#fff;}
+  .badge.omitida{background:#eee;color:#666;}
   .badge.manual{background:var(--gold-light);color:var(--green);}
   .action-btn{padding:5px 10px;font-size:0.74rem;margin:2px 3px 2px 0;border-radius:6px;font-weight:600;}
   .action-btn.danger{background:var(--danger);color:#fff;}
@@ -107,6 +108,7 @@
     <button class="tab-btn" data-tab="postulaciones">Postulaciones</button>
     <button class="tab-btn" data-tab="ingesta">Ingesta</button>
     <button class="tab-btn" data-tab="espera">Lista de espera</button>
+    <button class="tab-btn" data-tab="comunidad">Comunidad <span class="dot" id="dot-comunidad" style="display:none;"></span></button>
     <button class="tab-btn" data-tab="actividad">Actividad</button>
   </div>
 
@@ -176,7 +178,7 @@
       </select>
       <select data-filtro="ofertas.extra" aria-label="Revisión">
         <option value="">Sin filtro extra</option><option value="sin_pais">Sin país (afecta al matching)</option>
-        <option value="sin_url">Sin enlace de origen</option><option value="editadas">Editadas a mano</option><option value="destacadas">Destacadas</option>
+        <option value="sin_url">Sin enlace de origen</option><option value="editadas">Editadas a mano</option><option value="destacadas">Destacadas</option><option value="publicas">Públicas en la web</option>
       </select>
       <select data-filtro="ofertas.orden" aria-label="Orden">
         <option value="fecha_desc">Más recientes primero</option><option value="fecha_asc">Más antiguas primero</option>
@@ -267,6 +269,46 @@
     </div>
     <p class="msg" id="es-msg"></p>
     <div class="scroll"><table><thead><tr><th>Email</th><th>Fecha</th></tr></thead><tbody id="es-filas"></tbody></table></div>
+
+    <h1 style="margin-top:34px;">Suscriptores del aviso semanal</h1>
+    <p class="small">Personas que han dejado su email en la web para recibir el resumen de ofertas. Cada una consta con la fecha en que dio su consentimiento.</p>
+    <div class="toolbar">
+      <button class="secondary" data-accion="csv" data-seccion="avisos">Exportar CSV</button>
+      <button class="secondary" data-accion="copiar-avisos">Copiar emails</button>
+    </div>
+    <div class="scroll"><table><thead><tr><th>Email</th><th>Origen</th><th>Consentimiento</th><th>Confirmado</th></tr></thead><tbody id="av-filas"></tbody></table></div>
+  </section>
+
+  <!-- COMUNIDAD -->
+  <section id="vista-comunidad" style="display:none;">
+    <h1>Comunidad</h1>
+    <p class="small">Con 3 denuncias de personas distintas, un contenido se oculta solo hasta que lo revises. «Descartar» da por buena la denuncia sin tocar el contenido; «Mostrar» lo restaura y borra las denuncias.</p>
+    <div class="toolbar"><button data-accion="refrescar" data-seccion="comunidad">Actualizar</button></div>
+    <p class="msg" id="co-msg"></p>
+
+    <div class="card"><h2>Pendiente de revisar</h2>
+      <div class="scroll"><table><thead><tr><th>Qué</th><th>Autor</th><th>Denuncias</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="co-pendientes"></tbody></table></div>
+    </div>
+
+    <div class="card"><h2>Publicar un anuncio del equipo</h2>
+      <div class="grid2">
+        <div><label for="co-n-cat">Categoría</label>
+          <select id="co-n-cat"><option value="anuncios">Anuncios del equipo</option><option value="guiones">Guiones y scripts</option><option value="objeciones">Objeciones</option>
+          <option value="llamadas">Análisis de llamadas</option><option value="networking">Networking y socios</option><option value="logros">Logros</option><option value="preguntas">Preguntas</option></select></div>
+        <div><label for="co-n-titulo">Título</label><input id="co-n-titulo" maxlength="120"></div>
+      </div>
+      <label for="co-n-texto">Mensaje</label><textarea id="co-n-texto" maxlength="4000" style="min-height:110px;"></textarea>
+      <label class="chk" style="margin-top:12px;"><input type="checkbox" id="co-n-fijar"> Fijar arriba del todo</label>
+      <button id="co-n-publicar" data-accion="com-publicar">Publicar como «Equipo Klosers»</button>
+      <p class="msg" id="co-n-msg" role="alert"></p>
+    </div>
+
+    <div class="card"><h2>Publicaciones recientes</h2>
+      <div class="scroll"><table><thead><tr><th>Fecha</th><th>Autor</th><th>Publicación</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="co-posts"></tbody></table></div>
+    </div>
+    <div class="card"><h2>Comentarios recientes</h2>
+      <div class="scroll"><table><thead><tr><th>Fecha</th><th>Autor</th><th>Comentario</th><th>Estado</th><th>Acciones</th></tr></thead><tbody id="co-comentarios"></tbody></table></div>
+    </div>
   </section>
 
   <!-- ACTIVIDAD -->
@@ -376,7 +418,7 @@ async function entrar(){
 }
 
 /* ===================== PESTAÑAS ===================== */
-const VISTAS = ['resumen','anadir','ofertas','usuarios','postulaciones','ingesta','espera','actividad'];
+const VISTAS = ['resumen','anadir','ofertas','usuarios','postulaciones','ingesta','espera','comunidad','actividad'];
 
 async function cambiarTab(tab){
   tabActual = tab;
@@ -386,7 +428,7 @@ async function cambiarTab(tab){
 }
 
 async function pintar(tab){
-  const mensajes = { resumen:'resumen-msg', ofertas:'of-msg', usuarios:'us-msg', postulaciones:'po-msg', ingesta:'in-msg', espera:'es-msg', actividad:'ac-msg' };
+  const mensajes = { resumen:'resumen-msg', ofertas:'of-msg', usuarios:'us-msg', postulaciones:'po-msg', ingesta:'in-msg', espera:'es-msg', comunidad:'co-msg', actividad:'ac-msg' };
   const msg = mensajes[tab] && $(mensajes[tab]);
   try {
     if (msg) { msg.textContent = 'Cargando…'; msg.className = 'msg'; }
@@ -396,6 +438,7 @@ async function pintar(tab){
     if (tab === 'postulaciones') { await cargar('postulaciones'); renderPostulaciones(); }
     if (tab === 'ingesta') renderIngesta(await cargar('ingesta'));
     if (tab === 'espera') renderEspera(await cargar('espera'));
+    if (tab === 'comunidad') renderComunidad(await cargar('comunidad'));
     if (tab === 'actividad') renderActividad(await cargar('actividad'));
     if (msg) msg.textContent = '';
   } catch (err) {
@@ -429,6 +472,8 @@ function renderResumen(d){
     kpi(r.verificados, 'Kloser Verificados', `${r.pitches_pendientes} pitches por revisar`),
     kpi(estado.Activa || 0, 'Ofertas activas', `+${r.ofertas_nuevas_7d} nuevas esta semana · ${estado.Pausada || 0} pausadas`),
     kpi(r.postulaciones_7d, 'Postulaciones (7 días)', `${r.postulaciones_30d} en 30 días · ${r.postulaciones_total} en total`),
+    kpi(r.comunidad_miembros, 'Miembros de la comunidad', `${r.comunidad_posts} publicaciones · ${r.comunidad_comentarios} comentarios`),
+    kpi(r.avisos_suscriptores, 'Suscriptores del aviso semanal', `${r.ofertas_publicas} ofertas públicas en la web`),
     kpi(r.lista_espera, 'Empresas en lista de espera'),
   ].join('');
 
@@ -436,6 +481,8 @@ function renderResumen(d){
   if (r.pitches_pendientes > 0) alertas.push({ t:'aviso', texto:`${r.pitches_pendientes} pitch(es) esperando tu revisión.`, ir:'usuarios', filtro:['usuarios','extra','pitch'], boton:'Revisar' });
   if (r.ofertas_sin_pais > 0) alertas.push({ t:'aviso', texto:`${r.ofertas_sin_pais} oferta(s) activa(s) sin país: afecta al cálculo de compatibilidad.`, ir:'ofertas', filtro:['ofertas','extra','sin_pais'], boton:'Completar' });
   if (r.ofertas_sin_url > 0) alertas.push({ t:'aviso', texto:`${r.ofertas_sin_url} oferta(s) activa(s) sin enlace de origen: el comercial no podrá abrirlas al postular.`, ir:'ofertas', filtro:['ofertas','extra','sin_url'], boton:'Completar' });
+
+  if (r.comunidad_denunciados > 0) alertas.push({ t:'aviso', texto:`${r.comunidad_denunciados} contenido(s) de la comunidad denunciado(s) esperando tu revisión.`, ir:'comunidad', boton:'Revisar' });
 
   const log = d.ingesta_ultima;
   if (!log) {
@@ -463,6 +510,9 @@ function renderResumen(d){
   const dot = $('dot-usuarios');
   dot.style.display = pend > 0 ? 'inline' : 'none';
   dot.textContent = pend;
+  const dotCom = $('dot-comunidad');
+  dotCom.style.display = r.comunidad_denunciados > 0 ? 'inline' : 'none';
+  dotCom.textContent = r.comunidad_denunciados;
 }
 
 /* ===================== OFERTAS ===================== */
@@ -479,6 +529,7 @@ function ofertasFiltradas(){
     if (f.extra === 'sin_url' && o.url_origen) return false;
     if (f.extra === 'editadas' && !o.editada_manualmente) return false;
     if (f.extra === 'destacadas' && !o.destacado) return false;
+    if (f.extra === 'publicas' && !o.publica) return false;
     if (q && !`${o.titulo_oferta} ${o.empresa_nombre || ''}`.toLowerCase().includes(q)) return false;
     return true;
   });
@@ -529,6 +580,7 @@ function renderOfertas(){
       <td><input type="checkbox" data-sel="${esc(o.id)}" ${S.ofertas.sel.has(o.id) ? 'checked' : ''} aria-label="Seleccionar"></td>
       <td>${o.destacado ? '⭐ ' : ''}<strong>${esc(o.titulo_oferta || '—')}</strong>
         ${o.editada_manualmente ? ' <span class="badge manual" title="Editada a mano: protegida de la ingesta">✎ editada</span>' : ''}
+        ${o.publica ? ' <span class="badge activa" title="Visible en la web pública">Pública</span>' : ''}
         <div class="sub">${esc(o.empresa_nombre || '—')}</div></td>
       <td>${esc(o.fuente || '—')}</td>
       <td>${esc(o.modalidad_oferta || '—')}<div class="sub">${esc([o.pais_oferta, o.ciudad_provincia_oferta].filter(Boolean).join(' · ') || 'sin lugar')}</div></td>
@@ -611,6 +663,7 @@ async function abrirEdicionOferta(id){
         <div><label for="e-target">Cliente (target)</label><select id="e-target">${opcionesSel(['B2B','B2C','Ambos'], o.target_oferta, '— sin definir —')}</select></div>
         <div><label for="e-ticket">Rango de ticket</label><select id="e-ticket">${opcionesSel(ORDEN_TICKET, o.rango_ticket_oferta, '— sin definir —')}</select></div>
         <div><label for="e-remu">Remuneración</label><select id="e-remu">${opcionesSel(['Fijo+Variable','Solo comisión','Gastos pagados'], o.tipo_remuneracion, '— sin definir —')}</select></div>
+        <div><label for="e-contrato">Jornada / contrato</label><select id="e-contrato">${opcionesSel(['Autónomo / Freelance','Jornada completa','Jornada parcial','Jornada flexible','Prácticas'], o.tipo_contrato, '— sin definir —')}</select></div>
         <div style="grid-column:1/-1;"><label>Roles</label>${checks(ROLES, o.rol_requerido, 'e-rol')}</div>
         <div style="grid-column:1/-1;"><label>Sectores</label>${checks(SECTORES, o.sector_oferta, 'e-sector')}</div>
         <div style="grid-column:1/-1;"><label for="e-url">Enlace de origen (el comercial lo abre al postular)</label><input id="e-url" maxlength="1000" placeholder="https://…" value="${esc(o.url_origen || '')}"></div>
@@ -618,6 +671,9 @@ async function abrirEdicionOferta(id){
       </div>
       <label class="chk" style="margin-top:14px;"><input type="checkbox" id="e-proteger" ${o.editada_manualmente || o.fuente_tipo !== 'automatica' ? 'checked' : ''}>
         Proteger de la ingesta automática (que no vuelva a pisar estos cambios)</label>
+      <label class="chk" style="margin-top:10px;"><input type="checkbox" id="e-publica" ${o.publica ? 'checked' : ''}>
+        Mostrar en la web pública (páginas /ofertas y /oferta, visibles para buscadores)</label>
+      <p class="small" style="margin:4px 0 0 24px;">Solo se publican título, empresa, descripción y condiciones. Nunca el enlace de origen. Para que Google la entienda bien, rellena empresa, modalidad y país.</p>
       ${d.postulantes.length ? `<p class="small" style="margin-top:12px;"><strong>Postulados:</strong> ${d.postulantes.slice(0, 8).map(p => esc((p.usuarios && p.usuarios.nombre_completo) || '—')).join(', ')}${d.postulantes.length > 8 ? '…' : ''}</p>` : ''}
       <div class="actions-row">
         <button id="e-guardar" data-id="${esc(o.id)}">Guardar cambios</button>
@@ -647,6 +703,8 @@ async function guardarEdicionOferta(id){
     url_origen: $('e-url').value,
     descripcion_completa: $('e-desc').value,
     editada_manualmente: $('e-proteger').checked,
+    tipo_contrato: $('e-contrato').value || null,
+    publica: $('e-publica').checked,
   };
   const btn = $('e-guardar'); const msg = $('e-msg');
   btn.disabled = true; msg.textContent = 'Guardando…'; msg.className = 'msg';
@@ -706,6 +764,7 @@ async function ejecutarUsuario(op, id, extra){
   const nombre = u ? u.email : 'este usuario';
   if (op === 'eliminar' && !confirm(`¿Eliminar a ${nombre}? Se cancelará su suscripción y se borrarán su perfil y postulaciones. No se puede deshacer.`)) return false;
   if (op === 'quitar_verificacion' && !confirm(`¿Quitar la insignia Kloser Verificado a ${nombre}?`)) return false;
+  if (op === 'bloquear_comunidad' && !confirm(`¿Bloquear a ${nombre} en la comunidad? Dejará de poder leer y escribir.`)) return false;
   try {
     await accion(Object.assign({ entidad:'usuario', accion: op, id }, extra));
     invalidar('usuarios', 'resumen', 'actividad', 'postulaciones');
@@ -737,6 +796,7 @@ async function abrirFichaUsuario(id){
         ${fila('Ticket / sectores', esc([u.track_record_ticket, (u.sectores_experiencia || []).join(', ')].filter(Boolean).join(' · ') || '—'))}
         ${fila('Métricas', `ticket medio ${u.ticket_medio_exacto ?? '—'} € · cierre ${u.tasa_cierre_exacta ?? '—'} %`)}
         ${fila('Verificación', `${u.insignia_verificado ? '<span class="badge si">Verificado</span>' : '<span class="badge no">No verificado</span>'} · estado: ${esc(u.estado_verificacion)}${u.puntuacion_ia != null ? ` · nota IA: ${esc(u.puntuacion_ia)}/10` : ''}`)}
+        ${fila('Comunidad', u.comunidad_bloqueado ? '<span class="badge error">Bloqueado</span>' : (['Pro','Elite'].includes(u.plan_stripe) ? 'Acceso activo' : 'Sin acceso (plan Rookie)'))}
         ${fila('Pitch en vídeo', esUrl(u.url_pitch_loom) ? `<a href="${esc(u.url_pitch_loom)}" target="_blank" rel="noopener noreferrer">${esc(u.url_pitch_loom)}</a>` : '—')}
       </dl>
       <div class="actions-row">
@@ -745,6 +805,7 @@ async function abrirFichaUsuario(id){
           : `<button data-accion="usuario" data-op="verificar" data-id="${esc(u.id)}" data-cerrar="1">Aprobar verificación</button>`}
         ${u.url_pitch_loom ? `<button class="secondary" data-accion="usuario" data-op="rechazar_pitch" data-id="${esc(u.id)}" data-cerrar="1">Rechazar pitch</button>` : ''}
         <button class="secondary" data-accion="usuario" data-op="reset_postulaciones" data-id="${esc(u.id)}" data-cerrar="1">Reiniciar postulaciones</button>
+        <button class="secondary" data-accion="usuario" data-op="${u.comunidad_bloqueado ? 'desbloquear_comunidad' : 'bloquear_comunidad'}" data-id="${esc(u.id)}" data-cerrar="1">${u.comunidad_bloqueado ? 'Desbloquear en la comunidad' : 'Bloquear en la comunidad'}</button>
       </div>
       <div class="actions-row">
         <select id="u-plan" aria-label="Plan">${opcionesSel(['Rookie','Pro','Elite'], u.plan_stripe)}</select>
@@ -794,7 +855,7 @@ function renderIngesta(d){
     const dur = l.fin ? `${Math.max(1, Math.round((new Date(l.fin) - new Date(l.inicio)) / 1000))} s` : '—';
     const fuentes = Object.entries(l.resultados || {}).map(([n, f]) => `
       <div style="margin-bottom:4px;"><span class="badge ${esc(f.estado)}">${esc(n)}</span>
-      ${esc(f.procesadas)} procesadas · ${esc(f.errores)} errores · ${esc(f.cerradas)} cerradas
+      ${f.estado === 'omitida' ? 'no se ha ejecutado' : `${esc(f.procesadas)} nuevas · ${esc(f.ya_existentes || 0)} ya existentes · ${esc(f.errores)} errores · ${esc(f.cerradas)} cerradas`}
       ${(f.muestra_errores || []).map(m => `<div class="sub">${esc(m)}</div>`).join('')}</div>`).join('');
     return `<tr><td>${fmtFechaHora(l.inicio)}</td><td>${dur}</td><td><span class="badge ${e.cls}">${esc(e.texto)}</span></td>
       <td>${fuentes || '<span class="small">Sin datos (la ejecución no llegó a terminar)</span>'}</td></tr>`;
@@ -805,6 +866,8 @@ function renderIngesta(d){
 function renderEspera(d){
   $('es-filas').innerHTML = d.espera.map(e => `<tr><td>${esc(e.email)}</td><td>${fmtFechaHora(e.created_at)}</td></tr>`).join('') ||
     '<tr><td colspan="2" class="vacio">Todavía no se ha apuntado ninguna empresa.</td></tr>';
+  $('av-filas').innerHTML = (d.suscriptores || []).map(x => `<tr><td>${esc(x.email)}</td><td>${esc(x.origen || '—')}</td><td>${fmtFechaHora(x.consentimiento_at)}</td><td>${x.confirmado_at ? fmtFechaHora(x.confirmado_at) : '<span class="small">pendiente</span>'}</td></tr>`).join('') ||
+    '<tr><td colspan="4" class="vacio">Todavía no hay suscriptores.</td></tr>';
 }
 
 function resumenDetalle(d){
@@ -817,6 +880,113 @@ function renderActividad(d){
     <tr><td>${fmtFechaHora(a.created_at)}</td><td><strong>${esc(a.accion)}</strong></td><td>${esc(a.entidad)}</td>
     <td class="small">${esc(resumenDetalle(a.detalle))}</td></tr>`).join('') ||
     '<tr><td colspan="4" class="vacio">Sin actividad registrada todavía.</td></tr>';
+}
+
+/* ===================== COMUNIDAD (moderación) ===================== */
+const CATS_COM = { guiones:'Guiones', objeciones:'Objeciones', llamadas:'Llamadas', networking:'Networking', logros:'Logros', preguntas:'Preguntas', anuncios:'Anuncios' };
+
+function resumirReportes(reportes){
+  const por = {};
+  reportes.forEach(r => {
+    const clave = r.post_id ? 'post:' + r.post_id : 'com:' + r.comentario_id;
+    por[clave] = por[clave] || { n:0, motivos:[] };
+    por[clave].n++;
+    if (r.motivo) por[clave].motivos.push(r.motivo);
+  });
+  return por;
+}
+
+const autorHtml = (a) => a ? `<strong>${esc(a.nombre_completo)}</strong><div class="sub">${esc(a.email)}${a.comunidad_bloqueado ? ' · <span style="color:var(--danger);font-weight:700;">bloqueado</span>' : ''}</div>` : '<strong>Equipo Klosers</strong>';
+const recorte = (t, n) => { const s = String(t || ''); return s.length > n ? s.slice(0, n) + '…' : s; };
+
+function botonesCom(tipo, item, den){
+  const id = esc(item.id);
+  const b = (op, texto, cls) => `<button class="action-btn ${cls || 'ghost'}" data-accion="com" data-tipo="${tipo}" data-op="${op}" data-id="${id}">${texto}</button>`;
+  return [
+    den ? b('descartar', 'Descartar denuncias') : '',
+    item.oculto ? b('mostrar', 'Mostrar') : b('ocultar', 'Ocultar'),
+    tipo === 'post' ? (item.fijado ? b('desfijar', 'Quitar fijado', 'star') : b('fijar', 'Fijar', 'star')) : '',
+    item.autor ? `<button class="action-btn ghost" data-accion="com-bloquear" data-uid="${esc(item.autor.id)}" data-bloqueado="${item.autor.comunidad_bloqueado ? '1' : ''}">${item.autor.comunidad_bloqueado ? 'Desbloquear autor' : 'Bloquear autor'}</button>` : '',
+    b('eliminar', 'Eliminar', 'danger'),
+  ].join('');
+}
+
+const estadoCom = (it) => `${it.oculto ? '<span class="badge cerrada">Oculto</span>' : '<span class="badge activa">Visible</span>'}${it.fijado ? ' <span class="badge manual">Fijado</span>' : ''}`;
+
+function renderComunidad(d){
+  const rep = resumirReportes(d.reportes);
+  const items = [];
+  d.posts.forEach(p => { const r = rep['post:' + p.id]; if (r) items.push({ tipo:'post', item:p, r, texto:`${CATS_COM[p.categoria] || p.categoria} · ${p.titulo}` }); });
+  d.comentarios.forEach(c => { const r = rep['com:' + c.id]; if (r) items.push({ tipo:'comentario', item:c, r, texto:`Comentario en «${recorte(c.post && c.post.titulo, 50)}»: ${recorte(c.contenido, 160)}` }); });
+  items.sort((a, b) => b.r.n - a.r.n);
+
+  $('co-pendientes').innerHTML = items.map(x => `
+    <tr><td><span class="badge manual">${x.tipo === 'post' ? 'Publicación' : 'Comentario'}</span> ${esc(recorte(x.texto, 200))}
+        ${x.tipo === 'post' ? `<div class="sub"><a href="#" data-accion="com-ver" data-id="${esc(x.item.id)}">ver texto completo</a></div>` : ''}
+        ${x.r.motivos.length ? `<div class="sub">Motivos: ${esc(x.r.motivos.slice(0, 3).join(' · '))}</div>` : ''}</td>
+      <td>${autorHtml(x.item.autor)}</td><td><strong>${esc(x.r.n)}</strong></td><td>${estadoCom(x.item)}</td>
+      <td style="white-space:nowrap;">${botonesCom(x.tipo, x.item, true)}</td></tr>`).join('') ||
+    '<tr><td colspan="5" class="vacio">Nada pendiente: no hay denuncias.</td></tr>';
+
+  $('co-posts').innerHTML = d.posts.map(p => `
+    <tr><td>${fmtFechaHora(p.created_at)}</td><td>${autorHtml(p.autor)}</td>
+      <td><span class="badge manual">${esc(CATS_COM[p.categoria] || p.categoria)}</span> <strong>${esc(p.titulo)}</strong>
+        <div class="sub">${esc(recorte(p.contenido, 140))} <a href="#" data-accion="com-ver" data-id="${esc(p.id)}">ver</a></div></td>
+      <td>${estadoCom(p)}</td><td style="white-space:nowrap;">${botonesCom('post', p, !!rep['post:' + p.id])}</td></tr>`).join('') ||
+    '<tr><td colspan="5" class="vacio">Todavía no hay publicaciones.</td></tr>';
+
+  $('co-comentarios').innerHTML = d.comentarios.map(c => `
+    <tr><td>${fmtFechaHora(c.created_at)}</td><td>${autorHtml(c.autor)}</td>
+      <td>${esc(recorte(c.contenido, 200))}<div class="sub">en «${esc(recorte(c.post && c.post.titulo, 60))}»</div></td>
+      <td>${estadoCom(c)}</td><td style="white-space:nowrap;">${botonesCom('comentario', c, !!rep['com:' + c.id])}</td></tr>`).join('') ||
+    '<tr><td colspan="5" class="vacio">Todavía no hay comentarios.</td></tr>';
+}
+
+async function ejecutarCom(tipo, op, id){
+  if (op === 'eliminar' && !confirm(tipo === 'post' ? '¿Eliminar esta publicación con todos sus comentarios? No se puede deshacer.' : '¿Eliminar este comentario? No se puede deshacer.')) return;
+  try {
+    await accion({ entidad:'comunidad', tipo, accion:op, id });
+    invalidar('comunidad', 'resumen', 'actividad');
+    await pintar('comunidad');
+    toast('Hecho.');
+  } catch (err) { if (err.message !== 'No autorizado') toast(err.message, true); }
+}
+
+async function bloquearAutor(uid, estabaBloqueado){
+  if (!estabaBloqueado && !confirm('¿Bloquear a esta persona en la comunidad? Dejará de poder leer y escribir.')) return;
+  try {
+    await accion({ entidad:'usuario', accion: estabaBloqueado ? 'desbloquear_comunidad' : 'bloquear_comunidad', id: uid });
+    invalidar('comunidad', 'usuarios', 'actividad');
+    await pintar('comunidad');
+    toast(estabaBloqueado ? 'Desbloqueado.' : 'Bloqueado.');
+  } catch (err) { if (err.message !== 'No autorizado') toast(err.message, true); }
+}
+
+function verContenidoCom(id){
+  const p = ((cache.comunidad && cache.comunidad.posts) || []).find(x => x.id === id);
+  if (!p) return;
+  abrirModal(`<h2 id="modal-titulo">${esc(p.titulo)}</h2>
+    <p class="small">${esc(CATS_COM[p.categoria] || p.categoria)} · ${fmtFechaHora(p.created_at)} · ${p.autor ? esc(p.autor.nombre_completo) + ' (' + esc(p.autor.email) + ')' : 'Equipo Klosers'}</p>
+    <p style="white-space:pre-wrap;word-break:break-word;margin-top:14px;">${esc(p.contenido)}</p>
+    <div class="actions-row"><button class="secondary" data-accion="cerrar-modal">Cerrar</button></div>`);
+}
+
+async function publicarAnuncio(){
+  const msg = $('co-n-msg'); const btn = $('co-n-publicar');
+  msg.textContent = ''; msg.className = 'msg';
+  const datos = { entidad:'comunidad', accion:'publicar', categoria:$('co-n-cat').value, titulo:$('co-n-titulo').value.trim(), contenido:$('co-n-texto').value.trim(), fijado:$('co-n-fijar').checked };
+  if (datos.titulo.length < 3) { msg.textContent = 'Pon un título de al menos 3 caracteres.'; msg.className = 'msg error'; return; }
+  if (datos.contenido.length < 10) { msg.textContent = 'Escribe un mensaje de al menos 10 caracteres.'; msg.className = 'msg error'; return; }
+  btn.disabled = true;
+  try {
+    await accion(datos);
+    $('co-n-titulo').value = ''; $('co-n-texto').value = ''; $('co-n-fijar').checked = false;
+    invalidar('comunidad', 'actividad');
+    await pintar('comunidad');
+    toast('Anuncio publicado.');
+  } catch (err) {
+    if (err.message !== 'No autorizado') { msg.textContent = err.message; msg.className = 'msg error'; }
+  } finally { btn.disabled = false; }
 }
 
 /* ===================== CSV ===================== */
@@ -844,7 +1014,7 @@ function exportar(seccion){
       ['Título', o => o.titulo_oferta], ['Empresa', o => o.empresa_nombre], ['Fuente', o => o.fuente], ['Estado', o => o.estado_oferta],
       ['Modalidad', o => o.modalidad_oferta], ['País', o => o.pais_oferta], ['Ciudad', o => o.ciudad_provincia_oferta],
       ['Target', o => o.target_oferta], ['Ticket', o => o.rango_ticket_oferta], ['Postulaciones', o => o.postulaciones],
-      ['Publicada', o => o.fecha_publicacion], ['Enlace', o => o.url_origen],
+      ['Jornada', o => o.tipo_contrato], ['Pública en la web', o => o.publica ? 'Sí' : 'No'], ['Publicada', o => o.fecha_publicacion], ['Enlace', o => o.url_origen],
     ], ofertasFiltradas());
   }
   if (seccion === 'usuarios') {
@@ -858,6 +1028,9 @@ function exportar(seccion){
       ['Fecha', p => fmtFechaHora(p.created_at)], ['Usuario', p => p.usuarios && p.usuarios.nombre_completo], ['Email', p => p.usuarios && p.usuarios.email],
       ['Oferta', p => p.ofertas && p.ofertas.titulo_oferta], ['Empresa', p => p.ofertas && p.ofertas.empresa_nombre], ['% compatibilidad', p => p.porcentaje_compatibilidad],
     ], postulacionesFiltradas());
+  }
+  if (seccion === 'avisos') {
+    descargarCsv('suscriptores-aviso-semanal', [['Email', x => x.email], ['Origen', x => x.origen], ['Consentimiento', x => fmtFechaHora(x.consentimiento_at)], ['Confirmado', x => x.confirmado_at ? fmtFechaHora(x.confirmado_at) : '']], (cache.espera && cache.espera.suscriptores) || []);
   }
   if (seccion === 'espera') {
     descargarCsv('lista-espera-empresas', [['Email', e => e.email], ['Fecha', e => fmtFechaHora(e.created_at)]], cache.espera ? cache.espera.espera : []);
@@ -979,6 +1152,10 @@ document.addEventListener('click', async e => {
   if (a === 'csv') return exportar(seccion);
   if (a === 'oferta') return ejecutarOferta(op, id);
   if (a === 'lote') return ejecutarLote(op);
+  if (a === 'com') return ejecutarCom(b.dataset.tipo, op, id);
+  if (a === 'com-bloquear') return bloquearAutor(b.dataset.uid, !!b.dataset.bloqueado);
+  if (a === 'com-ver') { e.preventDefault(); return verContenidoCom(id); }
+  if (a === 'com-publicar') return publicarAnuncio();
   if (a === 'lote-limpiar') { S.ofertas.sel.clear(); return renderOfertas(); }
   if (a === 'usuario-ver') return abrirFichaUsuario(id);
   if (a === 'usuario') {
@@ -1008,6 +1185,11 @@ document.addEventListener('click', async e => {
       return;
     }
     return cambiarTab(b.dataset.tab);
+  }
+  if (a === 'copiar-avisos') {
+    const emails = ((cache.espera && cache.espera.suscriptores) || []).map(x => x.email).join('\n');
+    try { await navigator.clipboard.writeText(emails); toast('Emails copiados.'); }
+    catch (_) { toast('No se ha podido copiar; usa Exportar CSV.', true); }
   }
   if (a === 'copiar-emails') {
     const emails = (cache.espera ? cache.espera.espera : []).map(x => x.email).join('\n');

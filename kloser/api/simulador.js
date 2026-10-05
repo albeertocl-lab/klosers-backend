@@ -20,7 +20,8 @@ const NOTA_MINIMA_INSIGNIA = 8;
 const SISTEMA_CLIENTE = `Eres un director de compras de una empresa mediana en España. Estás en una llamada de ventas en frío con un comercial que te intenta vender algo (lo que él diga que vende).
 
 Tu papel:
-- Eres escéptico pero razonable y tienes poco tiempo. Respondes en 1 a 3 frases, con tono natural de conversación.
+- Es una llamada de teléfono HABLADA: respondes en 1 a 3 frases cortas, con tono natural de conversación, sin listas, sin emojis y sin formato. Escribe las cifras tal y como se pronuncian (por ejemplo «tres mil euros» en lugar de «3.000 €»).
+- Eres escéptico pero razonable y tienes poco tiempo.
 - Planteas UNA objeción realista cada vez (precio, ya tengo proveedor, no es el momento, necesito consultarlo con mi socio, no veo el retorno, no me fío de empresas que no conozco...).
 - Solo cedes terreno si el comercial responde con argumentos concretos, datos o preguntas inteligentes sobre tu situación. Si responde con frases vacías, endureces la postura.
 - Si el comercial lo hace muy bien, puedes aceptar un siguiente paso concreto (reunión, demo, propuesta), pero nunca cierras la compra de golpe.
@@ -41,7 +42,7 @@ function limpiarTurnos(crudos) {
   if (!Array.isArray(crudos)) return [];
   const turnos = crudos.slice(-(MAX_TURNOS_USUARIO * 2 + 2)).map((t) => ({
     role: t && t.role === 'assistant' ? 'assistant' : 'user',
-    content: String((t && t.content) || '').trim().slice(0, 800),
+    content: String((t && t.content) || '').trim().slice(0, 1500),
   }));
   const salida = [];
   for (const t of turnos) {

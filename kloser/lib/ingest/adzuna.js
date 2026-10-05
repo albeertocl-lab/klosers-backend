@@ -8,6 +8,7 @@
 
 const { clasificarOferta } = require('../clasificarOferta');
 const { upsertOfertaAutomatica, cerrarOfertasDesaparecidas } = require('../guardarOferta');
+const { SALTABLES, cargarExistentes, marcarVistas } = require('./comun');
 
 const FUENTE = 'Adzuna';
 const PAIS_ADZUNA = process.env.ADZUNA_PAIS || 'es'; // es, mx, etc. — ver países soportados en su documentación
@@ -23,13 +24,19 @@ async function buscarOfertasAdzuna(query) {
 }
 
 async function ingestarAdzuna() {
-  const resultados = { procesadas: 0, errores: [] };
+  const resultados = { procesadas: 0, ya_existentes: 0, errores: [] };
+  if (!process.env.ADZUNA_APP_ID || !process.env.ADZUNA_APP_KEY) return { procesadas: 0, errores: [], omitida: 'sin credenciales (ADZUNA_APP_ID y ADZUNA_APP_KEY)' };
+  const existentes = await cargarExistentes(FUENTE);
+  const vistas = [];
 
   for (const kw of KEYWORDS) {
     try {
       const ofertas = await buscarOfertasAdzuna(kw.trim());
       for (const oferta of ofertas) {
         try {
+          const idExt = String(oferta.id);
+          const previa = existentes.get(idExt);
+          if (previa && SALTABLES.includes(previa.estado_oferta)) { vistas.push(previa.id); resultados.ya_existentes++; continue; }
           const textoBruto = `Título: ${oferta.title}\nEmpresa: ${oferta.company?.display_name || 'No especificado'}\nUbicación: ${oferta.location?.display_name || ''}\nDescripción: ${oferta.description || ''}`;
           const clasificada = await clasificarOferta(textoBruto);
           await upsertOfertaAutomatica({
@@ -48,6 +55,7 @@ async function ingestarAdzuna() {
     }
   }
 
+  await marcarVistas(vistas);
   const { cerradas } = await cerrarOfertasDesaparecidas(FUENTE);
   resultados.cerradas_por_desaparicion = cerradas;
 

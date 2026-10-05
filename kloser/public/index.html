@@ -5,6 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Klosers — El club privado de talento comercial</title>
 <meta name="description" content="Klosers conecta a Setters, Closers, SDRs, KAMs y comerciales de campo con las ofertas de venta que no llegan a los portales de empleo genéricos.">
+<meta name="robots" content="index,follow">
+<meta property="og:type" content="website"><meta property="og:site_name" content="Klosers"><meta property="og:locale" content="es_ES">
+<meta property="og:title" content="Klosers — El club privado de talento comercial">
+<meta property="og:description" content="Ofertas de ventas filtradas por compatibilidad, verificación de comerciales, formación con IA y comunidad.">
+<meta name="twitter:card" content="summary">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%85%3C/text%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -73,6 +78,15 @@
   .tab.active{background:var(--green); color:var(--cream-text); border-color:var(--green);}
   .match-pill{font-size:.75rem; font-weight:700; padding:.3rem .7rem; border-radius:999px;}
   .lock-overlay{position:absolute; inset:0; background:rgba(8,23,18,0.72); backdrop-filter:blur(2px); display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; border-radius:1rem; color:#fff; gap:.5rem; padding:1.5rem;}
+  .mic-btn{width:76px;height:76px;border-radius:999px;background:var(--green);border:3px solid var(--gold-light);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .15s;}
+  .mic-btn:hover:not(:disabled){transform:scale(1.05);}
+  .mic-btn:disabled{opacity:.45;cursor:not-allowed;}
+  .mic-btn.escuchando{background:var(--danger);animation:micpulse 1.2s infinite;}
+  @keyframes micpulse{0%{box-shadow:0 0 0 0 rgba(165,67,47,.55);}70%{box-shadow:0 0 0 18px rgba(165,67,47,0);}100%{box-shadow:0 0 0 0 rgba(165,67,47,0);}}
+  .tip-tipo{display:inline-block;font-size:.7rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:2px 10px;border-radius:999px;background:var(--green);color:var(--gold-light);}
+  .pre{white-space:pre-wrap;word-break:break-word;}
+  details.aca > summary{cursor:pointer;list-style:none;}
+  details.aca > summary::-webkit-details-marker{display:none;}
 </style>
 </head>
 <body class="antialiased">
@@ -89,6 +103,7 @@
       <a href="#como-funciona" onclick="showView('landing')" class="hover:opacity-70 transition-opacity" style="color:var(--ink);">Cómo funciona</a>
       <a href="#planes" onclick="showView('landing')" class="hover:opacity-70 transition-opacity" style="color:var(--ink);">Planes</a>
       <a href="#empresas" onclick="showView('landing')" class="hover:opacity-70 transition-opacity" style="color:var(--ink);">Empresas</a>
+      <a href="/ofertas" class="hover:opacity-70 transition-opacity" style="color:var(--ink);">Ofertas</a>
     </nav>
 
     <div class="hidden md:flex items-center gap-4">
@@ -105,6 +120,7 @@
       <a href="#como-funciona" onclick="showView('landing')" class="pt-4">Cómo funciona</a>
       <a href="#planes" onclick="showView('landing')">Planes</a>
       <a href="#empresas" onclick="showView('landing')">Empresas</a>
+      <a href="/ofertas">Ofertas</a>
       <button onclick="openAuth('login')" class="text-left">Iniciar sesión</button>
       <button onclick="openAuth('signup')" class="btn-gold text-center">Crear mi perfil</button>
     </div>
@@ -120,8 +136,9 @@
     <nav class="flex items-center gap-5 md:gap-7 text-sm font-semibold overflow-x-auto whitespace-nowrap">
       <button onclick="showView('dashboard')" style="color:var(--ink);">Dashboard</button>
       <button onclick="showView('ofertas')" style="color:var(--ink);">Ofertas</button>
+      <button onclick="showView('academia')" style="color:var(--ink);">Academia</button>
+      <button onclick="showView('comunidad')" style="color:var(--ink);">Comunidad</button>
       <button onclick="showView('perfil')" style="color:var(--ink);">Mi perfil</button>
-      <button onclick="abrirComunidad()" style="color:var(--ink);">Comunidad</button>
     </nav>
     <div class="flex items-center gap-3 shrink-0">
       <div id="nav-avatar" onclick="showView('perfil')" class="w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold cursor-pointer" style="background:var(--green); color:var(--gold-light);">--</div>
@@ -346,10 +363,26 @@
     </div>
   </section>
 
+  <p class="text-center text-sm ink-soft px-6 -mt-12 mb-16">Cobramos por el acceso y las herramientas: nunca una comisión sobre tu contratación. Puedes cancelar cuando quieras.</p>
+
   <section class="py-24 text-center px-6" style="background:var(--green);">
     <h2 class="serif text-3xl md:text-4xl font-semibold max-w-2xl mx-auto fade-in" style="color:var(--gold-light);">Sé uno de los 50 primeros socios y consigue Elite gratis de por vida.</h2>
     <p class="mt-4 fade-in" style="color:var(--cream-text); opacity:0.85;">Sin tarjeta. Menos de dos minutos para crear tu perfil.</p>
     <button onclick="openAuth('signup')" class="btn-gold inline-block mt-8 fade-in">Crear mi perfil gratis</button>
+  </section>
+
+  <section id="aviso-semanal" class="max-w-3xl mx-auto px-6 py-20 text-center">
+    <h2 class="serif text-3xl font-semibold" style="color:var(--gold-strong);">Recibe las nuevas ofertas cada semana</h2>
+    <p class="ink-soft mt-2">Un resumen con las mejores ofertas de ventas, sin necesidad de crear cuenta. Te das de baja cuando quieras.</p>
+    <form id="aviso-form" class="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
+      <input id="aviso-email" type="email" required autocomplete="email" placeholder="Tu email" aria-label="Tu email" class="field-input flex-1 max-w-sm">
+      <button type="submit" class="btn-gold !py-3">Quiero el aviso</button>
+    </form>
+    <label class="flex items-start gap-2 text-xs ink-soft mt-3 justify-center text-left max-w-md mx-auto">
+      <input id="aviso-acepta" type="checkbox" class="mt-0.5">
+      <span>Acepto recibir el aviso semanal por correo y la <a href="/privacidad" target="_blank" rel="noopener" class="underline gold-text">política de privacidad</a>.</span>
+    </label>
+    <p id="aviso-msg" class="text-sm mt-3 hidden" role="status"></p>
   </section>
 
   <footer class="px-6 py-12" style="background:var(--green-deep); color:var(--cream-text);">
@@ -364,11 +397,22 @@
           <a href="#como-funciona" onclick="showView('landing')">Cómo funciona</a>
           <a href="#planes" onclick="showView('landing')">Planes</a>
           <a href="#empresas" onclick="showView('landing')">Empresas</a>
+          <a href="/ofertas">Ofertas</a>
         </div>
         <div class="flex flex-col gap-2">
           <span class="font-semibold opacity-100" style="color:var(--gold-light);">Legal</span>
-          <a href="#">Términos y condiciones</a>
-          <a href="#">Política de privacidad</a>
+          <a href="/terminos">Términos y condiciones</a>
+          <a href="/privacidad">Política de privacidad</a>
+          <a href="/cookies">Política de cookies</a>
+        </div>
+        <div class="flex flex-col gap-2">
+          <span class="font-semibold opacity-100" style="color:var(--gold-light);">Aprende</span>
+          <a href="/ofertas">Ofertas de ventas</a>
+          <a href="/que-es-un-closer">Qué es un closer</a>
+          <a href="/que-es-un-setter">Qué es un setter</a>
+          <a href="/que-es-un-sdr">Qué es un SDR</a>
+          <a href="/trabajo-remoto-ventas">Trabajo remoto en ventas</a>
+          <a href="/como-aplicar-a-ofertas-de-ventas">Cómo aplicar a ofertas</a>
         </div>
       </div>
     </div>
@@ -397,11 +441,13 @@
             <label class="text-sm font-medium">Contraseña</label>
             <input id="auth-password" type="password" required minlength="8" autocomplete="current-password" placeholder="Mínimo 8 caracteres" class="field-input mt-1.5">
           </div>
+          <label id="auth-consent" class="flex items-start gap-2 text-xs ink-soft">
+            <input id="auth-acepta" type="checkbox" class="mt-0.5">
+            <span>He leído y acepto los <a href="/terminos" target="_blank" rel="noopener" class="underline gold-text">términos y condiciones</a> y la <a href="/privacidad" target="_blank" rel="noopener" class="underline gold-text">política de privacidad</a>.</span>
+          </label>
           <button type="submit" class="btn-gold w-full !py-3">Continuar</button>
           <p id="auth-msg" class="text-sm hidden" role="alert"></p>
         </form>
-
-        <p id="auth-legal" class="text-xs ink-soft mt-4">Al registrarte, aceptas nuestros Términos y Condiciones y nuestra Política de Privacidad.</p>
         <p class="text-sm mt-6 text-center">
           <span id="auth-switch-text">¿Ya tienes una cuenta?</span>
           <button id="auth-switch-btn" onclick="openAuth('login')" class="font-semibold gold-text">Inicia sesión</button>
@@ -452,6 +498,16 @@
 
     <div id="verif-banner" class="surface rounded-2xl p-6 flex items-center justify-between gap-4 flex-wrap"></div>
 
+    <div id="dash-tip-card" class="surface rounded-2xl p-6 hidden">
+      <div class="flex items-center justify-between gap-3 flex-wrap">
+        <p class="text-sm font-semibold ink-soft">TIP DE HOY <span id="dash-tip-tipo" class="tip-tipo ml-2"></span></p>
+        <button onclick="showView('academia')" class="text-sm font-semibold gold-text">Ir a la Academia →</button>
+      </div>
+      <h2 id="dash-tip-titulo" class="serif text-xl font-semibold mt-2" style="color:var(--gold-strong);"></h2>
+      <p id="dash-tip-cuerpo" class="text-sm ink-soft mt-2 pre"></p>
+      <p class="text-sm mt-3"><strong>Tu micro-acción de hoy:</strong> <span id="dash-tip-accion"></span></p>
+    </div>
+
     <div class="grid md:grid-cols-3 gap-6">
       <div class="surface rounded-2xl p-6">
         <p class="text-sm font-semibold ink-soft">TU PLAN</p>
@@ -462,10 +518,10 @@
       </div>
 
       <div class="surface rounded-2xl p-6 relative overflow-hidden">
-        <p class="text-sm font-semibold ink-soft">ACADEMIA · SIMULADOR IA</p>
-        <p class="serif text-xl font-semibold mt-1" style="color:var(--gold-strong);">Entrena tu pitch</p>
-        <p class="text-sm ink-soft mt-1">Practica objeciones antes de la llamada real.</p>
-        <button onclick="openSimulator()" id="sim-btn" class="btn-gold text-sm mt-4 !py-2.5">Abrir simulador</button>
+        <p class="text-sm font-semibold ink-soft">ENTRENADOR DE PITCH · VOZ + IA</p>
+        <p class="serif text-xl font-semibold mt-1" style="color:var(--gold-strong);">Entrena tu pitch hablando</p>
+        <p class="text-sm ink-soft mt-1">Una llamada simulada con un director de compras exigente, con tu voz.</p>
+        <button onclick="openSimulator()" id="sim-btn" class="btn-gold text-sm mt-4 !py-2.5">Abrir entrenador de voz</button>
         <div id="sim-lock" class="lock-overlay hidden">
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--gold-light)" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg>
           <p class="font-semibold" style="color:var(--gold-light);">Disponible solo en Elite</p>
@@ -477,7 +533,8 @@
         <p class="text-sm font-semibold ink-soft">COMUNIDAD</p>
         <p class="serif text-xl font-semibold mt-1" style="color:var(--gold-strong);">Habla con otros Klosers</p>
         <p class="text-sm ink-soft mt-1">Comparte guiones, analiza llamadas y no vendas en soledad.</p>
-        <button onclick="abrirComunidad()" class="btn-gold text-sm mt-4 !py-2.5">Unirme a la comunidad</button>
+        <button onclick="showView('comunidad')" class="btn-gold text-sm mt-4 !py-2.5">Entrar en la comunidad</button>
+        <p id="com-card-nota" class="text-xs ink-soft mt-2 hidden">Incluida en los planes Pro y Elite.</p>
       </div>
     </div>
 
@@ -512,6 +569,70 @@
   </div>
 </section>
 
+<!-- ================= VIEW: ACADEMIA ================= -->
+<section id="view-academia" class="view">
+  <div class="max-w-4xl mx-auto px-6 py-10 space-y-6">
+    <div>
+      <h1 class="serif text-3xl font-semibold" style="color:var(--gold-strong);">Academia</h1>
+      <p class="ink-soft mt-1">Un tip cada día y una mini clase cada semana sobre venta y psicología comercial.</p>
+    </div>
+    <div id="aca-hoy" class="surface rounded-2xl p-7"></div>
+    <div id="aca-clase" class="surface rounded-2xl p-7"></div>
+    <div class="surface rounded-2xl p-7">
+      <h2 class="serif text-xl font-semibold" style="color:var(--gold-strong);">Esta semana</h2>
+      <div id="aca-semana" class="mt-4 space-y-2"></div>
+    </div>
+    <div class="surface rounded-2xl p-7">
+      <h2 class="serif text-xl font-semibold" style="color:var(--gold-strong);">Tips anteriores</h2>
+      <div id="aca-archivo" class="mt-4 space-y-2"></div>
+    </div>
+    <div class="surface rounded-2xl p-6 flex items-center justify-between gap-4 flex-wrap">
+      <div>
+        <p class="text-sm font-semibold ink-soft">ENTRENADOR DE PITCH POR VOZ</p>
+        <p id="aca-voz-txt" class="text-sm ink-soft mt-1">Practica con un director de compras exigente y recibe tu evaluación. Plan Elite.</p>
+      </div>
+      <button id="aca-voz-btn" onclick="openSimulator()" class="btn-gold text-sm !py-2.5">Abrir entrenador de voz</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= VIEW: COMUNIDAD ================= -->
+<section id="view-comunidad" class="view">
+  <div class="max-w-3xl mx-auto px-6 py-10 space-y-6">
+    <div>
+      <h1 class="serif text-3xl font-semibold" style="color:var(--gold-strong);">Comunidad</h1>
+      <p class="ink-soft mt-1">Comparte guiones, analiza llamadas y no vendas en soledad.</p>
+    </div>
+    <div id="com-bloqueo" class="surface rounded-2xl p-8 text-center hidden"></div>
+    <div id="com-contenido" class="hidden">
+      <div id="com-lista">
+        <div id="com-cats" class="flex gap-2 flex-wrap"></div>
+        <div class="mt-4 flex justify-between items-center gap-3 flex-wrap">
+          <p class="text-sm ink-soft">Los nombres se muestran como «Nombre I.». Respeto y nada de datos confidenciales de clientes.</p>
+          <button id="com-nuevo-btn" class="btn-gold text-sm !py-2.5" data-com="nuevo">Nueva publicación</button>
+        </div>
+        <form id="com-nuevo" class="surface rounded-2xl p-6 mt-4 hidden" onsubmit="return false">
+          <label class="text-sm font-medium" for="com-n-cat">Categoría</label>
+          <select id="com-n-cat" class="field-input mt-1.5"></select>
+          <label class="text-sm font-medium mt-4 block" for="com-n-titulo">Título</label>
+          <input id="com-n-titulo" maxlength="120" class="field-input mt-1.5" placeholder="Resume tu aportación o tu pregunta">
+          <label class="text-sm font-medium mt-4 block" for="com-n-texto">Mensaje</label>
+          <textarea id="com-n-texto" maxlength="4000" rows="6" class="field-input mt-1.5" placeholder="Cuenta tu guion, tu objeción o tu duda con el mayor detalle posible…"></textarea>
+          <p class="text-xs ink-soft mt-2"><span id="com-n-cuenta">0 / 4000</span></p>
+          <div class="flex gap-3 mt-4">
+            <button type="button" id="com-n-publicar" class="btn-gold text-sm !py-2.5" data-com="publicar">Publicar</button>
+            <button type="button" class="btn-outline text-sm !py-2.5" data-com="cancelar-nuevo">Cancelar</button>
+          </div>
+          <p id="com-n-msg" class="text-sm mt-3 hidden" style="color:var(--danger);" role="alert"></p>
+        </form>
+        <div id="com-feed" class="mt-4 space-y-3"></div>
+        <div class="text-center mt-4"><button id="com-mas" class="btn-outline text-sm !py-2.5 hidden" data-com="mas">Cargar más</button></div>
+      </div>
+      <div id="com-hilo" class="hidden"></div>
+    </div>
+  </div>
+</section>
+
 <!-- ================= VIEW: OFERTAS (job board) ================= -->
 <section id="view-ofertas" class="view">
   <div class="max-w-5xl mx-auto px-6 py-10">
@@ -523,6 +644,13 @@
       <button class="tab" data-filter="Remoto" onclick="setOfertaFilter('Remoto')">Remoto</button>
       <button class="tab" data-filter="Híbrido" onclick="setOfertaFilter('Híbrido')">Híbrido</button>
       <button class="tab" data-filter="Presencial" onclick="setOfertaFilter('Presencial')">Presencial</button>
+    </div>
+    <div class="mt-3 flex items-center gap-2 flex-wrap">
+      <label for="ofertas-contrato" class="text-sm ink-soft">Jornada</label>
+      <select id="ofertas-contrato" class="field-input" style="max-width:260px;" onchange="setContratoFilter(this.value)">
+        <option value="Todas">Cualquier jornada</option><option>Autónomo / Freelance</option><option>Jornada completa</option>
+        <option>Jornada parcial</option><option>Jornada flexible</option><option>Prácticas</option>
+      </select>
     </div>
 
     <div id="ofertas-list" class="mt-6 space-y-4"></div>
@@ -639,7 +767,7 @@
     </div>
 
     <div class="surface rounded-2xl p-7">
-      <h2 class="serif text-lg font-semibold" style="color:var(--gold-strong);">Vía 2 — Roleplay con IA (plan Elite)</h2>
+      <h2 class="serif text-lg font-semibold" style="color:var(--gold-strong);">Vía 2 — Entrenador de voz con IA (plan Elite)</h2>
       <p class="text-sm ink-soft mt-1 mb-4">Defiende tu pitch frente a un director de compras exigente. Tras 5 intercambios, la IA evalúa tu manejo de objeciones: con 8/10 o más obtienes la insignia al instante.</p>
       <button id="verif-sim-btn" onclick="openSimulator()" class="btn-gold text-sm !py-3 hidden">Abrir el simulador</button>
       <p id="verif-sim-lock" class="text-sm ink-soft hidden">Esta vía está disponible solo en el plan Elite. <a href="#" onclick="showView('landing'); document.getElementById('planes').scrollIntoView(); return false;" class="gold-text underline">Ver planes</a></p>
@@ -650,20 +778,36 @@
 </main>
 
 <!-- Simulator modal -->
-<div id="sim-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background:rgba(8,23,18,0.6);">
-  <div class="surface rounded-2xl w-full max-w-lg p-6 max-h-[85vh] flex flex-col">
-    <div class="flex items-center justify-between mb-4">
-      <h3 class="serif text-xl font-semibold" style="color:var(--gold-strong);">Simulador de ventas</h3>
-      <button onclick="closeSimulator()" class="text-2xl leading-none ink-soft">&times;</button>
+<div id="sim-modal" class="fixed inset-0 z-50 hidden items-center justify-center p-4" style="background:rgba(8,23,18,0.6);" role="dialog" aria-modal="true" aria-labelledby="sim-titulo">
+  <div class="surface rounded-2xl w-full max-w-lg p-6 max-h-[92vh] flex flex-col">
+    <div class="flex items-center justify-between mb-3">
+      <h3 id="sim-titulo" class="serif text-xl font-semibold" style="color:var(--gold-strong);">Entrena tu pitch por voz</h3>
+      <button onclick="closeSimulator()" class="text-2xl leading-none ink-soft" aria-label="Cerrar">&times;</button>
     </div>
-    <p class="text-xs ink-soft mb-1">Roleplay con IA: defiende tu pitch frente a un director de compras exigente. Tras 5 intercambios puedes pedir tu evaluación; con 8/10 o más consigues la insignia Kloser Verificado.</p>
-    <p id="sim-contador" class="text-xs mb-3" style="color:var(--gold-strong);"></p>
-    <div id="sim-chat" class="flex-1 overflow-y-auto space-y-3 pr-1"></div>
-    <form id="sim-form" class="mt-4 flex gap-2">
-      <input id="sim-input" type="text" maxlength="800" placeholder="Escribe tu pitch o respuesta..." class="field-input flex-1 text-sm">
+    <p class="text-xs ink-soft mb-1">Una llamada con un director de compras exigente. Habla con naturalidad: se transcribe tu voz y el director te contesta hablando. Tras 5 intercambios puedes pedir tu evaluación; con 8/10 o más consigues la insignia Kloser Verificado.</p>
+    <p class="text-xs ink-soft mb-2">El audio lo procesa el servicio de voz de tu navegador; Klosers solo recibe el texto.</p>
+    <p id="sim-contador" class="text-xs mb-2" style="color:var(--gold-strong);"></p>
+    <div id="sim-aviso" class="hidden text-sm rounded-lg p-3 mb-2" style="background:var(--bg); border:1px solid var(--border-gold); color:var(--danger);" role="status"></div>
+    <div id="sim-chat" class="flex-1 overflow-y-auto space-y-3 pr-1 min-h-[120px]"></div>
+
+    <div id="sim-voz" class="mt-4 text-center">
+      <p id="sim-estado" class="text-sm font-semibold" style="color:var(--gold-strong);" aria-live="polite"></p>
+      <p id="sim-transcripcion" class="text-sm ink-soft mt-1 min-h-[1.5rem] pre"></p>
+      <button id="sim-mic" type="button" class="mic-btn mt-3" aria-pressed="false" aria-label="Hablar">
+        <svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="var(--gold-light)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 11a7 7 0 0014 0M12 18v4"/></svg>
+      </button>
+      <div class="flex items-center justify-center gap-4 flex-wrap mt-3 text-xs">
+        <button id="sim-saltar" type="button" class="hidden font-semibold gold-text">Saltar la voz del director</button>
+        <label class="flex items-center gap-1.5 ink-soft"><input id="sim-voz-director" type="checkbox" checked> Voz del director</label>
+        <button id="sim-escribir" type="button" class="font-semibold ink-soft underline">Prefiero escribir</button>
+      </div>
+    </div>
+
+    <form id="sim-form" class="mt-3 hidden gap-2">
+      <input id="sim-input" type="text" maxlength="1500" placeholder="Escribe tu pitch o tu respuesta…" class="field-input flex-1 text-sm">
       <button id="sim-send" type="submit" class="btn-gold text-sm !py-2.5 !px-5">Enviar</button>
     </form>
-    <button id="sim-eval-btn" onclick="simEvaluar()" class="btn-outline text-sm !py-2.5 mt-3 hidden">Terminar y pedir mi evaluación</button>
+    <button id="sim-eval-btn" type="button" class="btn-outline text-sm !py-2.5 mt-3 hidden">Terminar y pedir mi evaluación</button>
   </div>
 </div>
 
@@ -697,10 +841,13 @@ const SUPABASE_KEY = 'sb_publishable__xEYUdnaER23Cjz-bqrFcw_5skLulOd';
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 /* ===================== STATE ===================== */
+const TERMINOS_VERSION = '2026-10';   // debe coincidir con la versión de /terminos y /privacidad
+
 let state = {
   authMode:'signup',
   user:null,
   ofertaFilter:'Todas',
+  contratoFilter:'Todas',
   ofertas:[],
   ofertasError:false,
 };
@@ -727,6 +874,7 @@ function userFromRow(r){
     postulacionesRestantes: r.plan_stripe==='Elite' ? Infinity : (r.postulaciones_restantes ?? 0),
     ticketMedioExacto: r.ticket_medio_exacto ?? '', tasaCierreExacta: r.tasa_cierre_exacta ?? '',
     urlPitchLoom:r.url_pitch_loom||'', estadoVerificacion:r.estado_verificacion||'Pendiente',
+    comunidadBloqueado: !!r.comunidad_bloqueado,
   };
 }
 
@@ -744,13 +892,13 @@ function datosPerfilParaGuardar(u){
 
 /* ===================== VIEW SWITCHING ===================== */
 function showView(name){
-  if(['dashboard','ofertas','perfil','verificacion','onboarding'].includes(name) && !state.user){
+  if(['dashboard','ofertas','perfil','verificacion','onboarding','academia','comunidad'].includes(name) && !state.user){
     return openAuth('login');
   }
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.getElementById('view-'+name).classList.add('active');
 
-  const isPrivate = ['dashboard','ofertas','perfil','verificacion'].includes(name);
+  const isPrivate = ['dashboard','ofertas','perfil','verificacion','academia','comunidad'].includes(name);
   document.getElementById('public-header').classList.toggle('hidden', isPrivate);
   document.getElementById('private-header').classList.toggle('hidden', !isPrivate);
 
@@ -758,6 +906,8 @@ function showView(name){
   if(name==='ofertas'){ renderOfertas(); cargarOfertas().then(()=>{ if(location.hash==='#ofertas') renderOfertas(); }); }
   if(name==='perfil') renderPerfil();
   if(name==='verificacion') renderVerificacion();
+  if(name==='academia') renderAcademia();
+  if(name==='comunidad') renderComunidad();
   if(name==='landing') setTimeout(calcularComisiones, 0);
 
   window.scrollTo(0,0);
@@ -774,7 +924,7 @@ function openAuth(mode){
   const nameField = document.getElementById('auth-name-field');
   const switchText = document.getElementById('auth-switch-text');
   const switchBtn = document.getElementById('auth-switch-btn');
-  const legal = document.getElementById('auth-legal');
+  const legal = document.getElementById('auth-consent');
 
   if(mode==='signup'){
     title.textContent='Crear cuenta'; subtitle.textContent='Únete hoy';
@@ -823,9 +973,10 @@ document.getElementById('auth-form').addEventListener('submit', async function(e
     if(state.authMode==='signup'){
       const nombre = document.getElementById('auth-name').value.trim();
       if(!nombre){ setAuthMsg('Escribe tu nombre.', true); return; }
+      if(!document.getElementById('auth-acepta').checked){ setAuthMsg('Para crear tu cuenta tienes que aceptar los términos y la política de privacidad.', true); return; }
       const { data, error } = await sb.auth.signUp({
         email, password,
-        options:{ data:{ nombre_completo:nombre }, emailRedirectTo: location.origin }
+        options:{ data:{ nombre_completo:nombre, acepta_terminos:'true', terminos_version:TERMINOS_VERSION }, emailRedirectTo: location.origin }
       });
       if(error) throw error;
       if(!data.session){
@@ -873,14 +1024,14 @@ async function cargarSesion(){
 async function logout(){
   await sb.auth.signOut();
   state.user = null;
-  state.ofertas = [];
+  state.ofertas = []; limpiarEstadoPrivado();
   showView('landing');
 }
 
 sb.auth.onAuthStateChange((evento)=>{
   if(evento==='SIGNED_OUT' && state.user){
     state.user = null;
-    state.ofertas = [];
+    state.ofertas = []; limpiarEstadoPrivado();
     showView('landing');
   }
 });
@@ -965,7 +1116,7 @@ async function eliminarCuenta(){
   }
   try{ await sb.auth.signOut({ scope:'local' }); } catch(_){}
   state.user = null;
-  state.ofertas = [];
+  state.ofertas = []; limpiarEstadoPrivado();
   showView('landing');
   toast('Tu cuenta y tus datos se han eliminado.');
 }
@@ -1092,7 +1243,7 @@ async function cargarOfertas(){
     id:o.id, titulo:o.titulo_oferta, empresa:o.empresa_nombre || 'Empresa confidencial',
     modalidad:o.modalidad_oferta || '—', ciudad:o.ciudad_provincia_oferta || '—',
     target:o.target_oferta || '—', sector:o.sector_oferta || [],
-    remuneracion:o.tipo_remuneracion || 'A convenir', fecha:o.fecha_publicacion,
+    remuneracion:o.tipo_remuneracion || 'A convenir', contrato:o.tipo_contrato || null, fecha:o.fecha_publicacion,
     score:o.compatibilidad, postulado:!!o.postulado, destacado:!!o.destacado,
   }));
 }
@@ -1141,9 +1292,16 @@ function renderDashboard(){
 
   document.getElementById('dash-ofertas').innerHTML =
     listaOfertasHtml(visibleOfertas().slice(0,3), 'No hay ofertas que encajen con tu perfil todavía. Vuelve pronto.');
+  document.getElementById('com-card-nota').classList.toggle('hidden', ['Pro','Elite'].includes(u.plan));
+  renderTipHoyDashboard();
 }
 
 /* ===================== OFERTAS (job board) ===================== */
+function setContratoFilter(v){
+  state.contratoFilter = v;
+  renderOfertas();
+}
+
 function setOfertaFilter(f){
   state.ofertaFilter = f;
   document.querySelectorAll('#ofertas-tabs .tab').forEach(t=>t.classList.toggle('active', t.dataset.filter===f));
@@ -1165,7 +1323,7 @@ function ofertaCardHtml(o){
         ${o.destacado ? '<span class="match-pill" style="background:var(--green); color:var(--gold-light);">Destacada</span>' : ''}
       </div>
       <p class="text-sm ink-soft mt-0.5">${esc(o.empresa)}</p>
-      <p class="text-xs ink-soft mt-2">${esc(o.modalidad)}${o.ciudad!=='—' ? ' · '+esc(o.ciudad) : ''} · ${esc(o.target)} · ${esc(o.sector.join(', ') || 'Sector no especificado')} · ${esc(o.remuneracion)}</p>
+      <p class="text-xs ink-soft mt-2">${esc(o.modalidad)}${o.ciudad!=='—' ? ' · '+esc(o.ciudad) : ''} · ${esc(o.target)} · ${esc(o.sector.join(', ') || 'Sector no especificado')} · ${esc(o.remuneracion)}${o.contrato ? ' · '+esc(o.contrato) : ''}</p>
       ${o.fecha ? `<p class="text-xs mt-1" style="color:var(--gold-strong);">Publicado ${timeAgo(o.fecha)}</p>` : ''}
     </div>
     ${boton}
@@ -1182,6 +1340,7 @@ function listaOfertasHtml(lista, vacio){
 function renderOfertas(){
   let list = visibleOfertas();
   if(state.ofertaFilter!=='Todas') list = list.filter(o=>o.modalidad===state.ofertaFilter);
+  if(state.contratoFilter!=='Todas') list = list.filter(o=>o.contrato===state.contratoFilter);
   document.getElementById('ofertas-list').innerHTML =
     listaOfertasHtml(list, 'No hay ofertas en este filtro para tu perfil todavía. Vuelve pronto.');
 }
@@ -1221,105 +1380,284 @@ async function postular(id){
   renderOfertas(); renderDashboard();
 }
 
-/* ===================== SIMULADOR (IA, solo Elite) ===================== */
+/* ===================== ENTRENADOR DE PITCH POR VOZ (IA, solo Elite) ===================== */
+const byId = (id) => document.getElementById(id);
 const SIM_INTRO = 'Cuéntame, ¿qué vendes y por qué debería escucharte?';
 const SIM_MIN_EVAL = 5;
 const SIM_MAX_TURNOS = 12;
-let simTurnos = [];
-let simOcupado = false;
-let simResultadoHtml = '';
+const SIM_MAX_CHARS = 1500;
+const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+const sim = { turnos:[], estado:'reposo', reco:null, textoFinal:'', textoParcial:'', parandoManual:false, enviarAlTerminar:false, reinicios:0, resultadoHtml:'', aviso:'' };
 
 function simMensajeError(err){
   const m = {
-    solo_elite:'El simulador es solo para el plan Elite.',
-    limite_diario:'Has alcanzado el límite diario del simulador. Vuelve mañana.',
-    conversacion_muy_larga:'La conversación es demasiado larga. Cierra el simulador y empieza otra.',
+    solo_elite:'El entrenador es solo para el plan Elite.',
+    limite_diario:'Has alcanzado el límite diario del entrenador. Vuelve mañana.',
+    conversacion_muy_larga:'La conversación es demasiado larga. Cierra el entrenador y empieza otra.',
     pocos_turnos:'Necesitas al menos 5 intercambios para pedir la evaluación.',
   }[err.codigo];
   if(!m) console.error(err);
-  return m || 'El simulador no responde ahora mismo. Inténtalo de nuevo en un momento.';
+  return m || 'El entrenador no responde ahora mismo. Inténtalo de nuevo en un momento.';
+}
+
+function simAviso(texto){ sim.aviso = texto || ''; simPintar(); }
+
+function simPintarTranscripcion(){
+  byId('sim-transcripcion').textContent = (sim.textoFinal + (sim.textoParcial ? ' ' + sim.textoParcial : '')).trim();
 }
 
 function simPintar(){
-  const chat = document.getElementById('sim-chat');
+  const chat = byId('sim-chat');
   let html = `<div class="text-sm ink-soft"><strong>Director de compras:</strong> ${esc(SIM_INTRO)}</div>`;
-  simTurnos.forEach(t=>{
+  sim.turnos.forEach(t=>{
     html += t.role==='user'
       ? `<div class="text-sm text-right"><strong>Tú:</strong> ${esc(t.content)}</div>`
       : `<div class="text-sm ink-soft"><strong>Director de compras:</strong> ${esc(t.content)}</div>`;
   });
-  if(simOcupado) html += `<div class="text-sm ink-soft italic">El director está pensando…</div>`;
-  html += simResultadoHtml;
+  html += sim.resultadoHtml;
   chat.innerHTML = html;
   chat.scrollTop = chat.scrollHeight;
 
-  const n = simTurnos.filter(t=>t.role==='user').length;
-  document.getElementById('sim-contador').textContent = state.user.verificado
+  const n = sim.turnos.filter(t=>t.role==='user').length;
+  byId('sim-contador').textContent = state.user && state.user.verificado
     ? 'Ya eres Kloser Verificado: puedes seguir entrenando.'
     : `Intercambios: ${Math.min(n, SIM_MIN_EVAL)}/${SIM_MIN_EVAL} para poder pedir tu evaluación`;
-  document.getElementById('sim-eval-btn').classList.toggle('hidden', n < SIM_MIN_EVAL || state.user.verificado || simOcupado || !!simResultadoHtml);
-  document.getElementById('sim-send').disabled = simOcupado;
+  byId('sim-eval-btn').classList.toggle('hidden', n < SIM_MIN_EVAL || (state.user && state.user.verificado) || sim.estado==='pensando' || !!sim.resultadoHtml);
+
+  const aviso = byId('sim-aviso');
+  aviso.textContent = sim.aviso;
+  aviso.classList.toggle('hidden', !sim.aviso);
+
+  const mic = byId('sim-mic');
+  mic.classList.toggle('escuchando', sim.estado==='escuchando');
+  mic.setAttribute('aria-pressed', sim.estado==='escuchando' ? 'true' : 'false');
+  mic.setAttribute('aria-label', sim.estado==='escuchando' ? 'Parar y enviar' : 'Hablar');
+  mic.disabled = sim.estado==='pensando';
+  byId('sim-estado').textContent = {
+    reposo:'Pulsa el micrófono y empieza a hablar',
+    escuchando:'Te escucho… pulsa de nuevo cuando termines',
+    pensando:'El director está pensando…',
+    hablando:'El director está hablando…',
+  }[sim.estado];
+  byId('sim-saltar').classList.toggle('hidden', sim.estado!=='hablando');
+  byId('sim-send').disabled = sim.estado==='pensando';
+  simPintarTranscripcion();
 }
 
-function openSimulator(){
-  if(!state.user || state.user.plan!=='Elite'){ toast('El simulador es solo para el plan Elite.'); return; }
-  simTurnos = [];
-  simOcupado = false;
-  simResultadoHtml = '';
-  document.getElementById('sim-modal').classList.remove('hidden');
-  document.getElementById('sim-modal').classList.add('flex');
+function simMostrarTexto(mostrar){
+  const f = byId('sim-form');
+  f.classList.toggle('hidden', !mostrar);
+  f.classList.toggle('flex', mostrar);
+}
+
+/* ---- síntesis de voz (el director habla) ---- */
+function simVozEspanol(){
+  const voces = (window.speechSynthesis && speechSynthesis.getVoices()) || [];
+  return voces.find(v=>/^es-ES/i.test(v.lang)) || voces.find(v=>/^es/i.test(v.lang)) || null;
+}
+function simCancelarVoz(){ try{ if(window.speechSynthesis) speechSynthesis.cancel(); }catch(_){} }
+
+function simHablar(texto){
+  if(!window.speechSynthesis || !byId('sim-voz-director').checked) return;
+  try{
+    simCancelarVoz();
+    const frases = String(texto).split(/(?<=[.!?…])\s+/).filter(Boolean);
+    if(!frases.length) return;
+    sim.estado = 'hablando'; simPintar();
+    const voz = simVozEspanol();
+    frases.forEach((frase, i)=>{
+      const u = new SpeechSynthesisUtterance(frase);
+      u.lang = 'es-ES'; u.rate = 1.02; u.pitch = 1;
+      if(voz) u.voice = voz;
+      const fin = ()=>{ if(i===frases.length-1 && sim.estado==='hablando'){ sim.estado='reposo'; simPintar(); } };
+      u.onend = fin; u.onerror = fin;
+      speechSynthesis.speak(u);
+    });
+  } catch(err){
+    // Si la voz del navegador falla, la conversación sigue por escrito: no se pierde nada
+    console.error('voz:', err);
+    sim.estado = 'reposo'; simPintar();
+  }
+}
+
+function simSaltarVoz(){
+  simCancelarVoz();
+  if(sim.estado==='hablando'){ sim.estado='reposo'; simPintar(); }
+}
+
+/* ---- reconocimiento de voz (el comercial habla) ---- */
+function simCrearReco(){
+  const r = new SpeechRec();
+  r.lang = 'es-ES'; r.continuous = true; r.interimResults = true; r.maxAlternatives = 1;
+
+  r.onresult = (e)=>{
+    sim.reinicios = 0;
+    let parcial = '';
+    for(let i = e.resultIndex; i < e.results.length; i++){
+      const res = e.results[i];
+      const txt = res[0].transcript;
+      if(res.isFinal) sim.textoFinal += (sim.textoFinal ? ' ' : '') + txt.trim();
+      else parcial += txt;
+    }
+    sim.textoParcial = parcial;
+    simPintarTranscripcion();
+  };
+
+  r.onerror = (e)=>{
+    const codigo = e.error;
+    if(codigo==='no-speech' || codigo==='aborted') return;
+    sim.parandoManual = true; sim.enviarAlTerminar = false; sim.estado = 'reposo';
+    const textos = {
+      'not-allowed':'No tengo permiso para usar el micrófono. Actívalo en el candado de la barra de direcciones o pulsa «Prefiero escribir».',
+      'service-not-allowed':'Tu navegador no permite usar el reconocimiento de voz aquí. Pulsa «Prefiero escribir».',
+      'audio-capture':'No encuentro ningún micrófono conectado.',
+      'network':'El reconocimiento de voz necesita conexión a internet.',
+      'language-not-supported':'Tu navegador no reconoce voz en español. Pulsa «Prefiero escribir».',
+    };
+    simMostrarTexto(true);
+    simAviso(textos[codigo] || 'No se ha podido usar el reconocimiento de voz. Puedes escribir en su lugar.');
+  };
+
+  r.onend = ()=>{
+    if(sim.estado==='escuchando' && !sim.parandoManual){
+      // Chrome corta la escucha cada cierto tiempo: se reanuda sola, con tope para no entrar en bucle
+      if(sim.reinicios < 5){ sim.reinicios++; try{ r.start(); }catch(_){} }
+      else { sim.estado = 'reposo'; simAviso('El micrófono se ha detenido. Púlsalo de nuevo para seguir.'); }
+      return;
+    }
+    if(sim.enviarAlTerminar){ sim.enviarAlTerminar = false; simEnviarTranscripcion(); }
+  };
+  return r;
+}
+
+function simEscuchar(){
+  simCancelarVoz();
+  sim.textoFinal = ''; sim.textoParcial = ''; sim.parandoManual = false; sim.enviarAlTerminar = false; sim.reinicios = 0;
+  sim.aviso = '';
+  sim.estado = 'escuchando';
+  if(!sim.reco) sim.reco = simCrearReco();
+  try{ sim.reco.start(); }
+  catch(err){ if(!/already started/i.test(String(err && err.message))){ sim.estado = 'reposo'; simMostrarTexto(true); simAviso('No se ha podido activar el micrófono. Puedes escribir en su lugar.'); return; } }
   simPintar();
 }
-function closeSimulator(){
-  document.getElementById('sim-modal').classList.add('hidden');
-  document.getElementById('sim-modal').classList.remove('flex');
+
+function simPararYEnviar(){
+  sim.parandoManual = true; sim.enviarAlTerminar = true; sim.estado = 'pensando';
+  simPintar();
+  try{ sim.reco.stop(); } catch(_){ sim.enviarAlTerminar = false; simEnviarTranscripcion(); }
 }
 
-document.getElementById('sim-form').addEventListener('submit', async function(e){
-  e.preventDefault();
-  if(simOcupado) return;
-  const input = document.getElementById('sim-input');
-  const text = input.value.trim();
-  if(!text) return;
-  if(simTurnos.filter(t=>t.role==='user').length >= SIM_MAX_TURNOS){
-    toast('Has llegado al máximo de intercambios. Cierra el simulador y empieza otra conversación.');
+function simAlternarMic(){
+  if(!SpeechRec) return;
+  if(sim.estado==='escuchando') return simPararYEnviar();
+  if(sim.estado==='pensando') return;
+  simEscuchar();
+}
+
+async function simEnviarTranscripcion(){
+  const texto = (sim.textoFinal + (sim.textoParcial ? ' ' + sim.textoParcial : '')).trim().slice(0, SIM_MAX_CHARS);
+  sim.textoFinal = ''; sim.textoParcial = '';
+  if(!texto){
+    sim.estado = 'reposo';
+    simAviso('No te he oído. Acércate un poco al micrófono y vuelve a pulsarlo.');
     return;
   }
-  input.value = '';
-  simTurnos.push({ role:'user', content:text });
-  simOcupado = true; simPintar();
-  try{
-    const { respuesta } = await llamarApi('/api/simulador', { turnos: simTurnos });
-    simTurnos.push({ role:'assistant', content: respuesta });
-  } catch(err){
-    simTurnos.pop();      // se retira el mensaje para poder reenviarlo
-    input.value = text;
-    toast(simMensajeError(err));
+  await simEnviarTurno(texto);
+}
+
+async function simEnviarTurno(texto){
+  if(sim.turnos.filter(t=>t.role==='user').length >= SIM_MAX_TURNOS){
+    sim.estado = 'reposo'; simPintar();
+    toast('Has llegado al máximo de intercambios. Cierra el entrenador y empieza otra conversación.');
+    return;
   }
-  simOcupado = false; simPintar();
-});
+  sim.aviso = '';
+  sim.turnos.push({ role:'user', content:texto });
+  sim.estado = 'pensando'; simPintar();
+  let respuesta;
+  try{
+    ({ respuesta } = await llamarApi('/api/simulador', { turnos: sim.turnos }));
+  } catch(err){
+    sim.turnos.pop();                       // se retira el turno para poder reenviarlo
+    sim.estado = 'reposo';
+    simMostrarTexto(true);
+    byId('sim-input').value = texto;        // lo dicho no se pierde: queda listo para reenviar
+    simPintar();
+    toast(simMensajeError(err));
+    return;
+  }
+  sim.turnos.push({ role:'assistant', content: respuesta });
+  sim.estado = 'reposo'; simPintar();
+  simHablar(respuesta);
+}
 
 async function simEvaluar(){
-  if(simOcupado) return;
-  simOcupado = true; simPintar();
+  if(sim.estado==='pensando') return;
+  simCancelarVoz();
+  sim.estado = 'pensando'; simPintar();
   try{
-    const r = await llamarApi('/api/simulador', { turnos: simTurnos, evaluar:true });
+    const r = await llamarApi('/api/simulador', { turnos: sim.turnos, evaluar:true });
     if(r.ya_verificado){
       state.user.verificado = true;
     } else {
-      simResultadoHtml = `<div class="rounded-xl p-4 mt-2" style="border:1px solid var(--border-gold); background:var(--bg);">
+      sim.resultadoHtml = `<div class="rounded-xl p-4 mt-2" style="border:1px solid var(--border-gold); background:var(--bg);">
         <p class="font-semibold" style="color:var(--gold-strong);">Tu nota: ${esc(r.puntuacion)}/10</p>
         <p class="text-sm ink-soft mt-1">${esc(r.justificacion)}</p>
-        <p class="text-sm mt-2 font-semibold">${r.verificado ? '¡Ya eres Kloser Verificado!' : 'Para la insignia necesitas 8/10 o más. Cierra el simulador y empieza una conversación nueva para volver a intentarlo.'}</p>
+        <p class="text-sm mt-2 font-semibold">${r.verificado ? '¡Ya eres Kloser Verificado!' : 'Para la insignia necesitas 8/10 o más. Cierra el entrenador y empieza una conversación nueva para volver a intentarlo.'}</p>
       </div>`;
       if(r.verificado){ state.user.verificado = true; toast('¡Enhorabuena! Ya eres Kloser Verificado.'); }
     }
   } catch(err){
     toast(simMensajeError(err));
   }
-  simOcupado = false; simPintar();
+  sim.estado = 'reposo'; simPintar();
   renderDashboard();
 }
+
+function simDetenerTodo(){
+  sim.parandoManual = true; sim.enviarAlTerminar = false;
+  try{ if(sim.reco) sim.reco.abort(); }catch(_){}
+  simCancelarVoz();
+  sim.estado = 'reposo';
+}
+
+function openSimulator(){
+  if(!state.user || state.user.plan!=='Elite'){ toast('El entrenador de voz es solo para el plan Elite.'); return; }
+  simDetenerTodo();
+  sim.turnos = []; sim.resultadoHtml = ''; sim.aviso = ''; sim.textoFinal = ''; sim.textoParcial = '';
+  byId('sim-modal').classList.remove('hidden');
+  byId('sim-modal').classList.add('flex');
+  const conVoz = !!SpeechRec;
+  byId('sim-voz').classList.toggle('hidden', !conVoz);
+  byId('sim-escribir').classList.toggle('hidden', !conVoz);
+  simMostrarTexto(!conVoz);
+  if(!conVoz) sim.aviso = 'Tu navegador no admite reconocimiento de voz (prueba con Chrome, Edge o Safari). Mientras tanto puedes entrenar escribiendo.';
+  simPintar();
+  if(conVoz) simHablar(SIM_INTRO);          // el director saluda en voz alta
+}
+
+function closeSimulator(){
+  simDetenerTodo();
+  byId('sim-modal').classList.add('hidden');
+  byId('sim-modal').classList.remove('flex');
+}
+
+byId('sim-mic').addEventListener('click', simAlternarMic);
+byId('sim-saltar').addEventListener('click', simSaltarVoz);
+byId('sim-escribir').addEventListener('click', ()=>{ simMostrarTexto(true); byId('sim-input').focus(); });
+byId('sim-eval-btn').addEventListener('click', simEvaluar);
+byId('sim-voz-director').addEventListener('change', (e)=>{ if(!e.target.checked) simSaltarVoz(); });
+byId('sim-form').addEventListener('submit', async function(e){
+  e.preventDefault();
+  if(sim.estado==='pensando') return;
+  const input = byId('sim-input');
+  const texto = input.value.trim();
+  if(!texto) return;
+  input.value = '';
+  simDetenerTodo();
+  await simEnviarTurno(texto);
+});
+document.addEventListener('keydown', e=>{ if(e.key==='Escape' && !byId('sim-modal').classList.contains('hidden')) closeSimulator(); });
 
 /* ===================== MISC ===================== */
 const menuBtn = document.getElementById('menu-btn');
@@ -1338,6 +1676,22 @@ const observer = new IntersectionObserver((entries) => {
   entries.forEach(entry => { if (entry.isIntersecting) { entry.target.classList.add('is-visible'); observer.unobserve(entry.target); } });
 }, { threshold: 0.15 });
 document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+document.getElementById('aviso-form').addEventListener('submit', async function(e){
+  e.preventDefault();
+  const form = this;
+  const msg = document.getElementById('aviso-msg');
+  const mostrar = (texto, error)=>{ msg.textContent = texto; msg.style.color = error ? 'var(--danger)' : 'var(--green)'; msg.classList.remove('hidden'); };
+  const email = document.getElementById('aviso-email').value.trim().toLowerCase();
+  if(!email) return;
+  if(!document.getElementById('aviso-acepta').checked) return mostrar('Marca la casilla para poder suscribirte.', true);
+  const { error } = await sb.from('avisos_suscriptores').insert({ email, origen:'landing' });
+  // 23505 = ese email ya estaba suscrito: para la persona es lo mismo que éxito
+  if(error && error.code !== '23505'){ console.error(error); return mostrar('No se ha podido guardar tu email. Inténtalo de nuevo en un momento.', true); }
+  mostrar('¡Apuntado! Recibirás el aviso semanal en cuanto lo activemos.', false);
+  form.reset();
+  document.getElementById('aviso-acepta').checked = false;
+});
 
 document.getElementById('waitlist-form').addEventListener('submit', async function(e){
   e.preventDefault();
@@ -1358,17 +1712,389 @@ document.getElementById('waitlist-form').addEventListener('submit', async functi
   form.reset();
 });
 
-/* ===================== COMUNIDAD (Circle / Discord) ===================== */
-// Cuando crees tu comunidad, pega aquí el enlace real.
-const COMUNIDAD_URL = '';
+/* ===================== ACADEMIA (tip del día + mini clases) ===================== */
+const ACA = { datos:null, clases:{} };
+const DIAS_SEMANA = ['Lunes','Martes','Miércoles','Jueves','Viernes','Sábado','Domingo'];
 
-function abrirComunidad(){
-  if(COMUNIDAD_URL){
-    window.open(COMUNIDAD_URL, '_blank');
-  } else {
-    alert('Aún no se ha configurado el enlace de la comunidad (variable COMUNIDAD_URL en el código).');
+function fechaMadrid(){ return new Intl.DateTimeFormat('en-CA', { timeZone:'Europe/Madrid' }).format(new Date()); }
+
+// Día del programa (1-365). Antes de la fecha de inicio se muestra el día 1; después, el ciclo se repite cada 365 días.
+function diaPrograma(inicio){
+  const dias = Math.floor((Date.parse(fechaMadrid() + 'T00:00:00Z') - Date.parse(inicio + 'T00:00:00Z')) / 86400000);
+  return dias < 0 ? 1 : (dias % 365) + 1;
+}
+
+async function cargarTips(){
+  if(ACA.datos) return ACA.datos;
+  const r = await fetch('/academia/tips.json');
+  if(!r.ok) throw new Error('tips');
+  ACA.datos = await r.json();
+  return ACA.datos;
+}
+
+async function renderTipHoyDashboard(){
+  const tarjeta = byId('dash-tip-card');
+  try{
+    const d = await cargarTips();
+    const t = d.tips[diaPrograma(d.inicio) - 1];
+    byId('dash-tip-tipo').textContent = t.tipo;
+    byId('dash-tip-titulo').textContent = t.titulo;
+    byId('dash-tip-cuerpo').textContent = t.cuerpo;
+    byId('dash-tip-accion').textContent = t.accion;
+    tarjeta.classList.remove('hidden');
+  } catch(_){ tarjeta.classList.add('hidden'); }
+}
+
+function tipDetalleHtml(t, abierto){
+  return `<details class="aca rounded-xl p-4" style="border:1px solid var(--border-gold);" ${abierto ? 'open' : ''}>
+    <summary class="flex items-center justify-between gap-3 flex-wrap">
+      <span class="font-semibold">${esc(t.titulo)}</span>
+      <span class="tip-tipo">${esc(t.tipo)}</span>
+    </summary>
+    <p class="text-sm ink-soft mt-3 pre">${esc(t.cuerpo)}</p>
+    <p class="text-sm mt-2"><strong>Micro-acción:</strong> ${esc(t.accion)}</p>
+  </details>`;
+}
+
+async function renderAcademia(){
+  const u = state.user;
+  const esSocio = ['Pro','Elite'].includes(u.plan);
+  byId('aca-voz-btn').textContent = u.plan==='Elite' ? 'Abrir entrenador de voz' : 'Ver planes';
+  byId('aca-voz-btn').onclick = u.plan==='Elite' ? openSimulator : ()=>{ showView('landing'); setTimeout(()=>byId('planes').scrollIntoView(), 50); };
+
+  let d;
+  try { d = await cargarTips(); }
+  catch(_){ byId('aca-hoy').innerHTML = '<p class="ink-soft text-sm">No hemos podido cargar el contenido ahora mismo. Recarga la página en unos minutos.</p>'; return; }
+
+  const dia = diaPrograma(d.inicio);
+  const hoy = d.tips[dia - 1];
+  const semana = Math.min(52, Math.floor((dia - 1) / 7) + 1);
+
+  byId('aca-hoy').innerHTML = `
+    <div class="flex items-center gap-3 flex-wrap">
+      <span class="tip-tipo">${esc(hoy.tipo)}</span>
+      <span class="text-xs ink-soft">Día ${dia} de 365 · Tema de la semana: ${esc(hoy.tema)}</span>
+    </div>
+    <h2 class="serif text-2xl font-semibold mt-3" style="color:var(--gold-strong);">${esc(hoy.titulo)}</h2>
+    <p class="mt-3 pre">${esc(hoy.cuerpo)}</p>
+    <div class="rounded-xl p-4 mt-4" style="background:var(--bg); border:1px solid var(--border-gold);">
+      <p class="text-sm"><strong>Tu micro-acción de hoy:</strong> ${esc(hoy.accion)}</p>
+    </div>`;
+
+  // Esta semana: lo ya publicado se puede abrir; lo que queda se desbloquea cada día
+  const inicioSemana = (semana - 1) * 7 + 1;
+  let filas = '';
+  for(let k = 0; k < 7; k++){
+    const n = inicioSemana + k;
+    const t = d.tips[n - 1];
+    filas += n <= dia
+      ? tipDetalleHtml(t, n === dia)
+      : `<div class="rounded-xl p-4 flex items-center justify-between gap-3" style="border:1px dashed var(--border-gold);">
+           <span class="text-sm ink-soft">${esc(DIAS_SEMANA[k])}: se desbloquea ese día</span>
+           <span class="tip-tipo" style="opacity:.6;">${esc(t.tipo)}</span></div>`;
+  }
+  byId('aca-semana').innerHTML = filas;
+
+  // Archivo: hasta 21 días anteriores a esta semana, del más reciente al más antiguo
+  const previos = [];
+  for(let n = inicioSemana - 1; n >= 1 && previos.length < 21; n--) previos.push(d.tips[n - 1]);
+  byId('aca-archivo').innerHTML = previos.length
+    ? previos.map(t => tipDetalleHtml(t, false)).join('')
+    : '<p class="text-sm ink-soft">Aquí irán apareciendo los tips de las semanas anteriores.</p>';
+
+  // Mini clase de la semana (solo Pro y Elite; se comprueba en el servidor)
+  const caja = byId('aca-clase');
+  const viernes = d.tips[(semana - 1) * 7 + 4];
+  if(!esSocio){
+    caja.innerHTML = `
+      <p class="text-sm font-semibold ink-soft">MINI CLASE DE LA SEMANA <span class="tip-tipo ml-2">Pro y Elite</span></p>
+      <h2 class="serif text-xl font-semibold mt-2" style="color:var(--gold-strong);">${esc(viernes.titulo.replace(/^Mini clase:\s*/, ''))}</h2>
+      <p class="text-sm ink-soft mt-2 pre">${esc(viernes.cuerpo)}</p>
+      <button onclick="showView('landing'); setTimeout(()=>byId('planes').scrollIntoView(), 50)" class="btn-gold text-sm mt-4 !py-2.5">Ver planes</button>`;
+    return;
+  }
+  caja.innerHTML = '<p class="text-sm ink-soft">Cargando la mini clase…</p>';
+  try{
+    if(!ACA.clases[semana]){
+      const r = await llamarApi('/api/cuenta', { accion:'clase', semana });
+      ACA.clases[semana] = r.clase;
+    }
+    const c = ACA.clases[semana];
+    caja.innerHTML = `
+      <p class="text-sm font-semibold ink-soft">MINI CLASE DE LA SEMANA <span class="tip-tipo ml-2">${esc(c.duracion)} min</span></p>
+      <h2 class="serif text-2xl font-semibold mt-2" style="color:var(--gold-strong);">${esc(c.titulo)}</h2>
+      <p class="mt-2 pre">${esc(c.objetivo)}</p>
+      <h3 class="font-semibold mt-4">Minuto a minuto</h3>
+      <ol class="mt-2 space-y-2 text-sm">${c.bloques.map(b => `<li class="flex gap-3"><span class="font-semibold gold-text shrink-0" style="min-width:64px;">${esc(b.tramo)}</span><span>${esc(b.texto)}</span></li>`).join('')}</ol>
+      <div class="rounded-xl p-4 mt-4" style="background:var(--bg); border:1px solid var(--border-gold);">
+        <p class="text-sm"><strong>Ejercicio:</strong> ${esc(c.ejercicio)}</p>
+      </div>`;
+  } catch(err){
+    console.error(err);
+    caja.innerHTML = '<p class="text-sm ink-soft">No hemos podido cargar la mini clase ahora mismo. Inténtalo de nuevo en unos minutos.</p>';
   }
 }
+
+/* ===================== COMUNIDAD (planes Pro y Elite) ===================== */
+const COM_CATS = { guiones:'Guiones y scripts', objeciones:'Objeciones', llamadas:'Análisis de llamadas', networking:'Networking y socios', logros:'Logros', preguntas:'Preguntas', anuncios:'Anuncios del equipo' };
+const COM_CATS_USUARIO = ['guiones','objeciones','llamadas','networking','logros','preguntas'];
+const COM = { cat:null, posts:[], fin:false, cargando:false, hilo:null };
+const COM_ERRORES = {
+  sin_acceso:'Tu plan actual no incluye la comunidad.',
+  limite_diario:'Has alcanzado el límite de hoy. Vuelve mañana.',
+  duplicado:'Ya has publicado exactamente eso.',
+  titulo_invalido:'El título debe tener entre 3 y 120 caracteres.',
+  contenido_invalido:'El mensaje es demasiado corto o demasiado largo.',
+  categoria_invalida:'Elige una categoría.',
+  no_existe:'Esta publicación ya no está disponible.',
+};
+
+function comMensajeError(err){
+  const m = String((err && err.message) || '');
+  for(const k of Object.keys(COM_ERRORES)) if(m.includes(k)) return COM_ERRORES[k];
+  console.error(err);
+  return 'Algo ha fallado. Inténtalo de nuevo en un momento.';
+}
+
+function esMiembroComunidad(){
+  const u = state.user;
+  return !!u && ['Pro','Elite'].includes(u.plan) && !u.comunidadBloqueado;
+}
+
+function haceTiempo(iso){
+  const s = (Date.now() - new Date(iso).getTime()) / 1000;
+  if(s < 60) return 'ahora';
+  const m = Math.floor(s / 60); if(m < 60) return `hace ${m} min`;
+  const h = Math.floor(m / 60); if(h < 24) return `hace ${h} h`;
+  const d = Math.floor(h / 24); if(d < 30) return `hace ${d} ${d === 1 ? 'día' : 'días'}`;
+  return new Date(iso).toLocaleDateString('es-ES');
+}
+
+function limpiarEstadoPrivado(){
+  COM.cat = null; COM.posts = []; COM.fin = false; COM.cargando = false; COM.hilo = null;
+  ACA.clases = {};
+  try{ simDetenerTodo(); }catch(_){}
+}
+
+function comMostrarLista(){
+  byId('com-hilo').classList.add('hidden');
+  byId('com-lista').classList.remove('hidden');
+}
+
+function comPintarCats(){
+  const botones = [['', 'Todas']].concat(Object.entries(COM_CATS));
+  byId('com-cats').innerHTML = botones.map(([k, nombre]) =>
+    `<button class="tab ${(COM.cat || '') === k ? 'active' : ''}" data-com="cat" data-cat="${esc(k)}">${esc(nombre)}</button>`).join('');
+  byId('com-n-cat').innerHTML = '<option value="">Elige una categoría…</option>' +
+    COM_CATS_USUARIO.map(k => `<option value="${esc(k)}">${esc(COM_CATS[k])}</option>`).join('');
+}
+
+async function renderComunidad(){
+  const bloqueo = byId('com-bloqueo'), contenido = byId('com-contenido');
+  if(!esMiembroComunidad()){
+    contenido.classList.add('hidden'); bloqueo.classList.remove('hidden');
+    bloqueo.innerHTML = state.user.comunidadBloqueado
+      ? `<p class="serif text-xl font-semibold" style="color:var(--gold-strong);">Tu acceso a la comunidad está suspendido</p>
+         <p class="ink-soft mt-2">Si crees que es un error, escríbenos y lo revisamos.</p>`
+      : `<p class="serif text-2xl font-semibold" style="color:var(--gold-strong);">La comunidad es para socios Pro y Elite</p>
+         <p class="ink-soft mt-2">Comparte guiones, pide feedback sobre tus llamadas y aprende de otros comerciales que venden como tú.</p>
+         <button onclick="showView('landing'); setTimeout(()=>byId('planes').scrollIntoView(), 50)" class="btn-gold text-sm mt-5 !py-2.5">Ver planes</button>`;
+    return;
+  }
+  bloqueo.classList.add('hidden'); contenido.classList.remove('hidden');
+  comMostrarLista(); comPintarCats();
+  await comCargar(true);
+}
+
+function comTarjetaHtml(p){
+  const meta = [p.autor + (p.autor_verificado ? ' · ✔ Verificado' : ''), p.autor_rol, haceTiempo(p.created_at)].filter(Boolean);
+  return `<article class="surface rounded-2xl p-5">
+    <div class="flex items-center gap-2 flex-wrap text-xs">
+      ${p.fijado ? '<span class="tip-tipo" style="background:var(--gold-light); color:var(--green-deep);">Fijado</span>' : ''}
+      <span class="tip-tipo">${esc(COM_CATS[p.categoria] || p.categoria)}</span>
+      ${p.autor_es_equipo ? '<span class="tip-tipo" style="background:var(--gold-strong);">Equipo</span>' : ''}
+      <span class="ink-soft">${esc(meta.join(' · '))}</span>
+    </div>
+    <h3 class="font-semibold mt-2">${esc(p.titulo)}</h3>
+    <p class="text-sm ink-soft mt-1 pre">${esc(p.extracto)}${p.largo ? '…' : ''}</p>
+    <div class="flex items-center gap-4 mt-3 text-sm">
+      <button data-com="like" data-id="${esc(p.id)}" aria-pressed="${p.yo_di_like ? 'true' : 'false'}" class="font-semibold ${p.yo_di_like ? 'gold-text' : 'ink-soft'}">♥ ${esc(p.likes)}</button>
+      <button data-com="abrir" data-id="${esc(p.id)}" class="font-semibold ink-soft">Comentarios (${esc(p.comentarios)})</button>
+      <button data-com="abrir" data-id="${esc(p.id)}" class="font-semibold gold-text ml-auto">${p.largo ? 'Leer completo' : 'Abrir'} →</button>
+    </div>
+  </article>`;
+}
+
+function comPintarFeed(){
+  byId('com-feed').innerHTML = COM.posts.length
+    ? COM.posts.map(comTarjetaHtml).join('')
+    : '<p class="text-sm ink-soft">Todavía no hay publicaciones aquí. ¡Sé la primera persona en escribir!</p>';
+  byId('com-mas').classList.toggle('hidden', COM.fin || !COM.posts.length);
+}
+
+async function comCargar(reiniciar){
+  if(COM.cargando) return;
+  COM.cargando = true;
+  if(reiniciar){ COM.posts = []; COM.fin = false; }
+  try{
+    const ultimo = COM.posts.filter(p => !p.fijado).slice(-1)[0];
+    const { data, error } = await sb.rpc('comunidad_feed', {
+      p_categoria: COM.cat, p_antes: reiniciar || !ultimo ? null : ultimo.created_at, p_limite: 20,
+    });
+    if(error) throw error;
+    COM.posts = COM.posts.concat(data || []);
+    if((data || []).length < 20) COM.fin = true;
+  } catch(err){
+    byId('com-feed').innerHTML = `<p class="text-sm" style="color:var(--danger);">${esc(comMensajeError(err))}</p>`;
+    COM.cargando = false;
+    return;
+  }
+  COM.cargando = false;
+  comPintarFeed();
+}
+
+function comAbrirNuevo(){
+  byId('com-nuevo').classList.remove('hidden');
+  byId('com-nuevo-btn').classList.add('hidden');
+  byId('com-n-titulo').focus();
+}
+function comCerrarNuevo(){
+  byId('com-nuevo').classList.add('hidden');
+  byId('com-nuevo-btn').classList.remove('hidden');
+  byId('com-n-msg').classList.add('hidden');
+}
+function comError(id, texto){
+  const el = byId(id);
+  el.textContent = texto;
+  el.classList.remove('hidden');
+}
+
+async function comPublicar(){
+  const categoria = byId('com-n-cat').value;
+  const titulo = byId('com-n-titulo').value.trim();
+  const texto = byId('com-n-texto').value.trim();
+  byId('com-n-msg').classList.add('hidden');
+  if(!categoria) return comError('com-n-msg', 'Elige una categoría.');
+  if(titulo.length < 3) return comError('com-n-msg', 'Pon un título de al menos 3 caracteres.');
+  if(texto.length < 10) return comError('com-n-msg', 'Escribe un mensaje de al menos 10 caracteres.');
+  const btn = byId('com-n-publicar'); btn.disabled = true;
+  const { error } = await sb.rpc('comunidad_publicar', { p_categoria: categoria, p_titulo: titulo, p_contenido: texto });
+  btn.disabled = false;
+  if(error) return comError('com-n-msg', comMensajeError(error));
+  byId('com-n-titulo').value = ''; byId('com-n-texto').value = ''; byId('com-n-cat').value = '';
+  byId('com-n-cuenta').textContent = '0 / 4000';
+  comCerrarNuevo();
+  COM.cat = null; comPintarCats();
+  await comCargar(true);
+  toast('Publicado.');
+}
+
+async function comLike(id){
+  const { data, error } = await sb.rpc('comunidad_like', { p_post: id });
+  if(error) return toast(comMensajeError(error));
+  const p = COM.posts.find(x => x.id === id);
+  if(p){ p.likes = data.likes; p.yo_di_like = data.yo; comPintarFeed(); }
+  if(COM.hilo && COM.hilo.post.id === id){ COM.hilo.post.likes = data.likes; COM.hilo.post.yo_di_like = data.yo; comPintarHilo(); }
+}
+
+async function comAbrirHilo(id){
+  const { data, error } = await sb.rpc('comunidad_hilo', { p_post: id });
+  if(error){ toast(comMensajeError(error)); await comCargar(true); return; }
+  COM.hilo = data;
+  comPintarHilo();
+}
+
+function comPintarHilo(){
+  const { post, comentarios } = COM.hilo;
+  byId('com-lista').classList.add('hidden');
+  const h = byId('com-hilo');
+  h.classList.remove('hidden');
+  const meta = [post.autor + (post.autor_verificado ? ' · ✔ Verificado' : ''), post.autor_rol, haceTiempo(post.created_at)].filter(Boolean);
+  h.innerHTML = `
+    <button data-com="volver" class="text-sm font-semibold gold-text">← Volver</button>
+    <article class="surface rounded-2xl p-6 mt-3">
+      <div class="flex items-center gap-2 flex-wrap text-xs">
+        <span class="tip-tipo">${esc(COM_CATS[post.categoria] || post.categoria)}</span>
+        ${post.autor_es_equipo ? '<span class="tip-tipo" style="background:var(--gold-strong);">Equipo</span>' : ''}
+        <span class="ink-soft">${esc(meta.join(' · '))}</span>
+      </div>
+      <h2 class="serif text-2xl font-semibold mt-2" style="color:var(--gold-strong);">${esc(post.titulo)}</h2>
+      <p class="mt-3 pre">${esc(post.contenido)}</p>
+      <div class="flex items-center gap-4 mt-4 text-sm">
+        <button data-com="like" data-id="${esc(post.id)}" aria-pressed="${post.yo_di_like ? 'true' : 'false'}" class="font-semibold ${post.yo_di_like ? 'gold-text' : 'ink-soft'}">♥ ${esc(post.likes)}</button>
+        ${post.es_mio ? `<button data-com="borrar-post" data-id="${esc(post.id)}" class="font-semibold ink-soft ml-auto">Borrar mi publicación</button>`
+                      : `<button data-com="denunciar-post" data-id="${esc(post.id)}" class="font-semibold ink-soft ml-auto">Denunciar</button>`}
+      </div>
+    </article>
+    <h3 class="font-semibold mt-6">Comentarios (${comentarios.length})</h3>
+    <div class="mt-3 space-y-3">
+      ${comentarios.map(c => `
+        <div class="surface rounded-xl p-4">
+          <p class="text-xs ink-soft">${esc([c.autor + (c.autor_verificado ? ' · ✔ Verificado' : ''), c.autor_rol, haceTiempo(c.created_at)].filter(Boolean).join(' · '))}</p>
+          <p class="text-sm mt-1 pre">${esc(c.contenido)}</p>
+          <div class="mt-2 text-xs">
+            ${c.es_mio ? `<button data-com="borrar-com" data-id="${esc(c.id)}" class="font-semibold ink-soft">Borrar</button>`
+                       : `<button data-com="denunciar-com" data-id="${esc(c.id)}" class="font-semibold ink-soft">Denunciar</button>`}
+          </div>
+        </div>`).join('') || '<p class="text-sm ink-soft">Aún no hay comentarios. Aporta el primero.</p>'}
+    </div>
+    <div class="surface rounded-2xl p-5 mt-4">
+      <label class="text-sm font-medium" for="com-c-texto">Tu comentario</label>
+      <textarea id="com-c-texto" maxlength="1500" rows="3" class="field-input mt-1.5" placeholder="Aporta con respeto y con ejemplos concretos…"></textarea>
+      <button data-com="comentar" id="com-c-enviar" class="btn-gold text-sm mt-3 !py-2.5">Comentar</button>
+      <p id="com-c-msg" class="text-sm mt-2 hidden" style="color:var(--danger);" role="alert"></p>
+    </div>`;
+}
+
+async function comComentar(){
+  const texto = byId('com-c-texto').value.trim();
+  byId('com-c-msg').classList.add('hidden');
+  if(texto.length < 2) return comError('com-c-msg', 'Escribe algo antes de comentar.');
+  const btn = byId('com-c-enviar'); btn.disabled = true;
+  const { error } = await sb.rpc('comunidad_comentar', { p_post: COM.hilo.post.id, p_contenido: texto });
+  btn.disabled = false;
+  if(error) return comError('com-c-msg', comMensajeError(error));
+  await comAbrirHilo(COM.hilo.post.id);
+}
+
+async function comBorrar(tipo, id){
+  if(!confirm(tipo === 'post' ? '¿Borrar tu publicación y sus comentarios? No se puede deshacer.' : '¿Borrar tu comentario?')) return;
+  const { error } = await sb.rpc('comunidad_borrar_mio', tipo === 'post' ? { p_post: id } : { p_comentario: id });
+  if(error) return toast(comMensajeError(error));
+  if(tipo === 'post'){ COM.hilo = null; comMostrarLista(); await comCargar(true); }
+  else await comAbrirHilo(COM.hilo.post.id);
+  toast('Borrado.');
+}
+
+async function comDenunciar(tipo, id){
+  const motivo = prompt('¿Por qué lo denuncias? (opcional)\n\nCon 3 denuncias de personas distintas el contenido se oculta hasta que lo revisemos.');
+  if(motivo === null) return;
+  const { error } = await sb.rpc('comunidad_reportar', {
+    p_post: tipo === 'post' ? id : null, p_comentario: tipo === 'com' ? id : null, p_motivo: motivo.trim() || null,
+  });
+  if(error) return toast(comMensajeError(error));
+  toast('Gracias. Lo revisaremos.');
+}
+
+document.addEventListener('click', async (e)=>{
+  const b = e.target.closest('[data-com]');
+  if(!b) return;
+  const a = b.dataset.com, id = b.dataset.id;
+  if(a === 'cat'){ COM.cat = b.dataset.cat || null; comPintarCats(); return comCargar(true); }
+  if(a === 'nuevo') return comAbrirNuevo();
+  if(a === 'cancelar-nuevo') return comCerrarNuevo();
+  if(a === 'publicar') return comPublicar();
+  if(a === 'mas') return comCargar(false);
+  if(a === 'like') return comLike(id);
+  if(a === 'abrir') return comAbrirHilo(id);
+  if(a === 'volver'){ COM.hilo = null; comMostrarLista(); return comCargar(true); }
+  if(a === 'comentar') return comComentar();
+  if(a === 'borrar-post') return comBorrar('post', id);
+  if(a === 'borrar-com') return comBorrar('com', id);
+  if(a === 'denunciar-post') return comDenunciar('post', id);
+  if(a === 'denunciar-com') return comDenunciar('com', id);
+});
+byId('com-n-texto').addEventListener('input', e => { byId('com-n-cuenta').textContent = `${e.target.value.length} / 4000`; });
 
 /* ===================== CALCULADORA DE COMISIONES ===================== */
 function calcularComisiones(){
@@ -1524,7 +2250,12 @@ async function guardarPitch(){
 (async function init(){
   try{
     const restaurada = await cargarSesion();
-    if(!restaurada) showView('landing');
+    if(!restaurada){
+      if(new URLSearchParams(location.search).get('registro') === '1'){
+        history.replaceState(null, '', location.pathname);
+        openAuth('signup');
+      } else showView('landing');
+    }
     await revisarRetornoPago();
   } catch(err){
     console.error(err);

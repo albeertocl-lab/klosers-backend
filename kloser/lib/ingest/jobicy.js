@@ -5,28 +5,34 @@
 // proceso, así no cuenta como una Serverless Function aparte.
 //
 // Jobicy tiene una API pública real, sin clave:
-// https://jobicy.com/api/v2/remote-jobs?industry=sales
+// https://jobicy.com/api/v2/remote-jobs?count=50&tag=sales   (máximo 50 por petición cuando hay filtros)
 
 const { clasificarOferta } = require('../clasificarOferta');
 const { upsertOfertaAutomatica, cerrarOfertasDesaparecidas } = require('../guardarOferta');
+const { SALTABLES, cargarExistentes, marcarVistas } = require('./comun');
 
 const FUENTE = 'Jobicy';
-const INDUSTRIA = process.env.JOBICY_INDUSTRIA || 'sales';
+const TAG = process.env.JOBICY_TAG || 'sales';   // palabra clave (parámetro `tag` de su API)
 
 async function buscarOfertasJobicy() {
-  const res = await fetch(`https://jobicy.com/api/v2/remote-jobs?count=100&industry=${encodeURIComponent(INDUSTRIA)}`);
+  const res = await fetch(`https://jobicy.com/api/v2/remote-jobs?count=50&tag=${encodeURIComponent(TAG)}`);
   if (!res.ok) throw new Error(`Jobicy API error (${res.status})`);
   const data = await res.json();
   return data.jobs || [];
 }
 
 async function ingestarJobicy() {
-  const resultados = { procesadas: 0, errores: [] };
+  const resultados = { procesadas: 0, ya_existentes: 0, errores: [] };
+  const existentes = await cargarExistentes(FUENTE);
+  const vistas = [];
 
   try {
     const ofertas = await buscarOfertasJobicy();
     for (const oferta of ofertas) {
       try {
+        const idExt = String(oferta.id);
+        const previa = existentes.get(idExt);
+        if (previa && SALTABLES.includes(previa.estado_oferta)) { vistas.push(previa.id); resultados.ya_existentes++; continue; }
         const textoBruto = `Título: ${oferta.jobTitle}\nEmpresa: ${oferta.companyName}\nUbicación: ${oferta.jobGeo || 'Remoto'}\nDescripción: ${oferta.jobExcerpt || oferta.jobDescription || ''}`;
         const clasificada = await clasificarOferta(textoBruto);
         await upsertOfertaAutomatica({
@@ -44,6 +50,7 @@ async function ingestarJobicy() {
     resultados.errores.push({ general: err.message });
   }
 
+  await marcarVistas(vistas);
   const { cerradas } = await cerrarOfertasDesaparecidas(FUENTE);
   resultados.cerradas_por_desaparicion = cerradas;
 
