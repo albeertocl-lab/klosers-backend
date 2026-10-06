@@ -16,6 +16,10 @@ const { upsertOfertaAutomatica, cerrarOfertasDesaparecidas } = require('../guard
 const { SALTABLES, cargarExistentes, marcarVistas, registroJornadas } = require('./comun');
 
 const FUENTE = 'Himalayas';
+
+// Su API no trae un campo «id»: el identificador estable de cada puesto es su guid (la dirección de la oferta).
+// Antes se usaba oferta.id, que no existe; todas las ofertas quedaban con el mismo identificador y se pisaban entre sí.
+const identificador = (o) => String(o.guid || o.applicationLink || o.id || '');
 const KEYWORDS = process.env.HIMALAYAS_KEYWORDS || 'sales';
 
 async function buscarOfertasHimalayas() {
@@ -35,7 +39,8 @@ async function ingestarHimalayas() {
     const ofertas = await buscarOfertasHimalayas();
     for (const oferta of ofertas) {
       try {
-        const idExt = String(oferta.id);
+        const idExt = identificador(oferta);
+        if (!idExt) throw new Error('oferta de Himalayas sin identificador');
         const previa = existentes.get(idExt);
         if (previa && SALTABLES.includes(previa.estado_oferta)) { vistas.push(previa.id); jornadas.existente(previa, oferta); resultados.ya_existentes++; continue; }
         const textoBruto = `Título: ${oferta.title}\nEmpresa: ${oferta.companyName}\nUbicación: ${(oferta.locationRestrictions || []).join(', ') || 'Remoto'}\nDescripción: ${oferta.description || ''}`;
@@ -43,13 +48,13 @@ async function ingestarHimalayas() {
         await upsertOfertaAutomatica({
           clasificada,
           fuente: FUENTE,
-          idExterno: String(oferta.id),
+          idExterno: idExt,
           urlOrigen: oferta.applicationLink || oferta.guid,
         });
         resultados.procesadas++;
         jornadas.nueva(idExt, oferta);
       } catch (err) {
-        resultados.errores.push({ oferta: oferta.id, error: err.message });
+        resultados.errores.push({ oferta: oferta.title || idExt || '?', error: err.message });
       }
     }
   } catch (err) {

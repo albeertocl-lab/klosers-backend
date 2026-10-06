@@ -11,9 +11,6 @@
 <meta property="og:description" content="Ofertas de ventas filtradas por compatibilidad, verificación de comerciales, formación con IA y comunidad.">
 <meta name="twitter:card" content="summary">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8F%85%3C/text%3E%3C/svg%3E">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
@@ -87,6 +84,9 @@
   .pre{white-space:pre-wrap;word-break:break-word;}
   details.aca > summary{cursor:pointer;list-style:none;}
   details.aca > summary::-webkit-details-marker{display:none;}
+  .cv-falta{background:#FFE08A;color:#4a3500;padding:0 4px;border-radius:4px;font-weight:700;}
+  .cv-barra{height:8px;border-radius:999px;background:var(--border-gold);overflow:hidden;}
+  .cv-barra > span{display:block;height:100%;background:var(--gold-strong);}
 </style>
 </head>
 <body class="antialiased">
@@ -138,6 +138,7 @@
       <button onclick="showView('ofertas')" style="color:var(--ink);">Ofertas</button>
       <button onclick="showView('academia')" style="color:var(--ink);">Academia</button>
       <button onclick="showView('comunidad')" style="color:var(--ink);">Comunidad</button>
+      <button onclick="showView('cv')" style="color:var(--ink);">Mi CV</button>
       <button onclick="showView('perfil')" style="color:var(--ink);">Mi perfil</button>
     </nav>
     <div class="flex items-center gap-3 shrink-0">
@@ -349,14 +350,14 @@
       <div class="fade-in surface rounded-2xl p-8">
         <h3 class="serif text-xl font-semibold" style="color:var(--gold-strong);">Pro</h3>
         <p class="mt-2 text-sm ink-soft">Para buscar activamente</p>
-        <p class="serif text-4xl font-semibold mt-6" style="color:var(--gold-strong);">12€<span class="text-base font-normal ink-soft">/mes</span></p>
+        <p class="serif text-4xl font-semibold mt-6" style="color:var(--gold-strong);">12€<span class="text-base font-normal ink-soft">/mes · IVA incluido</span></p>
         <ul class="mt-6 space-y-3 text-sm ink-soft"><li>3–5 postulaciones semanales</li><li>Recursos de formación</li><li>Todo lo de Rookie</li></ul>
         <button onclick="elegirPlan('Pro')" class="btn-outline block text-center mt-8 w-full text-sm !py-3">Elegir Pro</button>
       </div>
       <div class="fade-in rounded-2xl p-8" style="background:linear-gradient(155deg, var(--green) 0%, var(--green-deep) 100%); box-shadow:var(--shadow);">
         <h3 class="serif text-xl font-semibold" style="color:var(--gold-light);">Elite</h3>
         <p class="mt-2 text-sm opacity-80" style="color:var(--cream-text);">Para quien vive de cerrar</p>
-        <p class="serif text-4xl font-semibold mt-6" style="color:var(--cream-text);">39€<span class="text-base font-normal opacity-70">/mes</span></p>
+        <p class="serif text-4xl font-semibold mt-6" style="color:var(--cream-text);">39€<span class="text-base font-normal opacity-70">/mes · IVA incluido</span></p>
         <ul class="mt-6 space-y-3 text-sm" style="color:var(--cream-text); opacity:0.9;"><li>Postulaciones ilimitadas</li><li>Simulador de ventas con IA</li><li>Prioridad en cada candidatura</li><li>Mentorías grabadas</li></ul>
         <button onclick="elegirPlan('Elite')" class="btn-gold block text-center mt-8 w-full text-sm !py-3">Elegir Elite</button>
       </div>
@@ -380,7 +381,7 @@
     </form>
     <label class="flex items-start gap-2 text-xs ink-soft mt-3 justify-center text-left max-w-md mx-auto">
       <input id="aviso-acepta" type="checkbox" class="mt-0.5">
-      <span>Acepto recibir el aviso semanal por correo y la <a href="/privacidad" target="_blank" rel="noopener" class="underline gold-text">política de privacidad</a>.</span>
+      <span>Quiero recibir el aviso semanal con nuevas ofertas de empleo y novedades de Klosers. Puedo darme de baja cuando quiera. <a href="/privacidad" target="_blank" rel="noopener" class="underline gold-text">Política de privacidad</a>.</span>
     </label>
     <p id="aviso-msg" class="text-sm mt-3 hidden" role="status"></p>
   </section>
@@ -401,6 +402,7 @@
         </div>
         <div class="flex flex-col gap-2">
           <span class="font-semibold opacity-100" style="color:var(--gold-light);">Legal</span>
+          <a href="/aviso-legal">Aviso legal</a>
           <a href="/terminos">Términos y condiciones</a>
           <a href="/privacidad">Política de privacidad</a>
           <a href="/cookies">Política de cookies</a>
@@ -443,7 +445,7 @@
           </div>
           <label id="auth-consent" class="flex items-start gap-2 text-xs ink-soft">
             <input id="auth-acepta" type="checkbox" class="mt-0.5">
-            <span>He leído y acepto los <a href="/terminos" target="_blank" rel="noopener" class="underline gold-text">términos y condiciones</a> y la <a href="/privacidad" target="_blank" rel="noopener" class="underline gold-text">política de privacidad</a>.</span>
+            <span>Declaro que soy mayor de 18 años y acepto los <a href="/terminos" target="_blank" rel="noopener" class="underline gold-text">términos y condiciones</a> y la <a href="/privacidad" target="_blank" rel="noopener" class="underline gold-text">política de privacidad</a>.</span>
           </label>
           <button type="submit" class="btn-gold w-full !py-3">Continuar</button>
           <p id="auth-msg" class="text-sm hidden" role="alert"></p>
@@ -527,6 +529,14 @@
           <p class="font-semibold" style="color:var(--gold-light);">Disponible solo en Elite</p>
           <a href="#" onclick="showView('landing'); document.getElementById('planes').scrollIntoView(); return false;" class="text-sm gold-text underline">Ver planes</a>
         </div>
+      </div>
+
+      <div class="surface rounded-2xl p-6">
+        <p class="text-sm font-semibold ink-soft">REVISIÓN DE CV · IA</p>
+        <p class="serif text-xl font-semibold mt-1" style="color:var(--gold-strong);">Mejora tu CV</p>
+        <p class="text-sm ink-soft mt-1">Te decimos cómo mejorarlo para un puesto comercial: cifras, estructura y frases.</p>
+        <button onclick="showView('cv')" class="btn-gold text-sm mt-4 !py-2.5">Revisar mi CV</button>
+        <p id="cv-card-nota" class="text-xs ink-soft mt-2 hidden">Incluida en los planes Pro y Elite.</p>
       </div>
 
       <div class="surface rounded-2xl p-6">
@@ -629,6 +639,44 @@
         <div class="text-center mt-4"><button id="com-mas" class="btn-outline text-sm !py-2.5 hidden" data-com="mas">Cargar más</button></div>
       </div>
       <div id="com-hilo" class="hidden"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= VIEW: MI CV ================= -->
+<section id="view-cv" class="view">
+  <div class="max-w-3xl mx-auto px-6 py-10 space-y-6">
+    <div>
+      <h1 class="serif text-3xl font-semibold" style="color:var(--gold-strong);">Revisión de CV con IA</h1>
+      <p class="ink-soft mt-1">Sube tu CV y te decimos cómo mejorarlo para un puesto comercial.</p>
+    </div>
+    <div id="cv-bloqueo" class="surface rounded-2xl p-8 text-center hidden"></div>
+    <div id="cv-formulario" class="hidden space-y-5">
+      <div class="surface rounded-2xl p-6">
+        <p id="cv-plan-nota" class="text-sm ink-soft"></p>
+        <p id="cv-cupo" class="text-sm font-semibold mt-1" style="color:var(--gold-strong);"></p>
+        <div class="flex gap-2 mt-4">
+          <button class="tab active" data-cv="modo" data-modo="pdf">Subir PDF</button>
+          <button class="tab" data-cv="modo" data-modo="texto">Pegar texto</button>
+        </div>
+        <div id="cv-modo-pdf" class="mt-4">
+          <label class="text-sm font-medium" for="cv-archivo">Tu CV en PDF (hasta 2,5 MB)</label>
+          <input id="cv-archivo" type="file" accept="application/pdf,.pdf" class="field-input mt-1.5">
+          <p id="cv-archivo-nombre" class="text-sm ink-soft mt-2"></p>
+        </div>
+        <div id="cv-modo-texto" class="mt-4 hidden">
+          <label class="text-sm font-medium" for="cv-texto">Pega aquí el texto de tu CV</label>
+          <textarea id="cv-texto" rows="10" maxlength="20000" class="field-input mt-1.5" placeholder="Copia tu CV completo y pégalo aquí…"></textarea>
+          <p id="cv-texto-cuenta" class="text-xs ink-soft mt-1">0 / 20000</p>
+        </div>
+        <label class="flex items-start gap-2 text-xs ink-soft mt-4">
+          <input id="cv-consent" type="checkbox" class="mt-0.5">
+          <span>Acepto que mi CV se envíe a un proveedor de inteligencia artificial para analizarlo. Klosers no guarda mi CV ni el resultado. <a href="/privacidad" target="_blank" rel="noopener" class="underline gold-text">Más información</a>.</span>
+        </label>
+        <button id="cv-enviar" class="btn-gold text-sm mt-4 !py-2.5" data-cv="enviar">Revisar mi CV</button>
+        <p id="cv-msg" class="text-sm mt-3 hidden" role="status"></p>
+      </div>
+      <div id="cv-resultado"></div>
     </div>
   </div>
 </section>
@@ -891,13 +939,13 @@ function datosPerfilParaGuardar(u){
 
 /* ===================== VIEW SWITCHING ===================== */
 function showView(name){
-  if(['dashboard','ofertas','perfil','verificacion','onboarding','academia','comunidad'].includes(name) && !state.user){
+  if(['dashboard','ofertas','perfil','verificacion','onboarding','academia','comunidad','cv'].includes(name) && !state.user){
     return openAuth('login');
   }
   document.querySelectorAll('.view').forEach(v=>v.classList.remove('active'));
   document.getElementById('view-'+name).classList.add('active');
 
-  const isPrivate = ['dashboard','ofertas','perfil','verificacion','academia','comunidad'].includes(name);
+  const isPrivate = ['dashboard','ofertas','perfil','verificacion','academia','comunidad','cv'].includes(name);
   document.getElementById('public-header').classList.toggle('hidden', isPrivate);
   document.getElementById('private-header').classList.toggle('hidden', !isPrivate);
 
@@ -907,6 +955,7 @@ function showView(name){
   if(name==='verificacion') renderVerificacion();
   if(name==='academia') renderAcademia();
   if(name==='comunidad') renderComunidad();
+  if(name==='cv') renderCv();
   if(name==='landing') setTimeout(calcularComisiones, 0);
 
   window.scrollTo(0,0);
@@ -972,7 +1021,7 @@ document.getElementById('auth-form').addEventListener('submit', async function(e
     if(state.authMode==='signup'){
       const nombre = document.getElementById('auth-name').value.trim();
       if(!nombre){ setAuthMsg('Escribe tu nombre.', true); return; }
-      if(!document.getElementById('auth-acepta').checked){ setAuthMsg('Para crear tu cuenta tienes que aceptar los términos y la política de privacidad.', true); return; }
+      if(!document.getElementById('auth-acepta').checked){ setAuthMsg('Para crear tu cuenta tienes que declarar que eres mayor de 18 años y aceptar los términos y la política de privacidad.', true); return; }
       const { data, error } = await sb.auth.signUp({
         email, password,
         options:{ data:{ nombre_completo:nombre, acepta_terminos:'true', terminos_version:TERMINOS_VERSION }, emailRedirectTo: location.origin }
@@ -1292,6 +1341,7 @@ function renderDashboard(){
   document.getElementById('dash-ofertas').innerHTML =
     listaOfertasHtml(visibleOfertas().slice(0,3), 'No hay ofertas que encajen con tu perfil todavía. Vuelve pronto.');
   document.getElementById('com-card-nota').classList.toggle('hidden', ['Pro','Elite'].includes(u.plan));
+  document.getElementById('cv-card-nota').classList.toggle('hidden', ['Pro','Elite'].includes(u.plan));
   renderTipHoyDashboard();
 }
 
@@ -1904,6 +1954,7 @@ function haceTiempo(iso){
 
 function limpiarEstadoPrivado(){
   COM.cat = null; COM.posts = []; COM.fin = false; COM.cargando = false; COM.hilo = null;
+  CV.pdf = null; CV.nombre = ''; CV.resultado = null; CV.ocupado = false;
   ACA.clases = {};
   try{ simDetenerTodo(); }catch(_){}
 }
@@ -2127,6 +2178,212 @@ document.addEventListener('click', async (e)=>{
   if(a === 'denunciar-com') return comDenunciar('com', id);
 });
 byId('com-n-texto').addEventListener('input', e => { byId('com-n-cuenta').textContent = `${e.target.value.length} / 4000`; });
+
+/* ===================== REVISIÓN DE CV CON IA (planes Pro y Elite) ===================== */
+const CV = { modo:'pdf', pdf:null, nombre:'', resultado:null, ocupado:false };
+const CV_MAX_BYTES = 2.5 * 1024 * 1024;
+const CV_ERRORES = {
+  falta_consentimiento:'Marca la casilla de consentimiento para poder revisar tu CV.',
+  falta_cv:'Sube tu CV en PDF o pega su texto.',
+  cv_muy_corto:'El texto es demasiado corto. Pega tu CV completo.',
+  cv_muy_largo:'El texto es demasiado largo (máximo 20.000 caracteres).',
+  pdf_invalido:'Ese archivo no parece un PDF válido.',
+  pdf_muy_grande:'El PDF pesa más de 2,5 MB. Reduce su tamaño o pega el texto de tu CV.',
+  cv_ilegible:'No hemos podido leer tu PDF. No se ha descontado tu revisión: prueba a pegar el texto de tu CV.',
+  solo_pago:'La revisión de CV está incluida en los planes Pro y Elite.',
+  limite_mensual:'Has usado todas tus revisiones de este mes. Se renuevan el día 1.',
+  ia_no_disponible:'La IA no responde ahora mismo. No se ha descontado tu revisión: inténtalo de nuevo en unos minutos.',
+  respuesta_invalida:'No hemos podido interpretar la respuesta de la IA. No se ha descontado tu revisión: inténtalo de nuevo.',
+};
+
+function cvMensaje(texto, error){
+  const m = byId('cv-msg');
+  if(!texto){ m.classList.add('hidden'); return; }
+  m.textContent = texto; m.style.color = error ? 'var(--danger)' : 'var(--gold-strong)'; m.classList.remove('hidden');
+}
+
+async function cvCargarCupo(){
+  const el = byId('cv-cupo');
+  try{
+    const { data, error } = await sb.rpc('cv_mi_cupo');
+    if(error) throw error;
+    el.textContent = `Te quedan ${data.restantes} de ${data.limite} revisiones este mes.`;
+  } catch(_){ el.textContent = ''; }
+}
+
+function renderCv(){
+  const u = state.user;
+  const socio = ['Pro','Elite'].includes(u.plan);
+  byId('cv-bloqueo').classList.toggle('hidden', socio);
+  byId('cv-formulario').classList.toggle('hidden', !socio);
+  if(!socio){
+    byId('cv-bloqueo').innerHTML = `
+      <p class="serif text-2xl font-semibold" style="color:var(--gold-strong);">La revisión de CV es para socios Pro y Elite</p>
+      <p class="ink-soft mt-2">Sube tu CV y recibe una puntuación, consejos concretos para un puesto comercial y frases reescritas con tus propias cifras.</p>
+      <button onclick="showView('landing'); setTimeout(()=>byId('planes').scrollIntoView(), 50)" class="btn-gold text-sm mt-5 !py-2.5">Ver planes</button>`;
+    return;
+  }
+  byId('cv-plan-nota').textContent = u.plan === 'Elite'
+    ? 'Tu plan Elite incluye 4 revisiones al mes, con tu CV reestructurado.'
+    : 'Tu plan Pro incluye 1 revisión al mes con consejos. Con Elite: 4 al mes y tu CV reestructurado.';
+  cvCargarCupo();
+  if(CV.resultado) byId('cv-resultado').innerHTML = cvResultadoHtml(CV.resultado);
+}
+
+function cvCambiarModo(modo){
+  CV.modo = modo;
+  document.querySelectorAll('[data-cv="modo"]').forEach(b => b.classList.toggle('active', b.dataset.modo === modo));
+  byId('cv-modo-pdf').classList.toggle('hidden', modo !== 'pdf');
+  byId('cv-modo-texto').classList.toggle('hidden', modo !== 'texto');
+  cvMensaje('');
+}
+
+function cvLeerArchivo(archivo){
+  CV.pdf = null; CV.nombre = '';
+  byId('cv-archivo-nombre').textContent = '';
+  if(!archivo) return;
+  if(archivo.type !== 'application/pdf' && !/\.pdf$/i.test(archivo.name)){ cvMensaje(CV_ERRORES.pdf_invalido, true); byId('cv-archivo').value = ''; return; }
+  if(archivo.size > CV_MAX_BYTES){ cvMensaje(CV_ERRORES.pdf_muy_grande, true); byId('cv-archivo').value = ''; return; }
+  const lector = new FileReader();
+  lector.onload = () => {
+    CV.pdf = String(lector.result).split(',')[1] || null;
+    CV.nombre = archivo.name;
+    byId('cv-archivo-nombre').textContent = `Archivo listo: ${archivo.name} (${Math.round(archivo.size / 1024)} KB)`;
+    cvMensaje('');
+  };
+  lector.onerror = () => cvMensaje('No se ha podido leer el archivo. Prueba con otro o pega el texto.', true);
+  lector.readAsDataURL(archivo);
+}
+
+async function cvEnviar(){
+  if(CV.ocupado) return;
+  if(!byId('cv-consent').checked) return cvMensaje(CV_ERRORES.falta_consentimiento, true);
+  const cuerpo = { cv:true, consentimiento:true };
+  if(CV.modo === 'pdf'){
+    if(!CV.pdf) return cvMensaje(CV_ERRORES.falta_cv, true);
+    cuerpo.pdf_base64 = CV.pdf;
+  } else {
+    const t = byId('cv-texto').value.trim();
+    if(t.length < 200) return cvMensaje(CV_ERRORES.cv_muy_corto, true);
+    cuerpo.texto = t;
+  }
+  CV.ocupado = true; byId('cv-enviar').disabled = true; byId('cv-resultado').innerHTML = '';
+  cvMensaje('Analizando tu CV… puede tardar hasta un minuto. No cierres esta página.', false);
+  try{
+    const r = await llamarApi('/api/simulador', cuerpo);
+    CV.resultado = r.resultado;
+    byId('cv-cupo').textContent = `Te quedan ${r.restantes} de ${r.limite} revisiones este mes.`;
+    cvMensaje('');
+    byId('cv-resultado').innerHTML = cvResultadoHtml(r.resultado);
+    byId('cv-resultado').scrollIntoView({ behavior:'smooth', block:'start' });
+  } catch(err){
+    const codigo = err.status === 413 ? 'pdf_muy_grande' : err.codigo;
+    cvMensaje(CV_ERRORES[codigo] || 'No se ha podido revisar tu CV ahora mismo. Inténtalo de nuevo en unos minutos.', true);
+    if(codigo === 'limite_mensual') cvCargarCupo();
+    else if(!CV_ERRORES[codigo]) console.error(err);
+  } finally {
+    CV.ocupado = false; byId('cv-enviar').disabled = false;
+  }
+}
+
+// Markdown muy sencillo (títulos, viñetas y párrafos). Todo se escapa antes de dar formato: nunca se interpreta HTML.
+function cvMarkdown(texto){
+  const marca = (t) => esc(t).replace(/\[COMPLETAR:[^\]]*\]/g, m => `<span class="cv-falta">${m}</span>`);
+  let html = '', lista = false;
+  const cerrar = () => { if(lista){ html += '</ul>'; lista = false; } };
+  String(texto).split('\n').forEach(l => {
+    const t = l.trim();
+    const h = t.match(/^#{1,3}\s+(.*)$/), li = t.match(/^[-*•]\s+(.*)$/);
+    if(h){ cerrar(); html += `<h4 class="font-semibold mt-4" style="color:var(--gold-strong);">${marca(h[1])}</h4>`; }
+    else if(li){ if(!lista){ html += '<ul class="list-disc pl-5 space-y-1">'; lista = true; } html += `<li>${marca(li[1])}</li>`; }
+    else if(!t){ cerrar(); }
+    else { cerrar(); html += `<p class="mt-1">${marca(t)}</p>`; }
+  });
+  cerrar();
+  return html;
+}
+
+function cvResultadoHtml(r){
+  const elite = state.user && state.user.plan === 'Elite';
+  const barra = (n, max) => `<div class="cv-barra" aria-hidden="true"><span style="width:${Math.round(n / max * 100)}%"></span></div>`;
+  const lista = (items) => items.length ? `<ul class="list-disc pl-5 mt-1 space-y-1 text-sm">${items.map(i => `<li>${esc(i)}</li>`).join('')}</ul>` : '';
+  return `
+    <div class="surface rounded-2xl p-6">
+      <div class="flex items-center gap-4 flex-wrap">
+        <div class="serif text-5xl font-semibold" style="color:var(--gold-strong);">${esc(r.puntuacion)}<span class="text-xl ink-soft">/100</span></div>
+        <p class="flex-1 min-w-[220px]">${esc(r.resumen)}</p>
+      </div>
+      <p class="text-xs ink-soft mt-3">Es una valoración orientativa generada por IA. Revisa cada consejo con tu criterio y no compartas cifras que no sean reales.</p>
+    </div>
+    ${r.avisos.length ? `<div class="rounded-2xl p-5" style="border:1px solid var(--border-gold); background:var(--bg);"><p class="font-semibold">Ten en cuenta</p>${lista(r.avisos)}</div>` : ''}
+    <div class="surface rounded-2xl p-6 space-y-5">
+      <h2 class="serif text-xl font-semibold" style="color:var(--gold-strong);">Por secciones</h2>
+      ${r.secciones.map(s => `
+        <div>
+          <div class="flex items-center justify-between gap-3"><p class="font-semibold">${esc(s.nombre)}</p><span class="text-sm font-semibold">${esc(s.nota)}/10</span></div>
+          ${barra(s.nota, 10)}
+          ${s.bien.length ? `<p class="text-sm font-semibold mt-3">Lo que está bien</p>${lista(s.bien)}` : ''}
+          ${s.mejorar.length ? `<p class="text-sm font-semibold mt-3">Qué mejorar</p>${lista(s.mejorar)}` : ''}
+        </div>`).join('')}
+    </div>
+    ${r.frases.length ? `<div class="surface rounded-2xl p-6 space-y-4">
+      <h2 class="serif text-xl font-semibold" style="color:var(--gold-strong);">Frases para reescribir</h2>
+      ${r.frases.map((f, i) => `
+        <div class="rounded-xl p-4" style="border:1px solid var(--border-gold);">
+          <p class="text-xs font-semibold ink-soft">ANTES</p><p class="text-sm">${esc(f.antes)}</p>
+          <p class="text-xs font-semibold mt-3" style="color:var(--gold-strong);">DESPUÉS</p><p class="text-sm pre">${esc(f.despues)}</p>
+          <p class="text-xs ink-soft mt-2">${esc(f.motivo)}</p>
+          <button class="text-xs font-semibold gold-text mt-2" data-cv="copiar-frase" data-i="${i}">Copiar la versión nueva</button>
+        </div>`).join('')}
+    </div>` : ''}
+    ${r.preguntas.length ? `<div class="surface rounded-2xl p-6"><h2 class="serif text-xl font-semibold" style="color:var(--gold-strong);">Datos que te faltan</h2><p class="text-sm ink-soft mt-1">Si los consigues y los añades, tu CV mejora mucho.</p>${lista(r.preguntas)}</div>` : ''}
+    ${r.cv_reestructurado ? `
+      <div class="surface rounded-2xl p-6">
+        <h2 class="serif text-xl font-semibold" style="color:var(--gold-strong);">Tu CV reestructurado</h2>
+        <p class="text-sm ink-soft mt-1">Usa solo lo que había en tu CV. Donde ves <span class="cv-falta">[COMPLETAR: …]</span> te falta un dato: añádelo antes de enviarlo.</p>
+        <div class="rounded-xl p-5 mt-3 text-sm" style="background:var(--bg); border:1px solid var(--border-gold);">${cvMarkdown(r.cv_reestructurado)}</div>
+        <div class="flex gap-3 flex-wrap mt-4">
+          <button class="btn-gold text-sm !py-2.5" data-cv="copiar-cv">Copiar</button>
+          <button class="btn-outline text-sm !py-2.5" data-cv="descargar">Descargar (.txt)</button>
+          <button class="btn-outline text-sm !py-2.5" data-cv="imprimir">Imprimir / guardar como PDF</button>
+        </div>
+      </div>` : (!elite ? `<div class="rounded-2xl p-5 text-center" style="border:1px dashed var(--border-gold);"><p class="text-sm">Con el plan <strong>Elite</strong> también te devolvemos tu CV reestructurado, listo para copiar o imprimir.</p><button onclick="showView('landing'); setTimeout(()=>byId('planes').scrollIntoView(), 50)" class="text-sm font-semibold gold-text mt-2">Ver planes</button></div>` : '')}
+    <p class="text-xs ink-soft text-center">No guardamos tu CV ni este resultado: cópialo antes de salir de la página.</p>`;
+}
+
+async function cvCopiar(texto){
+  try{ await navigator.clipboard.writeText(texto); toast('Copiado.'); }
+  catch(_){ toast('No se ha podido copiar. Selecciona el texto y cópialo a mano.'); }
+}
+
+function cvDescargar(){
+  const blob = new Blob([CV.resultado.cv_reestructurado], { type:'text/plain;charset=utf-8' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = 'mi-cv-reestructurado.txt';
+  document.body.appendChild(a); a.click();
+  setTimeout(() => { URL.revokeObjectURL(a.href); a.remove(); }, 500);
+}
+
+function cvImprimir(){
+  const w = window.open('', '_blank');
+  if(!w){ toast('Tu navegador ha bloqueado la ventana de impresión. Permítela e inténtalo de nuevo.'); return; }
+  w.document.write(`<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Mi CV</title><style>body{font-family:Georgia,serif;max-width:720px;margin:30px auto;line-height:1.5;color:#111;} h4{margin:18px 0 4px;font-size:1.1rem;border-bottom:1px solid #ccc;} ul{padding-left:20px;} .cv-falta{background:#FFE08A;}</style></head><body>${cvMarkdown(CV.resultado.cv_reestructurado)}</body></html>`);
+  w.document.close(); w.focus(); w.print();
+}
+
+document.addEventListener('click', (e)=>{
+  const b = e.target.closest('[data-cv]');
+  if(!b) return;
+  const a = b.dataset.cv;
+  if(a === 'modo') return cvCambiarModo(b.dataset.modo);
+  if(a === 'enviar') return cvEnviar();
+  if(a === 'copiar-frase') return cvCopiar(CV.resultado.frases[Number(b.dataset.i)].despues);
+  if(a === 'copiar-cv') return cvCopiar(CV.resultado.cv_reestructurado);
+  if(a === 'descargar') return cvDescargar();
+  if(a === 'imprimir') return cvImprimir();
+});
+byId('cv-archivo').addEventListener('change', e => cvLeerArchivo(e.target.files[0]));
+byId('cv-texto').addEventListener('input', e => { byId('cv-texto-cuenta').textContent = `${e.target.value.length} / 20000`; });
 
 /* ===================== CALCULADORA DE COMISIONES ===================== */
 function calcularComisiones(){

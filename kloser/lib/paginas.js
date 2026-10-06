@@ -23,6 +23,7 @@ const PAGINAS_GUIAS = [
   ['/como-aplicar-a-ofertas-de-ventas', 'Cómo aplicar a ofertas de ventas'],
 ];
 const PAGINAS_LEGALES = [
+  ['/aviso-legal', 'Aviso legal'],
   ['/terminos', 'Términos y condiciones'],
   ['/privacidad', 'Política de privacidad'],
   ['/cookies', 'Política de cookies'],

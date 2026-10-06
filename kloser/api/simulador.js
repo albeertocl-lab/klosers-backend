@@ -5,11 +5,14 @@
 //   { turnos: [{role:'user'|'assistant', content}...] }                -> { respuesta }   (el cliente contesta)
 //   { turnos: [...], evaluar: true }                                   -> { puntuacion, justificacion, verificado }
 //
+//   { cv: true, consentimiento: true, texto | pdf_base64 }              -> revisión de CV con IA (Pro y Elite; ver lib/cv.js)
+//
 // Control de coste: 60 mensajes y 3 evaluaciones por usuario y día (función simulador_consumir en Supabase).
 // Requiere: ANTHROPIC_API_KEY, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
 
 const { usuarioDesdeToken, sbSelect, sbUpdate, sbRpc, leerJson } = require('../lib/sesion');
 const { claude } = require('../lib/anthropic');
+const { revisarCv } = require('../lib/cv');
 
 const MAX_MENSAJES_DIA = 60;
 const MAX_EVALUACIONES_DIA = 3;
@@ -66,9 +69,14 @@ module.exports = async function handler(req, res) {
       `id=eq.${encodeURIComponent(user.id)}&select=plan_stripe,insignia_verificado`
     );
     const perfil = filas[0];
-    if (!perfil || perfil.plan_stripe !== 'Elite') return res.status(403).json({ error: 'solo_elite' });
 
     const body = leerJson(req);
+
+    // Revisión de CV con IA (planes Pro y Elite). Vive aquí para no gastar otra de las 12 funciones de Vercel.
+    if (body.cv === true) return await revisarCv({ user, perfil, body, res });
+
+    if (!perfil || perfil.plan_stripe !== 'Elite') return res.status(403).json({ error: 'solo_elite' });
+
     const turnos = limpiarTurnos(body.turnos);
     if (!turnos.length || turnos[turnos.length - 1].role !== 'user') {
       return res.status(400).json({ error: 'conversacion_invalida' });

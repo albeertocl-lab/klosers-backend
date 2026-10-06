@@ -61,9 +61,11 @@ module.exports = async function handler(req, res) {
         success_url: `${app}/?pago=ok`,
         cancel_url: `${app}/?pago=cancelado`,
         allow_promotion_codes: 'true',
-        // La cuenta tiene "Managed Payments" activado por defecto y exige un código fiscal en cada producto.
-        // Se desactiva aquí para usar Checkout normal (Klosers es quien factura y gestiona el IVA).
-        managed_payments: { enabled: 'false' },
+        // Managed Payments: Stripe actúa como vendedor oficial (merchant of record) y se encarga del IVA
+        // (cálculo, cobro e ingreso a Hacienda), de los recibos, las facturas y las disputas.
+        // Requiere un código fiscal admitido en cada producto y el precio con tax_behavior definido (ya configurados).
+        // Para volver a Checkout normal (Klosers factura y gestiona el IVA), cambiar 'true' por 'false'.
+        managed_payments: { enabled: 'true' },
         metadata: { usuario_id: user.id, plan: body.plan },
         subscription_data: { metadata: { usuario_id: user.id, plan: body.plan } },
       });
