@@ -103,4 +103,28 @@ function leerJson(req) {
   return b;
 }
 
-module.exports = { usuarioDesdeToken, sbSelect, sbUpdate, sbInsert, sbDelete, sbRpc, leerJson };
+// ---- Almacén de archivos (Supabase Storage). Solo desde el servidor, con la clave de servicio ----
+function rutaStorage(bucket, ruta) {
+  return `${base()}/storage/v1/object/${encodeURIComponent(bucket)}/${String(ruta).split('/').map(encodeURIComponent).join('/')}`;
+}
+
+// Enlace temporal (en segundos) para abrir un archivo privado
+async function sbStorageFirmar(bucket, ruta, segundos) {
+  const url = `${base()}/storage/v1/object/sign/${encodeURIComponent(bucket)}/${String(ruta).split('/').map(encodeURIComponent).join('/')}`;
+  const r = await fetch(url, { method: 'POST', headers: cabeceras(), body: JSON.stringify({ expiresIn: segundos }) });
+  if (!r.ok) throw new Error(`Storage firmar (${r.status})`);
+  const d = await r.json();
+  if (!d || !d.signedURL) throw new Error('Storage firmar: respuesta sin enlace');
+  return `${base()}/storage/v1${d.signedURL}`;
+}
+
+// Borra un archivo. Que ya no exista no es un error; cualquier otro fallo sí, para no dejar archivos huérfanos.
+async function sbStorageBorrar(bucket, ruta) {
+  const r = await fetch(rutaStorage(bucket, ruta), { method: 'DELETE', headers: cabeceras() });
+  if (r.ok || r.status === 404) return true;
+  const cuerpo = await r.text().catch(() => '');
+  if (/not.?found/i.test(cuerpo)) return true;
+  throw new Error(`Storage borrar (${r.status})`);
+}
+
+module.exports = { usuarioDesdeToken, sbSelect, sbUpdate, sbInsert, sbDelete, sbRpc, leerJson, sbStorageFirmar, sbStorageBorrar };

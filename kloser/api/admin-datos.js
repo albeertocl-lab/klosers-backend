@@ -4,12 +4,13 @@
 //   ?seccion=resumen | ofertas | usuarios | postulaciones | ingesta | espera | comunidad | actividad
 //   ?oferta=<id>   -> ficha completa de una oferta + quién se ha postulado
 //   ?usuario=<id>  -> ficha completa de un comercial + sus postulaciones
+//   ?cv=<id>       -> enlace temporal (5 minutos) al CV que esa persona decidió guardar; queda anotado en el registro de actividad
 // Sin parámetros devuelve { usuarios, postulaciones, ofertas } (formato del panel anterior).
 //
 // Se llama con la cabecera x-admin-password. Requiere: ADMIN_PASSWORD, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
 
-const { sbSelect, sbRpc } = require('../lib/sesion');
-const { autorizar, UUID } = require('../lib/admin');
+const { sbSelect, sbRpc, sbStorageFirmar } = require('../lib/sesion');
+const { autorizar, registrar, UUID } = require('../lib/admin');
 
 const OFERTA_LISTA = 'id,titulo_oferta,empresa_nombre,fuente,fuente_tipo,modalidad_oferta,pais_oferta,' +
   'ciudad_provincia_oferta,target_oferta,rango_ticket_oferta,estado_oferta,fecha_publicacion,created_at,' +
@@ -19,7 +20,7 @@ const OFERTA_FICHA = OFERTA_LISTA + ',rol_requerido,sector_oferta,tipo_remunerac
 
 const USUARIO_LISTA = 'id,nombre_completo,email,plan_stripe,postulaciones_restantes,insignia_verificado,' +
   'estado_verificacion,url_pitch_loom,puntuacion_ia,rol_comercial,modalidad,pais,ciudad_provincia,movilidad,' +
-  'target,track_record_ticket,sectores_experiencia,ticket_medio_exacto,tasa_cierre_exacta,created_at,stripe_customer_id,comunidad_bloqueado';
+  'target,track_record_ticket,sectores_experiencia,ticket_medio_exacto,tasa_cierre_exacta,created_at,stripe_customer_id,comunidad_bloqueado,cv_nombre,cv_subido_at';
 
 // El id de Stripe no sale del servidor: el panel solo necesita saber si existe
 function sinStripe(u) {
@@ -48,6 +49,16 @@ module.exports = async function handler(req, res) {
       const postulantes = await sbSelect('matches',
         `oferta_id=eq.${q.oferta}&postulado=eq.true&select=porcentaje_compatibilidad,created_at,usuarios(nombre_completo,email)&order=created_at.desc&limit=200`);
       return res.status(200).json({ oferta, postulantes });
+    }
+
+    if (q.cv) {
+      if (!UUID.test(q.cv)) return res.status(400).json({ error: 'Identificador no válido' });
+      const [u] = await sbSelect('usuarios', `id=eq.${q.cv}&select=id,cv_ruta,cv_nombre`);
+      if (!u || !u.cv_ruta) return res.status(404).json({ error: 'Esta persona no ha guardado ningún CV' });
+      const url = await sbStorageFirmar('cvs', u.cv_ruta, 300);
+      await registrar('ver_cv', 'usuarios', u.id, { archivo: u.cv_nombre });   // quién abre un CV y cuándo queda anotado
+      res.setHeader('Cache-Control', 'no-store');
+      return res.status(200).json({ url, nombre: u.cv_nombre, caduca_en_segundos: 300 });
     }
 
     if (q.usuario) {

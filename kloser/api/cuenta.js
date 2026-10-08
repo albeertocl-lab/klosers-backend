@@ -12,7 +12,7 @@
 // Requiere: STRIPE_SECRET_KEY, STRIPE_PRICE_PRO, STRIPE_PRICE_ELITE, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
 // (APP_URL es opcional: si falta se usa el dominio desde el que llega la petición)
 
-const { usuarioDesdeToken, sbSelect, sbUpdate, sbRpc, leerJson } = require('../lib/sesion');
+const { usuarioDesdeToken, sbSelect, sbUpdate, sbRpc, leerJson, sbStorageBorrar } = require('../lib/sesion');
 const { stripe } = require('../lib/stripe');
 
 async function crearCliente(perfil, user) {
@@ -127,6 +127,8 @@ module.exports = async function handler(req, res) {
           if (!(e.stripe && e.stripe.code === 'resource_missing')) throw e;
         }
       }
+      // El CV guardado (si lo hay) se borra primero: si no se pudiera borrar, la cuenta no se elimina y se puede reintentar
+      await sbStorageBorrar('cvs', `${user.id}/cv.pdf`);
       await sbRpc('eliminar_cuenta_usuario', { p_usuario: user.id });
       return res.status(200).json({ ok: true });
     }

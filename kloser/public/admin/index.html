@@ -382,6 +382,21 @@ async function api(url, opciones){
   return data;
 }
 
+// Abre el CV de una persona con un enlace temporal de 5 minutos. Cada apertura queda anotada en la pestaña «Actividad».
+async function abrirCv(id){
+  const ventana = window.open('', '_blank');
+  try {
+    const d = await api('/api/admin-datos?cv=' + encodeURIComponent(id));
+    if (!ventana) { toast('Tu navegador ha bloqueado la ventana. Permite las ventanas emergentes para abrir el CV.', true); return; }
+    ventana.opener = null;
+    ventana.location.href = d.url;
+    invalidar('actividad');
+  } catch (err) {
+    if (ventana) ventana.close();
+    toast(err.message, true);
+  }
+}
+
 async function cargar(seccion, forzar){
   if (!forzar && cache[seccion]) return cache[seccion];
   cache[seccion] = await api('/api/admin-datos?seccion=' + encodeURIComponent(seccion));
@@ -745,7 +760,8 @@ function renderUsuarios(){
       <td><span class="badge ${esc((u.plan_stripe || 'Rookie').toLowerCase())}">${esc(u.plan_stripe)}</span>
         <div class="sub">${u.plan_stripe === 'Rookie' ? '' : (u.tiene_stripe ? 'pagando (Stripe)' : 'manual / fundador')}</div></td>
       <td><span class="badge ${u.insignia_verificado ? 'si' : 'no'}">${u.insignia_verificado ? 'Sí' : 'No'}</span>
-        ${u.url_pitch_loom && !u.insignia_verificado ? '<div class="sub" style="color:#AD7F12;font-weight:700;">pitch por revisar</div>' : ''}</td>
+        ${u.url_pitch_loom && !u.insignia_verificado ? '<div class="sub" style="color:#AD7F12;font-weight:700;">pitch por revisar</div>' : ''}
+        ${u.cv_nombre ? `<div class="sub" style="color:${u.insignia_verificado ? 'inherit' : '#AD7F12'};font-weight:${u.insignia_verificado ? '400' : '700'};">CV guardado${u.insignia_verificado ? '' : ' · por revisar'}</div>` : ''}</td>
       <td>${u.plan_stripe === 'Elite' ? '∞' : esc(u.postulaciones_restantes)}</td>
       <td>${u.modalidad ? esc(u.modalidad) : '<span class="small">sin completar</span>'}<div class="sub">${esc([(u.rol_comercial || [])[0], u.ciudad_provincia].filter(Boolean).join(' · '))}</div></td>
       <td>${fmtFecha(u.created_at)}</td>
@@ -797,6 +813,7 @@ async function abrirFichaUsuario(id){
         ${fila('Métricas', `ticket medio ${u.ticket_medio_exacto ?? '—'} € · cierre ${u.tasa_cierre_exacta ?? '—'} %`)}
         ${fila('Verificación', `${u.insignia_verificado ? '<span class="badge si">Verificado</span>' : '<span class="badge no">No verificado</span>'} · estado: ${esc(u.estado_verificacion)}${u.puntuacion_ia != null ? ` · nota IA: ${esc(u.puntuacion_ia)}/10` : ''}`)}
         ${fila('Comunidad', u.comunidad_bloqueado ? '<span class="badge error">Bloqueado</span>' : (['Pro','Elite'].includes(u.plan_stripe) ? 'Acceso activo' : 'Sin acceso (plan Rookie)'))}
+        ${fila('CV guardado', u.cv_nombre ? `${esc(u.cv_nombre)} · subido el ${fmtFecha(u.cv_subido_at)} <button class="secondary" data-accion="cv-abrir" data-id="${esc(u.id)}" style="margin-left:8px;">Abrir CV</button>` : '—')}
         ${fila('Pitch en vídeo', esUrl(u.url_pitch_loom) ? `<a href="${esc(u.url_pitch_loom)}" target="_blank" rel="noopener noreferrer">${esc(u.url_pitch_loom)}</a>` : '—')}
       </dl>
       <div class="actions-row">
@@ -1158,6 +1175,7 @@ document.addEventListener('click', async e => {
   if (a === 'com-publicar') return publicarAnuncio();
   if (a === 'lote-limpiar') { S.ofertas.sel.clear(); return renderOfertas(); }
   if (a === 'usuario-ver') return abrirFichaUsuario(id);
+  if (a === 'cv-abrir') return abrirCv(id);
   if (a === 'usuario') {
     const hecho = await ejecutarUsuario(op, id);
     if (hecho && b.dataset.cerrar) cerrarModal();

@@ -423,6 +423,23 @@
 </section>
 
 <!-- ================= VIEW: AUTH (login/signup) ================= -->
+<!-- ================= VIEW: ÚLTIMO PASO (términos y mayoría de edad) ================= -->
+<section id="view-terminos" class="view">
+  <div class="min-h-[70vh] flex items-center justify-center px-6 py-16">
+    <div class="w-full max-w-sm surface rounded-2xl p-8">
+      <h2 class="serif text-2xl font-semibold" style="color:var(--gold-strong);">Un último paso</h2>
+      <p class="text-sm ink-soft mt-1">Antes de entrar, confirma esto.</p>
+      <label class="flex items-start gap-2 text-xs ink-soft mt-6">
+        <input id="terminos-acepta" type="checkbox" class="mt-0.5">
+        <span>Declaro que soy mayor de 18 años y acepto los <a href="/terminos" target="_blank" rel="noopener" class="underline gold-text">términos y condiciones</a> y la <a href="/privacidad" target="_blank" rel="noopener" class="underline gold-text">política de privacidad</a>.</span>
+      </label>
+      <button id="terminos-continuar" class="btn-gold w-full !py-3 mt-5" onclick="aceptarTerminos()">Continuar</button>
+      <p id="terminos-msg" class="text-sm mt-3 hidden" style="color:var(--danger);" role="alert"></p>
+      <button class="text-sm font-semibold gold-text mt-4 w-full" onclick="logout()">Cerrar sesión</button>
+    </div>
+  </div>
+</section>
+
 <section id="view-auth" class="view">
   <div class="min-h-[80vh] grid lg:grid-cols-2">
     <div class="flex items-center justify-center px-6 py-16">
@@ -430,7 +447,20 @@
         <h2 id="auth-title" class="serif text-2xl font-semibold" style="color:var(--gold-strong);">Crear cuenta</h2>
         <p id="auth-subtitle" class="text-sm ink-soft mt-1">Únete hoy</p>
 
-        <form id="auth-form" class="mt-7 space-y-4">
+        <label id="auth-consent" class="flex items-start gap-2 text-xs ink-soft mt-6">
+          <input id="auth-acepta" type="checkbox" class="mt-0.5">
+          <span>Declaro que soy mayor de 18 años y acepto los <a href="/terminos" target="_blank" rel="noopener" class="underline gold-text">términos y condiciones</a> y la <a href="/privacidad" target="_blank" rel="noopener" class="underline gold-text">política de privacidad</a>.</span>
+        </label>
+
+        <div id="auth-google-wrap" class="hidden">
+          <button type="button" id="auth-google" onclick="loginConGoogle()" class="w-full mt-6 flex items-center justify-center gap-3 rounded-xl py-3 font-semibold" style="background:#fff; color:#1f1f1f; border:1px solid var(--border-gold);">
+            <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+            Continuar con Google
+          </button>
+          <div class="flex items-center gap-3 mt-5 text-xs ink-soft"><span class="flex-1" style="height:1px; background:var(--border-gold);"></span>o con tu correo<span class="flex-1" style="height:1px; background:var(--border-gold);"></span></div>
+        </div>
+
+        <form id="auth-form" class="mt-5 space-y-4">
           <div id="auth-name-field">
             <label class="text-sm font-medium">Nombre</label>
             <input id="auth-name" type="text" placeholder="Tu nombre" autocomplete="name" class="field-input mt-1.5">
@@ -443,10 +473,6 @@
             <label class="text-sm font-medium">Contraseña</label>
             <input id="auth-password" type="password" required minlength="8" autocomplete="current-password" placeholder="Mínimo 8 caracteres" class="field-input mt-1.5">
           </div>
-          <label id="auth-consent" class="flex items-start gap-2 text-xs ink-soft">
-            <input id="auth-acepta" type="checkbox" class="mt-0.5">
-            <span>Declaro que soy mayor de 18 años y acepto los <a href="/terminos" target="_blank" rel="noopener" class="underline gold-text">términos y condiciones</a> y la <a href="/privacidad" target="_blank" rel="noopener" class="underline gold-text">política de privacidad</a>.</span>
-          </label>
           <button type="submit" class="btn-gold w-full !py-3">Continuar</button>
           <p id="auth-msg" class="text-sm hidden" role="alert"></p>
         </form>
@@ -510,20 +536,20 @@
       <p class="text-sm mt-3"><strong>Tu micro-acción de hoy:</strong> <span id="dash-tip-accion"></span></p>
     </div>
 
-    <div class="grid md:grid-cols-3 gap-6">
-      <div class="surface rounded-2xl p-6">
+    <div class="grid sm:grid-cols-2 gap-6">
+      <div class="surface rounded-2xl p-6 flex flex-col">
         <p class="text-sm font-semibold ink-soft">TU PLAN</p>
         <p id="dash-plan" class="serif text-2xl font-semibold mt-1" style="color:var(--gold-strong);">Rookie</p>
         <p id="dash-postulaciones" class="text-sm ink-soft mt-1">1 postulación disponible esta semana</p>
-        <div id="dash-upgrade" class="hidden mt-4"><a href="#" onclick="showView('landing'); document.getElementById('planes').scrollIntoView(); return false;" class="text-sm font-semibold gold-text">Mejorar mi plan →</a></div>
-        <div id="dash-manage" class="hidden mt-4"><button onclick="gestionarSuscripcion()" class="text-sm font-semibold gold-text">Gestionar mi suscripción →</button></div>
+        <div id="dash-upgrade" class="hidden mt-auto pt-4"><a href="#" onclick="showView('landing'); document.getElementById('planes').scrollIntoView(); return false;" class="text-sm font-semibold gold-text">Mejorar mi plan →</a></div>
+        <div id="dash-manage" class="hidden mt-auto pt-4"><button onclick="gestionarSuscripcion()" class="text-sm font-semibold gold-text">Gestionar mi suscripción →</button></div>
       </div>
 
-      <div class="surface rounded-2xl p-6 relative overflow-hidden">
+      <div class="surface rounded-2xl p-6 relative overflow-hidden flex flex-col">
         <p class="text-sm font-semibold ink-soft">ENTRENADOR DE PITCH · VOZ + IA</p>
         <p class="serif text-xl font-semibold mt-1" style="color:var(--gold-strong);">Entrena tu pitch hablando</p>
         <p class="text-sm ink-soft mt-1">Una llamada simulada con un director de compras exigente, con tu voz.</p>
-        <button onclick="openSimulator()" id="sim-btn" class="btn-gold text-sm mt-4 !py-2.5">Abrir entrenador de voz</button>
+        <div class="mt-auto pt-4"><button onclick="openSimulator()" id="sim-btn" class="btn-gold text-sm !py-2.5">Abrir entrenador de voz</button></div>
         <div id="sim-lock" class="lock-overlay hidden">
           <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="var(--gold-light)" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"/><path d="M8 10V7a4 4 0 018 0v3"/></svg>
           <p class="font-semibold" style="color:var(--gold-light);">Disponible solo en Elite</p>
@@ -531,19 +557,19 @@
         </div>
       </div>
 
-      <div class="surface rounded-2xl p-6">
+      <div class="surface rounded-2xl p-6 flex flex-col">
         <p class="text-sm font-semibold ink-soft">REVISIÓN DE CV · IA</p>
         <p class="serif text-xl font-semibold mt-1" style="color:var(--gold-strong);">Mejora tu CV</p>
         <p class="text-sm ink-soft mt-1">Te decimos cómo mejorarlo para un puesto comercial: cifras, estructura y frases.</p>
-        <button onclick="showView('cv')" class="btn-gold text-sm mt-4 !py-2.5">Revisar mi CV</button>
+        <div class="mt-auto pt-4"><button onclick="showView('cv')" class="btn-gold text-sm !py-2.5">Revisar mi CV</button></div>
         <p id="cv-card-nota" class="text-xs ink-soft mt-2 hidden">Incluida en los planes Pro y Elite.</p>
       </div>
 
-      <div class="surface rounded-2xl p-6">
+      <div class="surface rounded-2xl p-6 flex flex-col">
         <p class="text-sm font-semibold ink-soft">COMUNIDAD</p>
         <p class="serif text-xl font-semibold mt-1" style="color:var(--gold-strong);">Habla con otros Klosers</p>
         <p class="text-sm ink-soft mt-1">Comparte guiones, analiza llamadas y no vendas en soledad.</p>
-        <button onclick="showView('comunidad')" class="btn-gold text-sm mt-4 !py-2.5">Entrar en la comunidad</button>
+        <div class="mt-auto pt-4"><button onclick="showView('comunidad')" class="btn-gold text-sm !py-2.5">Entrar en la comunidad</button></div>
         <p id="com-card-nota" class="text-xs ink-soft mt-2 hidden">Incluida en los planes Pro y Elite.</p>
       </div>
     </div>
@@ -819,6 +845,19 @@
       <button id="verif-sim-btn" onclick="openSimulator()" class="btn-gold text-sm !py-3 hidden">Abrir el simulador</button>
       <p id="verif-sim-lock" class="text-sm ink-soft hidden">Esta vía está disponible solo en el plan Elite. <a href="#" onclick="showView('landing'); document.getElementById('planes').scrollIntoView(); return false;" class="gold-text underline">Ver planes</a></p>
     </div>
+    <div class="surface rounded-2xl p-7">
+      <h2 class="serif text-lg font-semibold" style="color:var(--gold-strong);">Tu CV (opcional)</h2>
+      <p class="text-sm ink-soft mt-1 mb-4">Si quieres, guarda tu CV en tu perfil para que el titular de Klosers pueda revisarlo y verificar tu perfil. <strong>Solo lo ve él: no se enseña a empresas ni a otros usuarios</strong>, y puedes borrarlo cuando quieras.</p>
+      <div id="cv-guardado-estado"></div>
+      <label class="text-sm font-medium" for="cv-guardado-archivo">Tu CV en PDF (hasta 2,5 MB)</label>
+      <input id="cv-guardado-archivo" type="file" accept="application/pdf,.pdf" class="field-input mt-1.5">
+      <label class="flex items-start gap-2 text-xs ink-soft mt-3">
+        <input id="cv-guardado-consent" type="checkbox" class="mt-0.5">
+        <span>Autorizo a Klosers a guardar mi CV para que el titular lo revise y verifique mi perfil. No se mostrará a empresas ni a otros usuarios y puedo borrarlo cuando quiera. <a href="/privacidad" target="_blank" rel="noopener" class="underline gold-text">Más información</a>.</span>
+      </label>
+      <button id="cv-guardado-btn" class="btn-gold text-sm !py-2.5 mt-4" onclick="cvGuardar()">Guardar mi CV</button>
+      <p id="cv-guardado-msg" class="text-sm mt-3 hidden" role="status"></p>
+    </div>
   </div>
 </section>
 
@@ -922,6 +961,7 @@ function userFromRow(r){
     ticketMedioExacto: r.ticket_medio_exacto ?? '', tasaCierreExacta: r.tasa_cierre_exacta ?? '',
     urlPitchLoom:r.url_pitch_loom||'', estadoVerificacion:r.estado_verificacion||'Pendiente',
     comunidadBloqueado: !!r.comunidad_bloqueado,
+    cvNombre: r.cv_nombre||'', cvSubidoAt: r.cv_subido_at||null,
   };
 }
 
@@ -1001,6 +1041,7 @@ function traducirErrorAuth(err){
   if(m.includes('email not confirmed')) return 'Confirma tu email antes de entrar: revisa tu bandeja de entrada.';
   if(m.includes('already registered')) return 'Ya existe una cuenta con ese email. Inicia sesión.';
   if(m.includes('at least')) return 'La contraseña debe tener al menos 8 caracteres.';
+  if(m.includes('provider is not enabled') || m.includes('unsupported provider')) return 'El acceso con Google todavía no está disponible. Usa tu correo y contraseña.';
   if(m.includes('rate limit') || m.includes('too many')) return 'Demasiados intentos. Espera unos minutos y vuelve a probar.';
   if(m.includes('failed to fetch') || m.includes('network')) return 'No hay conexión con el servidor. Revisa tu internet.';
   console.error(err);
@@ -1044,6 +1085,46 @@ document.getElementById('auth-form').addEventListener('submit', async function(e
   }
 });
 
+// ---- Acceso con Google ----
+// El botón solo aparece si Google está activado en Supabase (la propia API lo indica). Si no se puede comprobar, se muestra.
+async function comprobarGoogle(){
+  let activo = true;
+  try{
+    const r = await fetch(`${SUPABASE_URL}/auth/v1/settings`, { headers:{ apikey: SUPABASE_KEY } });
+    if(!r.ok) throw new Error('settings');
+    const ajustes = await r.json();
+    activo = !!(ajustes && ajustes.external && ajustes.external.google);
+  } catch(_){ activo = true; }
+  document.getElementById('auth-google-wrap').classList.toggle('hidden', !activo);
+}
+
+async function loginConGoogle(){
+  if(state.authMode === 'signup' && !document.getElementById('auth-acepta').checked){
+    setAuthMsg('Para crear tu cuenta tienes que declarar que eres mayor de 18 años y aceptar los términos y la política de privacidad.', true);
+    return;
+  }
+  document.getElementById('auth-msg').classList.add('hidden');
+  const { error } = await sb.auth.signInWithOAuth({ provider:'google', options:{ redirectTo: location.origin + '/' } });
+  if(error) setAuthMsg(traducirErrorAuth(error), true);
+}
+
+// Quien llega sin haber aceptado los términos (primer acceso con Google o cuenta antigua) debe hacerlo antes de usar la web.
+async function aceptarTerminos(){
+  const msg = document.getElementById('terminos-msg'); msg.classList.add('hidden');
+  if(!document.getElementById('terminos-acepta').checked){
+    msg.textContent = 'Tienes que declarar que eres mayor de 18 años y aceptar los términos y la política de privacidad.'; msg.classList.remove('hidden'); return;
+  }
+  const btn = document.getElementById('terminos-continuar'); btn.disabled = true;
+  try{
+    const { error } = await sb.rpc('aceptar_terminos', { p_version: TERMINOS_VERSION });
+    if(error) throw error;
+    await cargarSesion();
+  } catch(err){
+    console.error(err);
+    msg.textContent = 'No se ha podido guardar. Inténtalo de nuevo.'; msg.classList.remove('hidden');
+  } finally { btn.disabled = false; }
+}
+
 // Lee la sesión guardada y el perfil del comercial; lleva a onboarding o dashboard.
 async function cargarSesion(){
   const { data:{ session } } = await sb.auth.getSession();
@@ -1062,6 +1143,8 @@ async function cargarSesion(){
     setAuthMsg('No hemos encontrado tu perfil. Escríbenos y lo revisamos.', true);
     return false;
   }
+
+  if(!fila.acepta_terminos_at){ state.user = null; showView('terminos'); return true; }
 
   state.user = userFromRow(fila);
   if(!perfilCompleto(state.user)){ startOnboarding(); }
@@ -2286,21 +2369,42 @@ async function cvEnviar(){
   }
 }
 
-// Markdown muy sencillo (títulos, viñetas y párrafos). Todo se escapa antes de dar formato: nunca se interpreta HTML.
+// Markdown muy sencillo (títulos, viñetas, negrita y cursiva). Todo se escapa antes de dar formato: nunca se interpreta HTML.
 function cvMarkdown(texto){
-  const marca = (t) => esc(t).replace(/\[COMPLETAR:[^\]]*\]/g, m => `<span class="cv-falta">${m}</span>`);
+  const inline = (t) => esc(t)
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/(^|[^*\w])\*(?!\s)([^*]+?)\*(?![*\w])/g, '$1<em>$2</em>')
+    .replace(/\[COMPLETAR:[^\]]*\]/g, m => `<span class="cv-falta">${m}</span>`);
   let html = '', lista = false;
   const cerrar = () => { if(lista){ html += '</ul>'; lista = false; } };
   String(texto).split('\n').forEach(l => {
     const t = l.trim();
-    const h = t.match(/^#{1,3}\s+(.*)$/), li = t.match(/^[-*•]\s+(.*)$/);
-    if(h){ cerrar(); html += `<h4 class="font-semibold mt-4" style="color:var(--gold-strong);">${marca(h[1])}</h4>`; }
-    else if(li){ if(!lista){ html += '<ul class="list-disc pl-5 space-y-1">'; lista = true; } html += `<li>${marca(li[1])}</li>`; }
+    const h = t.match(/^(#{1,3})\s+(.*)$/), li = t.match(/^[-*•]\s+(.*)$/);
+    if(h){
+      cerrar();
+      if(h[1].length === 1) html += `<h3 class="cv-nombre">${inline(h[2])}</h3>`;
+      else html += `<h4 class="cv-seccion font-semibold mt-4" style="color:var(--gold-strong);">${inline(h[2])}</h4>`;
+    }
+    else if(li){ if(!lista){ html += '<ul class="list-disc pl-5 space-y-1">'; lista = true; } html += `<li>${inline(li[1])}</li>`; }
     else if(!t){ cerrar(); }
-    else { cerrar(); html += `<p class="mt-1">${marca(t)}</p>`; }
+    else { cerrar(); html += `<p class="mt-1">${inline(t)}</p>`; }
   });
   cerrar();
   return html;
+}
+
+// El mismo CV como texto limpio (sin símbolos de formato) para el archivo .txt
+function cvATextoPlano(texto){
+  const out = [];
+  String(texto).split('\n').forEach(l => {
+    const t = l.trim();
+    const h = t.match(/^(#{1,3})\s+(.*)$/), li = t.match(/^[-*•]\s+(.*)$/);
+    const limpio = (x) => x.replace(/\*\*(.+?)\*\*/g, '$1').replace(/(^|[^*\w])\*(?!\s)([^*]+?)\*(?![*\w])/g, '$1$2');
+    if(h){ const x = limpio(h[2]); out.push(''); out.push(h[1].length === 1 ? x.toUpperCase() : x.toUpperCase()); if(h[1].length > 1) out.push('-'.repeat(Math.min(x.length, 40))); }
+    else if(li) out.push('• ' + limpio(li[1]));
+    else out.push(limpio(t));
+  });
+  return out.join('\n').replace(/\n{3,}/g, '\n\n').trim() + '\n';
 }
 
 function cvResultadoHtml(r){
@@ -2357,7 +2461,7 @@ async function cvCopiar(texto){
 }
 
 function cvDescargar(){
-  const blob = new Blob([CV.resultado.cv_reestructurado], { type:'text/plain;charset=utf-8' });
+  const blob = new Blob([cvATextoPlano(CV.resultado.cv_reestructurado)], { type:'text/plain;charset=utf-8' });
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob); a.download = 'mi-cv-reestructurado.txt';
   document.body.appendChild(a); a.click();
@@ -2367,7 +2471,17 @@ function cvDescargar(){
 function cvImprimir(){
   const w = window.open('', '_blank');
   if(!w){ toast('Tu navegador ha bloqueado la ventana de impresión. Permítela e inténtalo de nuevo.'); return; }
-  w.document.write(`<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Mi CV</title><style>body{font-family:Georgia,serif;max-width:720px;margin:30px auto;line-height:1.5;color:#111;} h4{margin:18px 0 4px;font-size:1.1rem;border-bottom:1px solid #ccc;} ul{padding-left:20px;} .cv-falta{background:#FFE08A;}</style></head><body>${cvMarkdown(CV.resultado.cv_reestructurado)}</body></html>`);
+  w.document.write(`<!doctype html><html lang="es"><head><meta charset="utf-8"><title>Mi CV</title><style>
+    @page { size: A4; margin: 0; }
+    * { box-sizing: border-box; }
+    body { font-family: Georgia, 'Times New Roman', serif; color: #1c1c1c; font-size: 10.5pt; line-height: 1.45; margin: 0; padding: 16mm 18mm; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    p { margin: 2px 0; }
+    .cv-nombre { font-size: 24pt; letter-spacing: .04em; margin: 0 0 2px; text-transform: uppercase; }
+    .cv-seccion { font-size: 10.5pt; letter-spacing: .12em; text-transform: uppercase; margin: 16px 0 6px; padding-bottom: 3px; border-bottom: 1.5px solid #1c1c1c; color: #1c1c1c; font-weight: bold; }
+    ul { margin: 3px 0 6px; padding-left: 18px; } li { margin: 2px 0; }
+    strong { font-weight: 700; }
+    .cv-falta { background: #FFE08A; padding: 0 3px; border-radius: 3px; }
+  </style></head><body>${cvMarkdown(CV.resultado.cv_reestructurado)}</body></html>`);
   w.document.close(); w.focus(); w.print();
 }
 
@@ -2501,6 +2615,7 @@ function loomEmbedUrl(url){
 function renderVerificacion(){
   const u = state.user;
   const estadoEl = document.getElementById('verificacion-estado');
+  renderCvGuardado();
 
   if(u.verificado){
     estadoEl.innerHTML = `<div class="flex items-center gap-3">
@@ -2525,9 +2640,17 @@ function renderVerificacion(){
   document.getElementById('verif-sim-lock').classList.toggle('hidden', esElite);
 }
 
+// Solo se admiten enlaces seguros (https) de Loom o YouTube
+function esEnlaceDeVideo(url){
+  try{
+    const u = new URL(url);
+    return u.protocol === 'https:' && /(^|\.)loom\.com$|(^|\.)youtube\.com$|^youtu\.be$/i.test(u.hostname);
+  } catch(_){ return false; }
+}
+
 async function guardarPitch(){
   const url = document.getElementById('verif-input-loom').value.trim();
-  if(!/^https?:\/\//i.test(url)){ toast('Pega un enlace válido que empiece por https://'); return; }
+  if(!esEnlaceDeVideo(url)){ toast('Pega un enlace de Loom o YouTube que empiece por https://'); return; }
   const { error } = await sb.from('usuarios').update({ url_pitch_loom:url }).eq('id', state.user.id);
   if(error){ console.error(error); toast('No se ha podido enviar el pitch. Inténtalo de nuevo.'); return; }
   state.user.urlPitchLoom = url;
@@ -2535,8 +2658,75 @@ async function guardarPitch(){
   toast('Pitch enviado a revisión.');
 }
 
+/* ===================== CV GUARDADO EN EL PERFIL (opcional, solo para que el titular verifique) ===================== */
+const CVG_MAX_BYTES = 2.5 * 1024 * 1024;
+
+function cvgMensaje(texto, error){
+  const m = document.getElementById('cv-guardado-msg');
+  if(!texto){ m.classList.add('hidden'); return; }
+  m.textContent = texto; m.style.color = error ? 'var(--danger)' : 'var(--gold-strong)'; m.classList.remove('hidden');
+}
+
+function renderCvGuardado(){
+  const u = state.user; if(!u) return;
+  const est = document.getElementById('cv-guardado-estado');
+  const fecha = u.cvSubidoAt ? new Date(u.cvSubidoAt).toLocaleDateString('es-ES') : '';
+  if(u.cvNombre){
+    est.innerHTML = `<div class="rounded-xl p-4 mb-4" style="border:1px solid var(--border-gold);">
+      <p class="font-semibold">CV guardado: ${esc(u.cvNombre)}</p>
+      <p class="text-xs ink-soft">Subido el ${esc(fecha)}. Solo lo ve el titular de Klosers.</p>
+      <button class="text-sm font-semibold gold-text mt-2" onclick="cvEliminar()">Eliminar mi CV</button>
+    </div>`;
+    document.getElementById('cv-guardado-btn').textContent = 'Sustituir por otro CV';
+  } else {
+    est.innerHTML = '';
+    document.getElementById('cv-guardado-btn').textContent = 'Guardar mi CV';
+  }
+  document.getElementById('cv-guardado-archivo').value = '';
+  document.getElementById('cv-guardado-consent').checked = false;
+  cvgMensaje('');
+}
+
+async function cvGuardar(){
+  const archivo = document.getElementById('cv-guardado-archivo').files[0];
+  if(!archivo) return cvgMensaje('Elige tu CV en PDF.', true);
+  if(archivo.type !== 'application/pdf' && !/\.pdf$/i.test(archivo.name)) return cvgMensaje('El archivo tiene que ser un PDF.', true);
+  if(archivo.size > CVG_MAX_BYTES) return cvgMensaje('El PDF pesa más de 2,5 MB. Reduce su tamaño.', true);
+  if(!document.getElementById('cv-guardado-consent').checked) return cvgMensaje('Marca la casilla para autorizar que se guarde tu CV.', true);
+  const btn = document.getElementById('cv-guardado-btn'); btn.disabled = true; cvgMensaje('Guardando tu CV…', false);
+  try{
+    const ruta = `${state.user.id}/cv.pdf`;
+    const subida = await sb.storage.from('cvs').upload(ruta, archivo, { upsert:true, contentType:'application/pdf' });
+    if(subida.error) throw subida.error;
+    const { error } = await sb.rpc('guardar_cv_perfil', { p_nombre: archivo.name, p_consentimiento: true });
+    if(error) throw error;
+    const { data } = await sb.from('usuarios').select('cv_nombre, cv_subido_at').eq('id', state.user.id).maybeSingle();
+    state.user.cvNombre = (data && data.cv_nombre) || archivo.name; state.user.cvSubidoAt = (data && data.cv_subido_at) || new Date().toISOString();
+    renderCvGuardado(); cvgMensaje('CV guardado.', false);
+  } catch(err){
+    console.error(err);
+    cvgMensaje('No se ha podido guardar tu CV. Inténtalo de nuevo.', true);
+  } finally { btn.disabled = false; }
+}
+
+async function cvEliminar(){
+  if(!window.confirm('¿Seguro que quieres eliminar tu CV de Klosers? Esta acción no se puede deshacer.')) return;
+  try{
+    const borrado = await sb.storage.from('cvs').remove([`${state.user.id}/cv.pdf`]);
+    if(borrado.error) throw borrado.error;
+    const { error } = await sb.rpc('quitar_cv_perfil');
+    if(error) throw error;
+    state.user.cvNombre = ''; state.user.cvSubidoAt = null;
+    renderCvGuardado(); cvgMensaje('Tu CV se ha eliminado.', false);
+  } catch(err){
+    console.error(err);
+    cvgMensaje('No se ha podido eliminar tu CV. Inténtalo de nuevo.', true);
+  }
+}
+
 /* ===================== ARRANQUE ===================== */
 (async function init(){
+  comprobarGoogle();
   try{
     const restaurada = await cargarSesion();
     if(!restaurada){
